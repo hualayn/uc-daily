@@ -3,6 +3,7 @@ package com.study.checkin.data
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.Database
 
 @Database(entities = [CheckinEntity::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
