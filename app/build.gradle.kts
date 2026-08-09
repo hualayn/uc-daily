@@ -64,4 +64,7 @@ dependencies {
     implementation("androidx.room:room-runtime:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
+
+    // Coil - 图片加载
+    implementation("io.coil-kt:coil-compose:2.7.0")
 }

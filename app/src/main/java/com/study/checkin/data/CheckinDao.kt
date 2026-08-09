@@ -18,4 +18,7 @@ interface CheckinDao {
 
     @Query("SELECT COUNT(DISTINCT date) FROM checkin_records")
     suspend fun getTotalCheckinCount(): Int
+
+    @Query("SELECT * FROM checkin_records WHERE date = :date LIMIT 1")
+    suspend fun getRecordByDate(date: String): CheckinEntity?
 }

@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class CheckinEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val date: String  // yyyy-MM-dd
+    val date: String,  // yyyy-MM-dd
+    val photoPath: String = ""
 )

@@ -1,11 +1,19 @@
 package com.study.checkin.data
 
 import android.content.Context
+import androidx.room.DeleteColumn
+import androidx.room.Migration
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Database
 
-@Database(entities = [CheckinEntity::class], version = 1)
+val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(database: androidx.sqlite.db.SupportSQLDatabase) {
+        database.execSQL("ALTER TABLE checkin_records ADD COLUMN photoPath TEXT NOT NULL DEFAULT ''")
+    }
+}
+
+@Database(entities = [CheckinEntity::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun checkinDao(): CheckinDao
 
@@ -19,7 +27,8 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "checkin_db"
-                ).build()
+                ).addMigrations(MIGRATION_1_2)
+                    .build()
                 INSTANCE = instance
                 instance
             }

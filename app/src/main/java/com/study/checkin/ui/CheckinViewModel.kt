@@ -1,6 +1,8 @@
 package com.study.checkin.ui
 
 import android.app.Application
+import android.net.Uri
+import androidx.core.content.FileProvider
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.study.checkin.data.AppDatabase
@@ -8,12 +10,18 @@ import com.study.checkin.data.CheckinEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.io.File
+import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.util.Calendar
+import java.util.Locale
 
 data class CheckinUiState(
     val todayChecked: Boolean = false,
     val totalDays: Int = 0,
     val recentRecords: List<String> = emptyList(),
+    val recentPhotos: List<String> = emptyList(),
+    val todayPhoto: String = "",
     val loading: Boolean = true,
     val today: String = LocalDate.now().toString()
 )
@@ -24,8 +32,24 @@ class CheckinViewModel(application: Application) : AndroidViewModel(application)
     private val _uiState = MutableStateFlow(CheckinUiState())
     val uiState: StateFlow<CheckinUiState> = _uiState
 
+    private var _photoFilePath: String? = null
+    var currentPhotoUri: Uri? = null
+
     init {
         loadState()
+    }
+
+    fun getPhotoUri(): Uri {
+        val storageDir = application.getExternalFilesDir(null) ?: application.filesDir
+        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Calendar.getInstance().time)
+        val imageFile = File(storageDir, "checkin_${timestamp}.jpg")
+        _photoFilePath = imageFile.absolutePath
+        currentPhotoUri = FileProvider.getUriForFile(
+            application,
+            application.packageName + ".fileprovider",
+            imageFile
+        )
+        return currentPhotoUri!!
     }
 
     private fun loadState() {
@@ -33,23 +57,30 @@ class CheckinViewModel(application: Application) : AndroidViewModel(application)
             val today = LocalDate.now().toString()
             val todayChecked = dao.isCheckinToday(today)
             val total = dao.getTotalCheckinCount()
-            val records = dao.getRecords(10).map { it.date }
+            val records = dao.getRecords(10)
+            val todayRecord = dao.getRecordByDate(today)
 
             _uiState.value = CheckinUiState(
                 todayChecked = todayChecked,
                 totalDays = total,
-                recentRecords = records,
+                recentRecords = records.map { it.date },
+                recentPhotos = records.map { it.photoPath },
+                todayPhoto = todayRecord?.photoPath ?: "",
                 loading = false,
                 today = today
             )
         }
     }
 
-    fun doTodayCheckin() {
+    fun doTodayCheckin(photoUri: Uri?) {
         viewModelScope.launch {
             val today = LocalDate.now().toString()
-            val record = CheckinEntity(date = today)
+            // 使用实际文件路径而不是 Uri 字符串
+            val photoPath = _photoFilePath ?: ""
+            val record = CheckinEntity(date = today, photoPath = photoPath)
             dao.insert(record)
+            _photoFilePath = null
+            currentPhotoUri = null
             loadState()
         }
     }
