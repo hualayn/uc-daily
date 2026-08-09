@@ -13,9 +13,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import coil.ImageLoader
-import coil.imageLoader
-import coil.decode.BitmapDecoder
 import coil.request.ImageRequest
 import java.io.File
 
@@ -26,16 +23,6 @@ fun CheckinScreen(
     onCameraClick: () -> Unit
 ) {
     val context = LocalContext.current
-
-    // Setup Coil for file:// URI support
-    val imageLoader = remember {
-        ImageLoader.Builder(context)
-            .components {
-                add(BitmapDecoder.Factory())
-            }
-            .build()
-    }
-    CoilImageLoader(imageLoader)
 
     if (state.loading) {
         Box(
@@ -80,8 +67,7 @@ fun CheckinScreen(
                         .fillMaxWidth()
                         .height(200.dp)
                         .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop,
-                    imageLoader = imageLoader
+                    contentScale = ContentScale.Crop
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -144,8 +130,7 @@ fun CheckinScreen(
                                     modifier = Modifier
                                         .size(48.dp)
                                         .clip(RoundedCornerShape(6.dp)),
-                                    contentScale = ContentScale.Crop,
-                                    imageLoader = imageLoader
+                                    contentScale = ContentScale.Crop
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                             }
@@ -158,13 +143,5 @@ fun CheckinScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun CoilImageLoader(loader: ImageLoader) {
-    val context = LocalContext.current
-    LaunchedEffect(loader) {
-        context.imageLoader = loader
     }
 }

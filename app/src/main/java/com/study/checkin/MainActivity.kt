@@ -1,8 +1,10 @@
 package com.study.checkin
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,7 +44,21 @@ class MainActivity : ComponentActivity() {
                         onCheckin = { viewModel.doTodayCheckin(null) },
                         onCameraClick = {
                             val uri = viewModel.getPhotoUri()
-                            cameraLauncher.launch(uri)
+                            try {
+                                cameraLauncher.launch(uri)
+                            } catch (e: ActivityNotFoundException) {
+                                Toast.makeText(
+                                    this,
+                                    "没有找到相机应用，请检查模拟器相机设置",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } catch (e: IllegalArgumentException) {
+                                Toast.makeText(
+                                    this,
+                                    "无法创建相机文件: ${e.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
                         }
                     )
                 }

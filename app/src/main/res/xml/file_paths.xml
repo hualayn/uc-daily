@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
     <external-files-path name="checkin_photos" path="." />
+    <files-path name="checkin_photos_fallback" path="." />
 </paths>
