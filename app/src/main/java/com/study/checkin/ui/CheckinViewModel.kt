@@ -27,7 +27,8 @@ data class CheckinUiState(
 )
 
 class CheckinViewModel(application: Application) : AndroidViewModel(application) {
-    private val dao = AppDatabase.getDatabase(application).checkinDao()
+    private val app = application
+    private val dao = AppDatabase.getDatabase(app).checkinDao()
 
     private val _uiState = MutableStateFlow(CheckinUiState())
     val uiState: StateFlow<CheckinUiState> = _uiState
@@ -40,13 +41,13 @@ class CheckinViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun getPhotoUri(): Uri {
-        val storageDir = application.getExternalFilesDir(null) ?: application.filesDir
+        val storageDir = app.getExternalFilesDir(null) ?: app.filesDir
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Calendar.getInstance().time)
         val imageFile = File(storageDir, "checkin_${timestamp}.jpg")
         _photoFilePath = imageFile.absolutePath
         currentPhotoUri = FileProvider.getUriForFile(
-            application,
-            application.packageName + ".fileprovider",
+            app,
+            app.packageName + ".fileprovider",
             imageFile
         )
         return currentPhotoUri!!
