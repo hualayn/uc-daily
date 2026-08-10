@@ -82,6 +82,9 @@ class MainActivity : ComponentActivity() {
                             } else {
                                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                             }
+                        },
+                        onDateSelected = { date ->
+                            viewModel.selectDate(date)
                         }
                     )
                 }

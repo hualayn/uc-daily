@@ -23,7 +23,11 @@ data class CheckinUiState(
     val recentPhotos: List<String> = emptyList(),
     val todayPhoto: String = "",
     val loading: Boolean = true,
-    val today: String = LocalDate.now().toString()
+    val today: String = LocalDate.now().toString(),
+    val selectedDate: String = LocalDate.now().toString(),
+    val selectedDateChecked: Boolean = false,
+    val selectedDatePhoto: String = "",
+    val allDates: List<String> = (0..30).map { LocalDate.now().minusDays(it.toLong()).toString() }
 )
 
 class CheckinViewModel(application: Application) : AndroidViewModel(application) {
@@ -83,6 +87,25 @@ class CheckinViewModel(application: Application) : AndroidViewModel(application)
             _photoFilePath = null
             currentPhotoUri = null
             loadState()
+            // 如果选中日期是今天，同步更新选中状态
+            if (_uiState.value.selectedDate == today) {
+                _uiState.value = _uiState.value.copy(
+                    selectedDateChecked = true,
+                    selectedDatePhoto = photoPath
+                )
+            }
+        }
+    }
+
+    fun selectDate(date: String) {
+        viewModelScope.launch {
+            val checked = dao.isCheckinToday(date)
+            val record = dao.getRecordByDate(date)
+            _uiState.value = _uiState.value.copy(
+                selectedDate = date,
+                selectedDateChecked = checked,
+                selectedDatePhoto = record?.photoPath ?: ""
+            )
         }
     }
 }
