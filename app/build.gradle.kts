@@ -51,6 +51,7 @@ dependencies {
     implementation(composeBom)
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.animation:animation")
     implementation("androidx.compose.runtime:runtime")
     implementation("androidx.activity:activity-compose:1.9.2")
     implementation("androidx.core:core-ktx:1.13.1")
@@ -67,4 +68,7 @@ dependencies {
 
     // Coil - 图片加载
     implementation("io.coil-kt:coil-compose:2.7.0")
+
+    // Pager - 日历翻页
+    implementation("androidx.compose.foundation:foundation")
 }

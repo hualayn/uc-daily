@@ -83,6 +83,8 @@ class MainActivity : ComponentActivity() {
                                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                             }
                         },
+                        onPrevMonth = { viewModel.prevMonth() },
+                        onNextMonth = { viewModel.nextMonth() },
                         onDateSelected = { date ->
                             viewModel.selectDate(date)
                         }

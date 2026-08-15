@@ -12,22 +12,36 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.YearMonth
 import java.util.Calendar
 import java.util.Locale
 
+/** 日历中每一天 */
+data class CalendarDay(
+    val date: LocalDate,
+    val inCurrentMonth: Boolean,
+    val checked: Boolean,
+    val photoPath: String
+)
+
+/** 一个月的日历视图 */
+data class MonthView(
+    val yearMonth: YearMonth,
+    val days: List<CalendarDay>
+)
+
 data class CheckinUiState(
-    val todayChecked: Boolean = false,
     val totalDays: Int = 0,
-    val recentRecords: List<String> = emptyList(),
-    val recentPhotos: List<String> = emptyList(),
-    val todayPhoto: String = "",
     val loading: Boolean = true,
-    val today: String = LocalDate.now().toString(),
-    val selectedDate: String = LocalDate.now().toString(),
+    val today: LocalDate = LocalDate.now(),
+    val selectedDate: LocalDate = LocalDate.now(),
     val selectedDateChecked: Boolean = false,
     val selectedDatePhoto: String = "",
-    val allDates: List<String> = (0..30).map { LocalDate.now().minusDays(it.toLong()).toString() }
+    val currentMonth: YearMonth = YearMonth.now(),
+    val monthView: MonthView? = null,
+    val checkedDates: Set<String> = emptySet()
 )
 
 class CheckinViewModel(application: Application) : AndroidViewModel(application) {
@@ -39,6 +53,9 @@ class CheckinViewModel(application: Application) : AndroidViewModel(application)
 
     private var _photoFilePath: String? = null
     var currentPhotoUri: Uri? = null
+
+    /** date -> photoPath 内存缓存，打卡后更新，切换月份不再查库 */
+    private val checkedPhotos = mutableMapOf<String, String>()
 
     init {
         loadState()
@@ -59,52 +76,103 @@ class CheckinViewModel(application: Application) : AndroidViewModel(application)
 
     private fun loadState() {
         viewModelScope.launch {
-            val today = LocalDate.now().toString()
-            val todayChecked = dao.isCheckinToday(today)
-            val total = dao.getTotalCheckinCount()
-            val records = dao.getRecords(10)
-            val todayRecord = dao.getRecordByDate(today)
-
-            _uiState.value = CheckinUiState(
-                todayChecked = todayChecked,
-                totalDays = total,
-                recentRecords = records.map { it.date },
-                recentPhotos = records.map { it.photoPath },
-                todayPhoto = todayRecord?.photoPath ?: "",
+            // 一次性拉取全部打卡记录（id + 日期 + 照片路径）
+            val records = dao.getRecords(100000)
+            val checkedDates = records.map { it.date }.toSet()
+            checkedPhotos.clear()
+            records.forEach { checkedPhotos[it.date] = it.photoPath }
+            _uiState.value = _uiState.value.copy(
+                totalDays = dao.getTotalCheckinCount(),
                 loading = false,
-                today = today
+                checkedDates = checkedDates
+            )
+            refreshMonth(_uiState.value.currentMonth)
+        }
+    }
+
+    /** 同步重建月份视图（数据已全部在内存中） */
+    private fun refreshMonth(yearMonth: YearMonth) {
+        val state = _uiState.value
+        _uiState.value = state.copy(
+            monthView = buildMonthView(yearMonth, state.checkedDates, checkedPhotos),
+            selectedDateChecked = state.checkedDates.contains(state.selectedDate.toString()),
+            selectedDatePhoto = checkedPhotos[state.selectedDate.toString()] ?: ""
+        )
+    }
+
+    private fun buildMonthView(
+        yearMonth: YearMonth,
+        checkedDates: Set<String>,
+        photoByDate: Map<String, String>
+    ): MonthView {
+        val firstDay = yearMonth.atDay(1)
+        val lastDay = yearMonth.atEndOfMonth()
+
+        // 从本月第一个周一开始补齐到完整的 6 行（42 天）
+        val startOfWeek = firstDay.with(DayOfWeek.MONDAY)
+        val days = (0 until 42).map { offset ->
+            val date = startOfWeek.plusDays(offset.toLong())
+            val dateStr = date.toString()
+            CalendarDay(
+                date = date,
+                inCurrentMonth = date >= firstDay && date <= lastDay,
+                checked = checkedDates.contains(dateStr),
+                photoPath = photoByDate[dateStr] ?: ""
             )
         }
+        return MonthView(yearMonth, days)
+    }
+
+    /** 上一个月 */
+    fun prevMonth() {
+        val prev = _uiState.value.currentMonth.minusMonths(1)
+        _uiState.value = _uiState.value.copy(currentMonth = prev)
+        refreshMonth(prev)
+    }
+
+    /** 下一个月 */
+    fun nextMonth() {
+        val next = _uiState.value.currentMonth.plusMonths(1)
+        _uiState.value = _uiState.value.copy(currentMonth = next)
+        refreshMonth(next)
+    }
+
+    /** 回到今天所在月份 */
+    fun goToToday() {
+        val todayMonth = YearMonth.now()
+        _uiState.value = _uiState.value.copy(currentMonth = todayMonth)
+        refreshMonth(todayMonth)
     }
 
     fun doTodayCheckin(photoUri: Uri?) {
         viewModelScope.launch {
             val today = LocalDate.now().toString()
-            // 使用实际文件路径而不是 Uri 字符串
             val photoPath = _photoFilePath ?: ""
             val record = CheckinEntity(date = today, photoPath = photoPath)
             dao.insert(record)
             _photoFilePath = null
             currentPhotoUri = null
-            loadState()
-            // 如果选中日期是今天，同步更新选中状态
-            if (_uiState.value.selectedDate == today) {
-                _uiState.value = _uiState.value.copy(
-                    selectedDateChecked = true,
-                    selectedDatePhoto = photoPath
-                )
-            }
+            checkedPhotos[today] = photoPath
+
+            val checkedDates = dao.getRecords(100000).map { it.date }.toSet()
+            _uiState.value = _uiState.value.copy(
+                totalDays = dao.getTotalCheckinCount(),
+                checkedDates = checkedDates,
+                selectedDateChecked = true,
+                selectedDatePhoto = photoPath
+            )
+            refreshMonth(_uiState.value.currentMonth)
         }
     }
 
-    fun selectDate(date: String) {
+    fun selectDate(date: LocalDate) {
+        val dateStr = date.toString()
         viewModelScope.launch {
-            val checked = dao.isCheckinToday(date)
-            val record = dao.getRecordByDate(date)
+            val checked = _uiState.value.checkedDates.contains(dateStr)
             _uiState.value = _uiState.value.copy(
                 selectedDate = date,
                 selectedDateChecked = checked,
-                selectedDatePhoto = record?.photoPath ?: ""
+                selectedDatePhoto = checkedPhotos[dateStr] ?: ""
             )
         }
     }
