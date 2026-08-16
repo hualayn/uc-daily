@@ -3,32 +3,43 @@ package com.study.checkin
 import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
-import com.study.checkin.ui.CheckinScreen
-import com.study.checkin.ui.CheckinViewModel
+import com.study.checkin.ui.MealLogScreen
+import com.study.checkin.ui.MealLogViewModel
 
 class MainActivity : ComponentActivity() {
-    private val viewModel: CheckinViewModel by viewModels()
+    private val viewModel: MealLogViewModel by viewModels()
 
+    /** 相机拍照 */
     private val cameraLauncher = registerForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
-            val photoUri = viewModel.currentPhotoUri
-            if (photoUri != null) {
-                viewModel.doTodayCheckin(photoUri)
-            }
+            viewModel.onCameraPhotoTaken()
+        } else {
+            viewModel.onCameraCancelled()
+        }
+    }
+
+    /** 相册选图（系统 PhotoPicker，无需额外权限） */
+    private val galleryLauncher = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            viewModel.addGalleryPhoto(uri)
         }
     }
 
@@ -43,7 +54,11 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun launchCamera() {
-        val uri = viewModel.getPhotoUri()
+        val uri = viewModel.prepareCameraFile()
+        if (uri == null) {
+            Toast.makeText(this, "无法创建相机文件", Toast.LENGTH_LONG).show()
+            return
+        }
         try {
             cameraLauncher.launch(uri)
         } catch (e: ActivityNotFoundException) {
@@ -61,6 +76,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun onCameraClick() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            launchCamera()
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -70,24 +97,26 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val state by viewModel.uiState.collectAsState()
-                    CheckinScreen(
+                    MealLogScreen(
                         state = state,
-                        onCheckin = { viewModel.doTodayCheckin(null) },
-                        onCameraClick = {
-                            if (ContextCompat.checkSelfPermission(
-                                this,
-                                Manifest.permission.CAMERA
-                            ) == PackageManager.PERMISSION_GRANTED) {
-                                launchCamera()
-                            } else {
-                                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                            }
-                        },
+                        onDateSelected = { date -> viewModel.selectDate(date) },
                         onPrevMonth = { viewModel.prevMonth() },
                         onNextMonth = { viewModel.nextMonth() },
-                        onDateSelected = { date ->
-                            viewModel.selectDate(date)
-                        }
+                        onStartAdd = { viewModel.startAdd() },
+                        onAddPhotoByCamera = { onCameraClick() },
+                        onAddPhotoByGallery = {
+                            galleryLauncher.launch(
+                                PickVisualMediaRequest(
+                                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                                )
+                            )
+                        },
+                        onRemoveDraftPhoto = { index -> viewModel.removeDraftPhoto(index) },
+                        onDraftMealTypeChange = { type -> viewModel.setDraftMealType(type) },
+                        onDraftNoteChange = { note -> viewModel.setDraftNote(note) },
+                        onSaveRecord = { viewModel.saveRecord() },
+                        onCancelAdd = { viewModel.cancelAdd() },
+                        onDeleteRecord = { record -> viewModel.deleteRecord(record.id) }
                     )
                 }
             }
