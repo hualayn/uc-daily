@@ -34,12 +34,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** 相册选图（系统 PhotoPicker，无需额外权限） */
+    /** 相册选图（系统 PhotoPicker 多选，无需额外权限；单次最多 9 张） */
     private val galleryLauncher = registerForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null) {
-            viewModel.addGalleryPhoto(uri)
+        ActivityResultContracts.PickMultipleVisualMedia(maxItems = 9)
+    ) { uris ->
+        if (uris.isNotEmpty()) {
+            viewModel.addGalleryPhotos(uris)
         }
     }
 
@@ -102,6 +102,7 @@ class MainActivity : ComponentActivity() {
                         onDateSelected = { date -> viewModel.selectDate(date) },
                         onPrevMonth = { viewModel.prevMonth() },
                         onNextMonth = { viewModel.nextMonth() },
+                        onJumpToMonth = { yearMonth -> viewModel.jumpToMonth(yearMonth) },
                         onStartAdd = { viewModel.startAdd() },
                         onAddPhotoByCamera = { onCameraClick() },
                         onAddPhotoByGallery = {
@@ -116,7 +117,13 @@ class MainActivity : ComponentActivity() {
                         onDraftNoteChange = { note -> viewModel.setDraftNote(note) },
                         onSaveRecord = { viewModel.saveRecord() },
                         onCancelAdd = { viewModel.cancelAdd() },
-                        onDeleteRecord = { record -> viewModel.deleteRecord(record.id) }
+                        onEditRecord = { record -> viewModel.startEdit(record) },
+                        onDeleteRecord = { record -> viewModel.deleteRecord(record.id) },
+                        onOpenSymptomPanel = { viewModel.startSymptomPanel() },
+                        onCloseSymptomPanel = { viewModel.cancelSymptomPanel() },
+                        onSymptomDraftChange = { draft -> viewModel.setSymptomDraft(draft) },
+                        onSaveSymptom = { viewModel.saveSymptom() },
+                        onDeleteSymptom = { viewModel.deleteSymptom() }
                     )
                 }
             }

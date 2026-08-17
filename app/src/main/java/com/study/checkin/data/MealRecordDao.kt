@@ -3,11 +3,18 @@ package com.study.checkin.data
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface MealRecordDao {
     @Insert
     suspend fun insert(record: MealRecord): Long
+
+    @Update
+    suspend fun update(record: MealRecord)
+
+    @Query("SELECT * FROM meal_records WHERE id = :id")
+    suspend fun getRecordById(id: Int): MealRecord?
 
     @Query("SELECT * FROM meal_records WHERE date = :date ORDER BY id ASC")
     suspend fun getRecordsByDate(date: String): List<MealRecord>

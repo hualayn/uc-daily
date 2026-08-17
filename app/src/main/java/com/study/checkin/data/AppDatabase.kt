@@ -63,10 +63,37 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
     }
 }
 
-@Database(entities = [MealRecord::class], version = 3)
+/** v4：新增每日排便/症状记录表（用于活动度评分与日历热力图） */
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Room 迁移不会自动建表，手动创建 daily_symptoms，列结构须与实体一致
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `daily_symptoms` (" +
+                "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "`date` TEXT NOT NULL, " +
+                "`bowelCount` INTEGER NOT NULL, " +
+                "`nightDiarrhea` INTEGER NOT NULL, " +
+                "`bristolType` INTEGER NOT NULL, " +
+                "`blood` INTEGER NOT NULL, " +
+                "`mucus` INTEGER NOT NULL, " +
+                "`painScore` INTEGER NOT NULL, " +
+                "`painLocation` INTEGER NOT NULL, " +
+                "`urgency` INTEGER NOT NULL, " +
+                "`note` TEXT NOT NULL, " +
+                "`createdAt` INTEGER NOT NULL)"
+        )
+        // 与实体 Index("date", unique = true) 一致的索引名
+        db.execSQL(
+            "CREATE UNIQUE INDEX IF NOT EXISTS `index_daily_symptoms_date` ON `daily_symptoms` (`date`)"
+        )
+    }
+}
+
+@Database(entities = [MealRecord::class, DailySymptom::class], version = 4)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun mealRecordDao(): MealRecordDao
+    abstract fun dailySymptomDao(): DailySymptomDao
 
     companion object {
         @Volatile
@@ -79,7 +106,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "checkin_db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     // 开发迭代期的安全兜底：遇到未提供的迁移（版本断层）时，
                     // 销毁旧库重建，而不是崩溃。正式发布前建议移除。
                     .fallbackToDestructiveMigration(dropAllTables = true)
