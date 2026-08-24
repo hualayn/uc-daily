@@ -1,0 +1,35 @@
+package com.study.checkin.data
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Update
+
+@Dao
+interface MedRecordDao {
+    @Insert
+    suspend fun insert(record: MedRecord): Long
+
+    @Update
+    suspend fun update(record: MedRecord)
+
+    @Query("SELECT * FROM med_records WHERE id = :id")
+    suspend fun getById(id: Int): MedRecord?
+
+    @Query("SELECT * FROM med_records WHERE date = :date ORDER BY time ASC, id ASC")
+    suspend fun getByDate(date: String): List<MedRecord>
+
+    /** 日期区间（含首尾）的全部服药记录，按日期/时间升序（记录导出用） */
+    @Query("SELECT * FROM med_records WHERE date BETWEEN :start AND :end ORDER BY date ASC, time ASC, id ASC")
+    suspend fun getMedsBetween(start: String, end: String): List<MedRecord>
+
+    @Query("SELECT COUNT(*) FROM med_records")
+    suspend fun getCount(): Int
+
+    /** 最近用过的药名（去重），供服药面板快捷选择 */
+    @Query("SELECT DISTINCT name FROM med_records WHERE name != '' ORDER BY rowid DESC LIMIT 12")
+    suspend fun getRecentNames(): List<String>
+
+    @Query("DELETE FROM med_records WHERE id = :id")
+    suspend fun deleteById(id: Int)
+}

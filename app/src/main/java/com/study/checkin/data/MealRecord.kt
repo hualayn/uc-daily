@@ -1,8 +1,11 @@
 package com.study.checkin.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import org.json.JSONArray
+import org.json.JSONObject
 import java.time.LocalTime
 
 /** 餐次类型 */
@@ -35,6 +38,27 @@ data class MealRecord(
     val time: String,     // HH:mm
     val mealType: MealType,
     val photos: List<String> = emptyList(),  // 照片绝对路径，JSON 存储
+    /** 食物标签 JSON（存库列）；读写列表请用 [tags] 属性 */
+    @ColumnInfo(defaultValue = "''")
+    val tagsJson: String = "",
     val note: String = "",
     val createdAt: Long = System.currentTimeMillis()
-)
+) {
+    /** 食物标签（名称列表） */
+    val tags: List<String>
+        get() = tagsDecode(tagsJson)
+
+    companion object {
+        /** 食物标签序列化为库内 JSON：{"tags":["牛奶",...]} */
+        fun tagsEncode(tags: List<String>): String =
+            JSONObject().put("tags", JSONArray(tags)).toString()
+
+        /** 解析食物标签 JSON，解析失败兜底为空列表 */
+        fun tagsDecode(json: String): List<String> = try {
+            val arr = JSONObject(json).optJSONArray("tags") ?: JSONArray()
+            (0 until arr.length()).map { arr.getString(it) }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+}

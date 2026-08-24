@@ -1,11 +1,12 @@
 package com.study.checkin.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
- * 每日排便/症状记录，一天最多一条（date 唯一）。
+ * 排便/症状记录，同一天可新增多条（每次记录一条，按 id 倒序展示）。
  *
  * 字段取值说明：
  * - bristolType：布里斯托大便分类 1~7，0 表示未记录
@@ -13,12 +14,15 @@ import androidx.room.PrimaryKey
  * - painScore：腹痛 0~10 分
  * - painLocation：0=无 1=右下腹 2=左下腹 3=脐周 4=全腹
  */
-@Entity(tableName = "daily_symptoms", indices = [Index("date", unique = true)])
+@Entity(tableName = "daily_symptoms", indices = [Index("date")])
 data class DailySymptom(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    /** yyyy-MM-dd，唯一 */
+    /** yyyy-MM-dd（普通索引，不再唯一） */
     val date: String,
+    /** 记录时间 HH:mm（补录时可调整；空 = 用 createdAt 时间） */
+    @ColumnInfo(defaultValue = "''")
+    val time: String = "",
     /** 当日排便次数（白天） */
     val bowelCount: Int = 0,
     /** 是否有夜间腹泻 */

@@ -71,4 +71,7 @@ dependencies {
 
     // Pager - 日历翻页
     implementation("androidx.compose.foundation:foundation")
+
+    // Material 扩展图标（含男生/女生头像图标 Man / Woman）
+    implementation("androidx.compose.material:material-icons-extended")
 }

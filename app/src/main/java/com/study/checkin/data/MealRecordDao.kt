@@ -16,8 +16,15 @@ interface MealRecordDao {
     @Query("SELECT * FROM meal_records WHERE id = :id")
     suspend fun getRecordById(id: Int): MealRecord?
 
+    @Query("SELECT * FROM meal_records")
+    suspend fun getAllRecords(): List<MealRecord>
+
     @Query("SELECT * FROM meal_records WHERE date = :date ORDER BY id ASC")
     suspend fun getRecordsByDate(date: String): List<MealRecord>
+
+    /** 日期区间（含首尾）的全部饮食记录，按日期/时间升序（记录导出用） */
+    @Query("SELECT * FROM meal_records WHERE date BETWEEN :start AND :end ORDER BY date ASC, time ASC, id ASC")
+    suspend fun getRecordsBetween(start: String, end: String): List<MealRecord>
 
     @Query("SELECT DISTINCT date FROM meal_records")
     suspend fun getRecordDates(): List<String>
