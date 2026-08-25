@@ -1,0 +1,41 @@
+# Gradle
+.gradle
+.kotlin
+build/
+release/
+app/build/
+local.properties
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+*.ial
+*.swo
+*.swn
+*.swp
+*.swn.bak
+*.swx
+/.vscode/
+
+# Android
+captures/
+.externalNativeBuild
+.cxx
+/local.properties
+/captures
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs / Misc
+*.log
+*.tmp
+*.bak
+*.cache
+*.class
+*.apk
+*.aab
