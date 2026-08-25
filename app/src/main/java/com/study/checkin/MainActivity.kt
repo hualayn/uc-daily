@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -56,7 +57,11 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.study.checkin.ui.CalendarScreen
 import com.study.checkin.ui.HomeScreen
+import com.study.checkin.ui.MedSettingsScreen
 import com.study.checkin.ui.MealLogViewModel
+import com.study.checkin.ui.StatsScreen
+import com.study.checkin.ui.ThemeMode
+import com.study.checkin.ui.UcDailyTheme
 import com.study.checkin.ui.ProfileScreen
 import com.study.checkin.ui.RecordOverlays
 import com.study.checkin.ui.ToleranceScreen
@@ -135,14 +140,23 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
+            // 主题：按"我的→主题"所选模式决定深/浅（默认跟随系统）
+            val state by viewModel.uiState.collectAsState()
+            val isSystemDark = isSystemInDarkTheme()
+            val darkTheme = when (state.themeMode) {
+                ThemeMode.DARK -> true
+                ThemeMode.LIGHT -> false
+                ThemeMode.SYSTEM -> isSystemDark
+            }
+            UcDailyTheme(darkTheme = darkTheme) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val state by viewModel.uiState.collectAsState()
                     var showQuickAdd by remember { mutableStateOf(false) }
                     var showExitDialog by remember { mutableStateOf(false) }
+                    var showStats by remember { mutableStateOf(false) }
+                    var showMedSettings by remember { mutableStateOf(false) }
 
                     // 系统返回键：逐层返回（退出确认 → 快捷菜单 → 全屏照片 → 各记录面板 → 非首页 Tab → 首页则弹退出确认）
                     BackHandler {
@@ -154,6 +168,8 @@ class MainActivity : ComponentActivity() {
                             state.isSymptomPanelOpen -> viewModel.cancelSymptomPanel()
                             state.isMedPanelOpen -> viewModel.cancelMedPanel()
                             state.isNotePanelOpen -> viewModel.cancelNotePanel()
+                            showStats -> showStats = false
+                            showMedSettings -> showMedSettings = false
                             state.selectedTab != 0 -> viewModel.selectTab(0)
                             else -> showExitDialog = true
                         }
@@ -191,6 +207,8 @@ class MainActivity : ComponentActivity() {
                                     onDateSelected = { viewModel.selectDate(it) },
                                     onPrevWeek = { viewModel.prevHomeWeek() },
                                     onNextWeek = { viewModel.nextHomeWeek() },
+                                    onPrevMonth = { viewModel.prevHomeMonth() },
+                                    onNextMonth = { viewModel.nextHomeMonth() },
                                     onAddSymptom = { viewModel.startSymptomPanel() },
                                     onEditSymptom = { viewModel.startEditSymptom(it) },
                                     onAddNote = { viewModel.openNotePanel() },
@@ -228,16 +246,19 @@ class MainActivity : ComponentActivity() {
                                     onDeleteMed = { viewModel.deleteMed(it.id) },
                                     onOpenNotePanel = { viewModel.openNotePanel() },
                                     onDeleteNote = { viewModel.deleteNote() },
-                                    onToggleCalendarCategory = { viewModel.toggleCalendarCategory(it) },
-                                    onExport = { start, end, types, format ->
-                                        viewModel.exportRecords(start, end, types, format)
-                                    }
+                                    onToggleCalendarCategory = { viewModel.toggleCalendarCategory(it) }
                                 )
 
                                 else -> ProfileScreen(
                                     state = state,
                                     onSetNickname = { viewModel.setNickname(it) },
-                                    onSetAvatar = { viewModel.setAvatar(it) }
+                                    onSetAvatar = { viewModel.setAvatar(it) },
+                                    onOpenStats = { showStats = true },
+                                    onExport = { start, end, types, format ->
+                                        viewModel.exportRecords(start, end, types, format)
+                                    },
+                                    onOpenMedSettings = { showMedSettings = true },
+                                    onThemeModeChange = { viewModel.setThemeMode(it) }
                                 )
                             }
                         }
@@ -288,6 +309,19 @@ class MainActivity : ComponentActivity() {
                             onMed = { showQuickAdd = false; viewModel.startAddMed() },
                             onNote = { showQuickAdd = false; viewModel.openNotePanel() },
                             onDismiss = { showQuickAdd = false }
+                        )
+                    }
+
+                    // 我的页二级全屏页：统计信息 / 服药设置（覆盖底部导航，返回键关闭）
+                    if (showStats) {
+                        StatsScreen(state = state, onBack = { showStats = false })
+                    }
+                    if (showMedSettings) {
+                        MedSettingsScreen(
+                            state = state,
+                            onTimesChange = { viewModel.setMedTimesPerDay(it) },
+                            onTimeChange = { i, t -> viewModel.setMedReminderTime(i, t) },
+                            onBack = { showMedSettings = false }
                         )
                     }
                     }

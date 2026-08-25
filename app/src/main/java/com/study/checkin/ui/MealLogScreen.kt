@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -72,16 +71,16 @@ import kotlinx.coroutines.launch
 /** 月份切换滑动动画时长（标题与网格共用，保证同步滑动） */
 private const val MONTH_SLIDE_MS = 260
 
-/** 日历页筛选按钮主题色（与首页统计卡一致：饮食/服药/便便；感受用浅蓝） */
+/** 日历页筛选按钮主题色（与首页统计卡一致：饮食/服药/便便；感受用青绿） */
 private fun categoryColor(category: CalendarCategory): Color = when (category) {
     CalendarCategory.MEAL -> Color(0xFF43A047)   // 与首页"饮食"统计卡一致
     CalendarCategory.MED -> Color(0xFF1E88E5)    // 与首页"服药"统计卡一致
     CalendarCategory.BOWEL -> Color(0xFFF9A825)  // 与首页"便便"统计卡一致
-    CalendarCategory.NOTE -> Color(0xFF64B5F6)   // 感受：浅蓝色
+    CalendarCategory.NOTE -> Color(0xFF00897B)   // 感受：青绿色
 }
 
 /**
- * 日历页记录类别筛选按钮（胶囊形）：
+ * 日历页记录类别筛选按钮（4dp 圆角矩形）：
  * 选中 = 主题色加深背景 + 描边高亮 + 加粗文字；未选中 = 淡色背景、灰色文字。
  * 默认为选中（由 state.calendarFilter 初始值保证）。无打勾符号。
  */
@@ -95,11 +94,11 @@ private fun CalendarFilterPill(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(50.dp))
+            .clip(RoundedCornerShape(4.dp))
             .background(accent.copy(alpha = if (selected) 0.28f else 0.12f))
             .then(
                 if (selected) {
-                    Modifier.border(1.dp, accent, RoundedCornerShape(50.dp))
+                    Modifier.border(1.dp, accent, RoundedCornerShape(4.dp))
                 } else {
                     Modifier
                 }
@@ -135,14 +134,10 @@ fun CalendarScreen(
     onOpenNotePanel: () -> Unit,
     onDeleteNote: () -> Unit,
     /** 点按日历页记录类别筛选按钮（多选） */
-    onToggleCalendarCategory: (CalendarCategory) -> Unit,
-    /** 记录导出：生成导出文本；返回 null 表示范围内无所选类型的记录 */
-    onExport: suspend (LocalDate, LocalDate, Set<ExportType>, ExportFormat) -> ExportResult?
+    onToggleCalendarCategory: (CalendarCategory) -> Unit
 ) {
     // 是否显示年月快速选择对话框
     var showYearMonthPicker by remember { mutableStateOf(false) }
-    // 是否显示导出记录对话框
-    var showExportDialog by remember { mutableStateOf(false) }
 
     if (state.loading) {
         Box(
@@ -158,47 +153,20 @@ fun CalendarScreen(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
+            .padding(top = 12.dp)
             .padding(horizontal = 12.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 导出记录入口（右上角）：仅描边、无背景色
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Spacer(modifier = Modifier.weight(1f))
-            OutlinedButton(
-                onClick = { showExportDialog = true },
-                shape = RoundedCornerShape(8.dp),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Transparent)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Upload,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "导出记录",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // 日历模块（日期头 + 星期头 + 月历）：统一卡片容器，
-        // 背景/阴影与首页"今日"卡一致（天蓝 0xFFD6EAF8、16dp 圆角、4dp 阴影），外加淡蓝描边
+        // 日历模块（日期头 + 星期头 + 月历）：统一卡片容器（16dp 圆角、4dp 阴影），
+        // 背景/描边随浅深主题切换（blueCardBackground / blueCardBorder）
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, Color(0xFF8FB8DA), RoundedCornerShape(16.dp)),
+                .border(1.dp, blueCardBorder(), RoundedCornerShape(16.dp)),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFD6EAF8)
+                containerColor = blueCardBackground()
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
@@ -273,7 +241,8 @@ fun CalendarScreen(
                     label = category.label,
                     accent = categoryColor(category),
                     selected = category in state.calendarFilter,
-                    onClick = { onToggleCalendarCategory(category) }
+                    onClick = { onToggleCalendarCategory(category) },
+                    modifier = Modifier.weight(1f)
                 )
             }
         }
@@ -322,14 +291,6 @@ fun CalendarScreen(
             onDismiss = { showYearMonthPicker = false }
         )
     }
-
-    // 导出记录对话框
-    if (showExportDialog) {
-        ExportDialog(
-            onExport = onExport,
-            onDismiss = { showExportDialog = false }
-        )
-    }
 }
 
 /**
@@ -337,9 +298,10 @@ fun CalendarScreen(
  * - 开始/结束日期，默认当前一周（周一至周日），点日期打开日期选择器
  * - 记录类型：饮食 / 服药 / 便便 / 感受（默认全选）
  * - 输出方式：剪切板 或 文件；文件支持 txt / csv
+ * （"我的"页导出记录菜单也复用本对话框，故为 internal）
  */
 @Composable
-private fun ExportDialog(
+internal fun ExportDialog(
     onExport: suspend (LocalDate, LocalDate, Set<ExportType>, ExportFormat) -> ExportResult?,
     onDismiss: () -> Unit
 ) {

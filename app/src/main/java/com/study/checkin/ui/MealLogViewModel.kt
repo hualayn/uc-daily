@@ -159,6 +159,14 @@ const val AVATAR_GIRL = "girl"
 const val PREF_COMMON_MED_NAMES = "common_med_names"
 const val MAX_COMMON_MED_NAMES = 12
 
+/** 主题模式 / 服药提醒时间：SharedPreferences 键（逗号分隔的 HH:mm 列表） */
+const val PREF_THEME_MODE = "theme_mode"
+const val PREF_MED_REMINDER_TIMES = "med_reminder_times"
+
+/** 服药提醒时间的默认值与扩充池（次数增加时按序补位） */
+val DEFAULT_MED_REMINDER_TIMES = listOf("08:00", "14:00", "20:00")
+val MED_REMINDER_TIME_POOL = listOf("08:00", "12:00", "16:00", "20:00", "22:00", "23:00")
+
 data class MealUiState(
     val loading: Boolean = true,
     /** 当前底部 Tab：0 首页 1 耐受 2 日历 3 我的 */
@@ -214,7 +222,15 @@ data class MealUiState(
     /** 我的：昵称（SharedPreferences 持久化） */
     val nickname: String = "记录者",
     /** 我的：头像（SharedPreferences 持久化）：default/boy/girl */
-    val avatar: String = AVATAR_DEFAULT
+    val avatar: String = AVATAR_DEFAULT,
+    /** 我的→主题：主题模式，默认跟随系统（SharedPreferences 持久化） */
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    /** 我的→服药设置：提醒时间（HH:mm 升序），列表长度 = 每天服药次数 */
+    val medReminderTimes: List<String> = DEFAULT_MED_REMINDER_TIMES,
+    /** 全部排便记录（未去重；统计页算总量/分布用，symptomByDate 仍为每天最新一条） */
+    val allSymptoms: List<DailySymptom> = emptyList(),
+    /** 有感受记录的天数（统计页用） */
+    val totalNoteDays: Int = 0
 )
 
 /** 关闭所有记录面板（打开新面板前调用，保证面板互斥） */
@@ -275,7 +291,11 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 foodTags = foodTagDao.getAll(),
                 commonMedNames = loadCommonMeds(),
                 nickname = prefs.getString("nickname", "记录者") ?: "记录者",
-                avatar = prefs.getString("avatar", AVATAR_DEFAULT) ?: AVATAR_DEFAULT
+                avatar = prefs.getString("avatar", AVATAR_DEFAULT) ?: AVATAR_DEFAULT,
+                themeMode = ThemeMode.fromKey(prefs.getString(PREF_THEME_MODE, null)),
+                medReminderTimes = loadMedReminderTimes(),
+                allSymptoms = allSymptoms,
+                totalNoteDays = noteDao.getCount()
             )
             refreshFoodTagCounts()
             refreshMonth(s.currentMonth)
@@ -291,7 +311,8 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 symptomByDate = latestSymptomByDate(all),
                 selectedDateSymptoms = all
                     .filter { it.date == dateStr }
-                    .sortedByDescending { it.id }
+                    .sortedByDescending { it.id },
+                allSymptoms = all
             )
             refreshMonth(_uiState.value.currentMonth)
         }
@@ -314,7 +335,8 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
             val dateStr = _uiState.value.selectedDate.toString()
             _uiState.value = _uiState.value.copy(
                 selectedDateMeds = medDao.getByDate(dateStr),
-                selectedDateNote = noteDao.getByDate(dateStr)
+                selectedDateNote = noteDao.getByDate(dateStr),
+                totalNoteDays = noteDao.getCount()
             )
         }
     }
@@ -953,6 +975,17 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         _uiState.value = s.copy(homeWeekAnchor = s.homeWeekAnchor.plusWeeks(1))
     }
 
+    /** 首页月视图：只切换展示月（anchor 按整月移动，日保留、月末自动夹取），不改变选中日期 */
+    fun prevHomeMonth() {
+        val s = _uiState.value
+        _uiState.value = s.copy(homeWeekAnchor = s.homeWeekAnchor.minusMonths(1))
+    }
+
+    fun nextHomeMonth() {
+        val s = _uiState.value
+        _uiState.value = s.copy(homeWeekAnchor = s.homeWeekAnchor.plusMonths(1))
+    }
+
     /** 打开全屏照片查看：photos 为本次可滑动切换的照片集（默认单张） */
     fun showPhoto(path: String, photos: List<String> = listOf(path)) {
         _uiState.value = _uiState.value.copy(
@@ -977,7 +1010,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         val s = _uiState.value
         _uiState.value = s.closeAllPanels().copy(
             isMedPanelOpen = true,
-            medDraft = MedDraft(time = defaultTimeFor(s.selectedDate))
+            medDraft = MedDraft(time = medDefaultTime(s.selectedDate))
         )
     }
 
@@ -1204,6 +1237,62 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
     fun setAvatar(avatar: String) {
         prefs.edit().putString("avatar", avatar).apply()
         _uiState.value = _uiState.value.copy(avatar = avatar)
+    }
+
+    // region 主题设置
+
+    fun setThemeMode(mode: ThemeMode) {
+        prefs.edit().putString(PREF_THEME_MODE, mode.key).apply()
+        _uiState.value = _uiState.value.copy(themeMode = mode)
+    }
+
+    // endregion
+
+    // region 服药设置（每天次数 = 提醒时间条数，1~6 次）
+
+    private fun loadMedReminderTimes(): List<String> {
+        val raw = prefs.getString(PREF_MED_REMINDER_TIMES, null) ?: return DEFAULT_MED_REMINDER_TIMES
+        val list = raw.split(",").map { it.trim() }.filter { it.matches(Regex("\\d{2}:\\d{2}")) }.sorted()
+        return list.ifEmpty { DEFAULT_MED_REMINDER_TIMES }
+    }
+
+    /** 调整每天服药次数：收缩截断；扩充时按 MED_REMINDER_TIME_POOL 顺序补位 */
+    fun setMedTimesPerDay(n: Int) {
+        val count = n.coerceIn(1, 6)
+        val current = _uiState.value.medReminderTimes
+        val times = (current + MED_REMINDER_TIME_POOL.drop(current.size)).take(count)
+        persistMedReminderTimes(times)
+    }
+
+    /** 修改第 index 个提醒时间（保存后整体升序） */
+    fun setMedReminderTime(index: Int, time: String) {
+        val current = _uiState.value.medReminderTimes.toMutableList()
+        if (index in current.indices) {
+            current[index] = time
+            persistMedReminderTimes(current)
+        }
+    }
+
+    private fun persistMedReminderTimes(times: List<String>) {
+        val sorted = times.sorted()
+        prefs.edit().putString(PREF_MED_REMINDER_TIMES, sorted.joinToString(",")).apply()
+        _uiState.value = _uiState.value.copy(medReminderTimes = sorted)
+    }
+
+    /** 添加服药的默认时间：今天 = 最近一个未到点的提醒时间（都过点则当前时刻）；补录 = 第一个提醒时间 */
+    private fun medDefaultTime(date: LocalDate): String {
+        val times = _uiState.value.medReminderTimes
+        if (times.isEmpty()) return defaultTimeFor(date)
+        return if (date == LocalDate.now()) {
+            val now = LocalTime.now()
+            times
+                .mapNotNull { runCatching { LocalTime.parse(it, DateTimeFormatter.ofPattern("HH:mm")) }.getOrNull() }
+                .firstOrNull { it.isAfter(now) }
+                ?.format(DateTimeFormatter.ofPattern("HH:mm"))
+                ?: now.format(DateTimeFormatter.ofPattern("HH:mm"))
+        } else {
+            times.first()
+        }
     }
 
     // endregion

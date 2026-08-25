@@ -1,9 +1,12 @@
 package com.study.checkin.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
@@ -30,6 +34,8 @@ import com.study.checkin.data.activityLevel
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.YearMonth
+import kotlin.math.abs
 
 /** 首页顶部轮播横幅（按日期取一条） */
 private val BANNERS = listOf(
@@ -98,7 +104,8 @@ private fun WelcomeCard(state: MealUiState) {
 
 /**
  * 首页：
- * 顶部（头像 + 横幅）→ 日期 + 周历（左右滑动换周）→ 当日统计 → 添加入口（饮食/便便/服药/笔记）→ 当天记录
+ * 顶部（头像 + 横幅）→ 日期 + 日历（默认周视图：左右滑动/箭头换周；下滑展开整月、整月上滑收起；
+ * 整月视图下左右滑动/箭头换月）→ 当日统计 → 添加入口（饮食/便便/服药/笔记）→ 当天记录
  */
 @Composable
 fun HomeScreen(
@@ -106,6 +113,8 @@ fun HomeScreen(
     onDateSelected: (LocalDate) -> Unit,
     onPrevWeek: () -> Unit,
     onNextWeek: () -> Unit,
+    onPrevMonth: () -> Unit,
+    onNextMonth: () -> Unit,
     onAddSymptom: () -> Unit,
     onEditSymptom: (DailySymptom) -> Unit,
     onAddNote: () -> Unit,
@@ -130,6 +139,10 @@ fun HomeScreen(
 
     val symptoms = state.selectedDateSymptoms
 
+    // 日历是否展开为整月：周视图下滑展开，整月视图上滑收起；
+    // 展开时左右滑动/箭头换月，收起时换周
+    var expanded by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -147,23 +160,24 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                // 天蓝色填充
-                containerColor = Color(0xFFD6EAF8)
+                // 天蓝色填充（深色主题自动切藏蓝）
+                containerColor = blueCardBackground()
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 16.dp)
             ) {
-                // 日期头：左右箭头换周；第一行居中 "X月X日 周X"（周几蓝色高亮），第二行灰色小字 "X年，第X周"
+                // 日期头：左右箭头——周视图换周，整月视图换月；
+                // 第一行居中 "X月X日 周X"（周几蓝色高亮），第二行灰色小字 "X年，第X周"
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = onPrevWeek) {
+                    IconButton(onClick = { if (expanded) onPrevMonth() else onPrevWeek() }) {
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowLeft,
-                            contentDescription = "上一周",
+                            contentDescription = if (expanded) "上一月" else "上一周",
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -171,33 +185,42 @@ fun HomeScreen(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        if (expanded) {
+                            // 整月视图：大字显示日历当前展示的月份
                             Text(
-                                text = "${state.selectedDate.monthValue}月${state.selectedDate.dayOfMonth}日",
+                                text = "${state.homeWeekAnchor.year}年${state.homeWeekAnchor.monthValue}月",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
+                        } else {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "${state.selectedDate.monthValue}月${state.selectedDate.dayOfMonth}日",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = weekLabel(state.selectedDate),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
                             Text(
-                                text = weekLabel(state.selectedDate),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                                text = "${state.selectedDate.year}年，第${isoWeek(state.selectedDate)}周",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        Text(
-                            text = "${state.selectedDate.year}年，第${isoWeek(state.selectedDate)}周",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
                     }
-                    IconButton(onClick = onNextWeek) {
+                    IconButton(onClick = { if (expanded) onNextMonth() else onNextWeek() }) {
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowRight,
-                            contentDescription = "下一周",
+                            contentDescription = if (expanded) "下一月" else "下一周",
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -205,12 +228,17 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // 周历（左右滑动换周，点击选日）
-                WeekStrip(
+                // 日历（默认周视图：左右滑动/箭头换周，点击选日；下滑展开整月，整月视图上滑收起回周视图；
+                // 整月视图下左右滑动/箭头换月）
+                HomeCalendar(
                     state = state,
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
                     onDateSelected = onDateSelected,
                     onPrevWeek = onPrevWeek,
-                    onNextWeek = onNextWeek
+                    onNextWeek = onNextWeek,
+                    onPrevMonth = onPrevMonth,
+                    onNextMonth = onNextMonth
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -277,70 +305,182 @@ fun HomeScreen(
     }
 }
 
-/** 周历条：显示选中日期所在周，水平滑动切换周 */
+/**
+ * 首页日历：默认周视图（星期头 + anchor 周）；
+ * 周视图上向下滑动 → 展开为 homeWeekAnchor 所在月的整月视图；
+ * 整月视图上向上滑动 → 收起回周视图。
+ * 横向滑动：周视图换周，整月视图换月；只移动 homeWeekAnchor，不改变选中日期。
+ * 展开状态（expanded）由父级持有，以便日期头箭头同步按周/月切换。
+ */
 @Composable
-private fun WeekStrip(
+private fun HomeCalendar(
     state: MealUiState,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
     onDateSelected: (LocalDate) -> Unit,
     onPrevWeek: () -> Unit,
-    onNextWeek: () -> Unit
+    onNextWeek: () -> Unit,
+    onPrevMonth: () -> Unit,
+    onNextMonth: () -> Unit
 ) {
     val density = LocalDensity.current
     val onPrevRef = rememberUpdatedState(onPrevWeek)
     val onNextRef = rememberUpdatedState(onNextWeek)
-    var dragAccum by remember { mutableFloatStateOf(0f) }
-    val thresholdPx = with(density) { 60.dp.toPx() }
+    val onPrevMonthRef = rememberUpdatedState(onPrevMonth)
+    val onNextMonthRef = rememberUpdatedState(onNextMonth)
+    val expandedRef = rememberUpdatedState(expanded)
+    val onExpandedChangeRef = rememberUpdatedState(onExpandedChange)
+    val thresholdPx = with(density) { 50.dp.toPx() }
 
     // 展示周由 homeWeekAnchor 决定：滑动/箭头换周只移动 anchor，不改变选中日期
-    val weekStart = state.homeWeekAnchor.with(DayOfWeek.MONDAY)
-    val days = (0 until 7).map { weekStart.plusDays(it.toLong()) }
+    val anchor = state.homeWeekAnchor
+    val anchorWeekStart = anchor.with(DayOfWeek.MONDAY)
+    val anchorMonth = YearMonth.from(anchor)
+    val firstWeekStart = anchorMonth.atDay(1).with(DayOfWeek.MONDAY)
+    val lastWeekStart = anchorMonth.atEndOfMonth().with(DayOfWeek.MONDAY)
+    // 覆盖整月的全部周（周一开头）
+    val allWeekStarts = buildList {
+        var week = firstWeekStart
+        while (week <= lastWeekStart) {
+            add(week)
+            week = week.plusWeeks(1)
+        }
+    }
+    val anchorIndex = allWeekStarts.indexOfFirst { it == anchorWeekStart }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clipToBounds()
             .pointerInput(Unit) {
-                detectHorizontalDragGestures(
+                var dx = 0f
+                var dy = 0f
+                detectDragGestures(
+                    onDragStart = { dx = 0f; dy = 0f },
                     onDragEnd = {
-                        val accum = dragAccum
-                        dragAccum = 0f
+                        val absDx = abs(dx)
+                        val absDy = abs(dy)
                         when {
-                            accum < -thresholdPx -> onNextRef.value()
-                            accum > thresholdPx -> onPrevRef.value()
+                            // 横向为主：周视图换周，整月视图换月
+                            absDx >= absDy && absDx > thresholdPx -> when {
+                                dx < 0 ->
+                                    if (expandedRef.value) onNextMonthRef.value() else onNextRef.value()
+                                else ->
+                                    if (expandedRef.value) onPrevMonthRef.value() else onPrevRef.value()
+                            }
+                            // 纵向为主：周视图下滑 → 整月；整月上滑 → 周视图
+                            absDy > thresholdPx -> when {
+                                dy > 0 && !expandedRef.value -> onExpandedChangeRef.value(true)
+                                dy < 0 && expandedRef.value -> onExpandedChangeRef.value(false)
+                            }
                         }
+                        dx = 0f
+                        dy = 0f
                     },
-                    onDragCancel = { dragAccum = 0f },
-                    onHorizontalDrag = { _, dragAmount ->
-                        dragAccum += dragAmount
+                    onDragCancel = { dx = 0f; dy = 0f },
+                    onDrag = { _, amount ->
+                        dx += amount.x
+                        dy += amount.y
                     }
                 )
             }
     ) {
-        // 选中日期对应的"周X"高亮
-        val selectedWeekIndex = state.selectedDate.dayOfWeek.value - 1
-        Row(modifier = Modifier.fillMaxWidth()) {
-            days.forEachIndexed { index, day ->
-                WeekDayCell(
-                    day = day,
-                    weekChar = WEEK_CHARS[index],
-                    weekHighlighted = index == selectedWeekIndex,
-                    selected = day == state.selectedDate,
-                    isToday = day == state.today,
-                    activity = state.symptomByDate[day.toString()]?.activityLevel,
-                    onClick = { onDateSelected(day) },
-                    modifier = Modifier.weight(1f)
-                )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // 星期头（选中日期对应的周几高亮）
+            val selectedWeekIndex = state.selectedDate.dayOfWeek.value - 1
+            Row(modifier = Modifier.fillMaxWidth()) {
+                WEEK_CHARS.forEachIndexed { index, char ->
+                    Text(
+                        text = char,
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = if (index == selectedWeekIndex) FontWeight.Bold else FontWeight.Normal,
+                        color = if (index == selectedWeekIndex) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // anchor 之前的周：仅整月视图显示（从 anchor 侧向上展开、向 anchor 侧收起）
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    allWeekStarts.take(anchorIndex).forEach { weekStart ->
+                        HomeCalendarWeekRow(
+                            weekStart = weekStart,
+                            anchorMonth = anchorMonth,
+                            state = state,
+                            onDateSelected = onDateSelected
+                        )
+                    }
+                }
+            }
+
+            // anchor 周：周视图 = 星期头 + 这一行
+            HomeCalendarWeekRow(
+                weekStart = anchorWeekStart,
+                anchorMonth = anchorMonth,
+                state = state,
+                onDateSelected = onDateSelected
+            )
+
+            // anchor 之后的周：仅整月视图显示（从 anchor 侧向下展开、向 anchor 侧收起）
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandVertically(expandFrom = Alignment.Top),
+                exit = shrinkVertically(shrinkTowards = Alignment.Top)
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    allWeekStarts.drop(anchorIndex + 1).forEach { weekStart ->
+                        HomeCalendarWeekRow(
+                            weekStart = weekStart,
+                            anchorMonth = anchorMonth,
+                            state = state,
+                            onDateSelected = onDateSelected
+                        )
+                    }
+                }
             }
         }
     }
 }
 
-/** 周历中的单个日期 */
+/** 日历中的一行 7 天（其他月份的日期淡显，仍可点选） */
 @Composable
-private fun WeekDayCell(
+private fun HomeCalendarWeekRow(
+    weekStart: LocalDate,
+    anchorMonth: YearMonth,
+    state: MealUiState,
+    onDateSelected: (LocalDate) -> Unit
+) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        (0 until 7).forEach { offset ->
+            val day = weekStart.plusDays(offset.toLong())
+            HomeCalendarDayCell(
+                day = day,
+                dimmed = YearMonth.from(day) != anchorMonth,
+                selected = day == state.selectedDate,
+                isToday = day == state.today,
+                activity = state.symptomByDate[day.toString()]?.activityLevel,
+                onClick = { onDateSelected(day) },
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+/** 日历行中的单个日期：选中/今天高亮，跨月日期淡显，底部活动度热力点 */
+@Composable
+private fun HomeCalendarDayCell(
     day: LocalDate,
-    weekChar: String,
-    weekHighlighted: Boolean,
+    dimmed: Boolean,
     selected: Boolean,
     isToday: Boolean,
     activity: ActivityLevel?,
@@ -352,31 +492,19 @@ private fun WeekDayCell(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = weekChar,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = if (weekHighlighted) FontWeight.Bold else FontWeight.Normal,
-            color = if (weekHighlighted) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            }
-        )
-        Spacer(modifier = Modifier.height(6.dp))
         Box(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
                 .then(
-                    if (selected) {
-                        Modifier.background(MaterialTheme.colorScheme.primary)
-                    } else if (isToday) {
-                        Modifier.border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                    } else {
-                        Modifier
+                    when {
+                        selected -> Modifier.background(MaterialTheme.colorScheme.primary)
+                        isToday -> Modifier.border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                        else -> Modifier
                     }
                 )
-                .clickable(onClick = onClick),
+                .clickable(onClick = onClick)
+                .alpha(if (dimmed) 0.35f else 1f),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -403,6 +531,7 @@ private fun WeekDayCell(
                         Modifier
                     }
                 )
+                .alpha(if (dimmed) 0.35f else 1f)
         )
     }
 }

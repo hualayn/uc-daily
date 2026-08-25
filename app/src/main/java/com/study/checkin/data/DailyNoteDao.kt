@@ -18,6 +18,9 @@ interface DailyNoteDao {
     @Query("SELECT * FROM daily_notes WHERE date BETWEEN :start AND :end ORDER BY date ASC")
     suspend fun getBetween(start: String, end: String): List<DailyNote>
 
+    @Query("SELECT COUNT(*) FROM daily_notes")
+    suspend fun getCount(): Int
+
     @Query("DELETE FROM daily_notes WHERE id = :id")
     suspend fun deleteById(id: Int)
 }
