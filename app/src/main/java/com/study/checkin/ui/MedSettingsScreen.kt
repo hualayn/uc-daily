@@ -179,7 +179,7 @@ fun MedSettingsScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "添加服药时默认取最近一个未到点的提醒时间（当天）；补录历史记录默认取第一个时间。",
+                text = "添加或补录服药时默认取当前时间。",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

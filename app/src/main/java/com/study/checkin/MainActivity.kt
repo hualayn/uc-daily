@@ -219,7 +219,8 @@ class MainActivity : ComponentActivity() {
                                     onDeleteSymptom = { viewModel.deleteSymptom(it) },
                                     onEditMed = { viewModel.startEditMed(it) },
                                     onDeleteMed = { viewModel.deleteMed(it.id) },
-                                    onDeleteNote = { viewModel.deleteNote() }
+                                    onDeleteNote = { viewModel.deleteNote() },
+                                    onAddMed = { viewModel.startAddMedForToday() }
                                 )
 
                                 1 -> ToleranceScreen(

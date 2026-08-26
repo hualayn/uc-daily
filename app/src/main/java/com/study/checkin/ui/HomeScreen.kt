@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.study.checkin.data.ActivityLevel
 import com.study.checkin.data.DailySymptom
@@ -36,6 +38,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
 import kotlin.math.abs
+import kotlinx.coroutines.delay
 
 /** 首页顶部轮播横幅（按日期取一条） */
 private val BANNERS = listOf(
@@ -57,9 +60,9 @@ private val MEAL_ACCENT = Color(0xFF43A047)
 private val BOWEL_ACCENT = Color(0xFFF9A825)
 private val MED_ACCENT = Color(0xFF1E88E5)
 
-/** 欢迎卡：渐变底 + 头像 + 按时段问候 + 今日寄语 */
+/** 欢迎卡：渐变底 + 头像 + 按时段问候 + 今日寄语 + 右上角服药提醒铃铛（有未服药点亮红点） */
 @Composable
-private fun WelcomeCard(state: MealUiState) {
+private fun WelcomeCard(state: MealUiState, missedMedTimes: List<String>, onBellClick: () -> Unit) {
     val greeting = when (LocalTime.now().hour) {
         in 5..10 -> "早上好"
         in 11..13 -> "中午好"
@@ -99,6 +102,27 @@ private fun WelcomeCard(state: MealUiState) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+        // 右上角服药提醒铃铛：有"已到点未服药"时亮红点
+        Box {
+            IconButton(onClick = onBellClick) {
+                Icon(
+                    imageVector = Icons.Filled.Notifications,
+                    contentDescription = "服药提醒",
+                    modifier = Modifier.size(24.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (missedMedTimes.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = -8.dp, y = 8.dp)
+                        .size(9.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFE53935))
+                )
+            }
+        }
     }
 }
 
@@ -125,7 +149,8 @@ fun HomeScreen(
     onDeleteSymptom: (Int) -> Unit,
     onEditMed: (MedRecord) -> Unit,
     onDeleteMed: (MedRecord) -> Unit,
-    onDeleteNote: () -> Unit
+    onDeleteNote: () -> Unit,
+    onAddMed: () -> Unit
 ) {
     if (state.loading) {
         Box(
@@ -143,6 +168,17 @@ fun HomeScreen(
     // 展开时左右滑动/箭头换月，收起时换周
     var expanded by remember { mutableStateOf(false) }
 
+    // 服药提醒铃铛：每分钟检查一次"今天的提醒时间是否已到点但未记录服药"
+    var nowMinute by remember { mutableStateOf(LocalTime.now()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            nowMinute = LocalTime.now()
+            delay((60 - nowMinute.second % 60) * 1000L)
+        }
+    }
+    val missedMedTimes = computeMissedMedTimes(state.medReminderTimes, state.todayMedTimes, nowMinute)
+    var showMedReminder by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -150,8 +186,8 @@ fun HomeScreen(
             .padding(horizontal = 16.dp)
             .padding(top = 12.dp)
     ) {
-        // ① 欢迎卡：渐变底 + 头像 + 按时段问候 + 今日寄语
-        WelcomeCard(state = state)
+        // ① 欢迎卡：渐变底 + 头像 + 按时段问候 + 今日寄语（右上角 = 服药提醒铃铛）
+        WelcomeCard(state = state, missedMedTimes = missedMedTimes, onBellClick = { showMedReminder = true })
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -259,7 +295,7 @@ fun HomeScreen(
                     )
                     StatCard(
                         emoji = "💊",
-                        value = "${state.selectedDateMeds.size}",
+                        value = "${state.selectedDateMeds.size}/${state.medReminderTimes.size}",
                         label = "服药",
                         accent = MED_ACCENT,
                         active = state.dayRecordFilter == DayFilter.MED,
@@ -302,6 +338,64 @@ fun HomeScreen(
             // 首页：点卡片选中，选中后出现编辑/删除按钮
             selectable = true
         )
+    }
+
+    // 点铃铛：有未服药时列出未服时间点 + "去服药"入口
+    if (showMedReminder) {
+        AlertDialog(
+            onDismissRequest = { showMedReminder = false },
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Notifications,
+                    contentDescription = null,
+                    tint = MED_ACCENT
+                )
+            },
+            title = { Text("服药提醒") },
+            text = {
+                Text(
+                    if (missedMedTimes.isEmpty()) {
+                        "今天还没有到点的服药时间，记得按时服药。"
+                    } else {
+                        "以下时间已过，还没有记录服药：\n${missedMedTimes.joinToString("、")}\n该服药了！"
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showMedReminder = false
+                    if (missedMedTimes.isNotEmpty()) onAddMed()
+                }) {
+                    Text(if (missedMedTimes.isNotEmpty()) "去服药" else "知道了")
+                }
+            },
+            dismissButton = {
+                if (missedMedTimes.isNotEmpty()) {
+                    TextButton(onClick = { showMedReminder = false }) { Text("稍后") }
+                }
+            }
+        )
+    }
+}
+
+/** "HH:mm" 转当天分钟数（格式不合法返回 null） */
+private fun timeToMinutes(t: String): Int? {
+    val parts = t.split(':')
+    if (parts.size != 2) return null
+    return parts[0].toIntOrNull()?.let { h -> parts[1].toIntOrNull()?.let { m -> h * 60 + m } }
+}
+
+/** 今天未服的服药时间点：提醒时间已过但还没记录服药（提前最多 2 小时服下的药算作该点） */
+private fun computeMissedMedTimes(
+    reminders: List<String>,
+    todayMedTimes: List<String>,
+    now: LocalTime
+): List<String> {
+    val nowMin = now.hour * 60 + now.minute
+    val medMins = todayMedTimes.mapNotNull { timeToMinutes(it) }
+    return reminders.filter { t ->
+        val m = timeToMinutes(t) ?: return@filter false
+        nowMin >= m && medMins.none { it >= m - 120 }
     }
 }
 
@@ -393,6 +487,7 @@ private fun HomeCalendar(
                     Text(
                         text = char,
                         modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = if (index == selectedWeekIndex) FontWeight.Bold else FontWeight.Normal,
                         color = if (index == selectedWeekIndex) {

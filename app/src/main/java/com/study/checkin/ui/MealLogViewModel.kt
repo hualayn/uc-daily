@@ -21,6 +21,7 @@ import com.study.checkin.data.PAIN_LOCATION_LABELS
 import com.study.checkin.data.activityLevel
 import com.study.checkin.data.activityScore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -181,6 +182,8 @@ data class MealUiState(
     val recordDates: Set<String> = emptySet(),
     val selectedDateRecords: List<MealRecord> = emptyList(),
     val selectedDateMeds: List<MedRecord> = emptyList(),
+    /** 今天的服药时间（HH:mm；驱动首页服药提醒铃铛） */
+    val todayMedTimes: List<String> = emptyList(),
     val selectedDateNote: DailyNote? = null,
     val totalRecordDays: Int = 0,
     val totalRecords: Int = 0,
@@ -266,6 +269,14 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
 
     init {
         loadState()
+        // 应用常驻内存跨日期时，在零点检查一次并刷新"今天"
+        viewModelScope.launch {
+            while (true) {
+                val secsToMidnight = (86_400 - LocalTime.now().toSecondOfDay()) % 86_400
+                delay(secsToMidnight * 1000L + 5_000L)
+                checkDayChange()
+            }
+        }
     }
 
     // region 数据加载
@@ -287,6 +298,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                     .sortedByDescending { it.id },
                 selectedDateRecords = dao.getRecordsByDate(dateStr),
                 selectedDateMeds = medDao.getByDate(dateStr),
+                todayMedTimes = medDao.getByDate(s.today.toString()).map { it.time },
                 selectedDateNote = noteDao.getByDate(dateStr),
                 foodTags = foodTagDao.getAll(),
                 commonMedNames = loadCommonMeds(),
@@ -341,10 +353,44 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    /** 重新加载服药总数（保存/删除服药后调用） */
+    /** 重新加载服药总数与今天的服药时间（保存/删除服药后调用） */
     private fun refreshMedStats() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(totalMedRecords = medDao.getCount())
+            _uiState.value = _uiState.value.copy(
+                totalMedRecords = medDao.getCount(),
+                todayMedTimes = medDao.getByDate(_uiState.value.today.toString()).map { it.time }
+            )
+        }
+    }
+
+    /** 应用常驻内存时日期变化（跨零点）：刷新"今天"；
+     * 选中日期若为旧的"今天"则跟随到新一天并重载当天数据；日历页正显示当前月则翻到新月份 */
+    private fun checkDayChange() {
+        val s = _uiState.value
+        val now = LocalDate.now()
+        if (now == s.today) return
+        val followToday = s.selectedDate == s.today
+        val monthMoved = s.currentMonth == YearMonth.from(s.today) && YearMonth.from(now) != s.currentMonth
+        _uiState.value = s.copy(
+            today = now,
+            selectedDate = if (followToday) now else s.selectedDate,
+            homeWeekAnchor = if (followToday) now else s.homeWeekAnchor,
+            currentMonth = if (monthMoved) YearMonth.from(now) else s.currentMonth
+        )
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                todayMedTimes = medDao.getByDate(now.toString()).map { it.time }
+            )
+            if (followToday) {
+                val dateStr = now.toString()
+                _uiState.value = _uiState.value.copy(
+                    selectedDateSymptoms = symptomDao.getByDate(dateStr),
+                    selectedDateRecords = dao.getRecordsByDate(dateStr),
+                    selectedDateMeds = medDao.getByDate(dateStr),
+                    selectedDateNote = noteDao.getByDate(dateStr)
+                )
+            }
+            if (monthMoved) refreshMonth(YearMonth.from(now))
         }
     }
 
@@ -1005,13 +1051,37 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
 
     // region 服药记录
 
+    /** 当前时刻（HH:mm）：添加/补录服药的默认时间 */
+    private fun nowTime(): String =
+        LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+
     /** 打开服药面板（添加），并关闭其他面板 */
     fun startAddMed() {
         val s = _uiState.value
         _uiState.value = s.closeAllPanels().copy(
             isMedPanelOpen = true,
-            medDraft = MedDraft(time = medDefaultTime(s.selectedDate))
+            medDraft = MedDraft(time = nowTime())
         )
+    }
+
+    /** 首页服药提醒铃铛：若当前选中的不是今天，先切回今天（含数据加载）再打开添加服药面板 */
+    fun startAddMedForToday() {
+        val s = _uiState.value
+        if (s.selectedDate == s.today) {
+            startAddMed()
+        } else {
+            _uiState.value = s.copy(selectedDate = s.today, homeWeekAnchor = s.today)
+            viewModelScope.launch {
+                val dateStr = s.today.toString()
+                _uiState.value = _uiState.value.copy(
+                    selectedDateSymptoms = symptomDao.getByDate(dateStr),
+                    selectedDateRecords = dao.getRecordsByDate(dateStr),
+                    selectedDateMeds = medDao.getByDate(dateStr),
+                    selectedDateNote = noteDao.getByDate(dateStr)
+                )
+                startAddMed()
+            }
+        }
     }
 
     /** 进入服药编辑 */
@@ -1035,7 +1105,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         _uiState.value = _uiState.value.copy(medDraft = draft)
     }
 
-    /** 保存服药：编辑时更新原记录，否则按选中日期新建（时间取当前/中午规则） */
+    /** 保存服药：编辑时更新原记录，否则按选中日期新建（时间默认当前时刻） */
     fun saveMed() {
         viewModelScope.launch {
             val s = _uiState.value
@@ -1056,7 +1126,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 medDao.insert(
                     MedRecord(
                         date = date.toString(),
-                        time = d.time.ifEmpty { defaultTimeFor(date) },
+                        time = d.time.ifEmpty { nowTime() },
                         name = d.name.trim(),
                         dose = d.dose.trim()
                     )
@@ -1277,22 +1347,6 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         val sorted = times.sorted()
         prefs.edit().putString(PREF_MED_REMINDER_TIMES, sorted.joinToString(",")).apply()
         _uiState.value = _uiState.value.copy(medReminderTimes = sorted)
-    }
-
-    /** 添加服药的默认时间：今天 = 最近一个未到点的提醒时间（都过点则当前时刻）；补录 = 第一个提醒时间 */
-    private fun medDefaultTime(date: LocalDate): String {
-        val times = _uiState.value.medReminderTimes
-        if (times.isEmpty()) return defaultTimeFor(date)
-        return if (date == LocalDate.now()) {
-            val now = LocalTime.now()
-            times
-                .mapNotNull { runCatching { LocalTime.parse(it, DateTimeFormatter.ofPattern("HH:mm")) }.getOrNull() }
-                .firstOrNull { it.isAfter(now) }
-                ?.format(DateTimeFormatter.ofPattern("HH:mm"))
-                ?: now.format(DateTimeFormatter.ofPattern("HH:mm"))
-        } else {
-            times.first()
-        }
     }
 
     // endregion
