@@ -244,7 +244,8 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
 
     init {
         loadState()
-        // 应用常驻内存跨日期时，在零点检查一次并刷新"今天"
+        // 应用开着跨零点时，在零点检查一次并刷新"今天"（后台不保证触发，
+        // 回到前台由 MainActivity 生命周期再次调用 checkDayChange 兜底）
         viewModelScope.launch {
             while (true) {
                 val secsToMidnight = (86_400 - LocalTime.now().toSecondOfDay()) % 86_400
@@ -340,9 +341,12 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    /** 应用常驻内存时日期变化（跨零点）：刷新"今天"；
-     * 选中日期若为旧的"今天"则跟随到新一天并重载当天数据 */
-    private fun checkDayChange() {
+    /** 日期变化（跨零点）检查：刷新"今天"；
+     * 选中日期若为旧的"今天"则跟随到新一天并重载当天数据。
+     * 两个调用点：① 应用开着跨零点时的零点定时器；
+     * ② 每次应用回到前台（ON_START）——后台期间进程可能被冻结/Doze，
+     * 零点定时器不一定触发，回到前台必须主动补查一次 */
+    fun checkDayChange() {
         val s = _uiState.value
         val now = LocalDate.now()
         if (now == s.today) return

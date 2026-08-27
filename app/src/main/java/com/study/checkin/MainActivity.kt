@@ -55,6 +55,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.study.checkin.ui.DailyManagementScreen
 import com.study.checkin.ui.HomeScreen
 import com.study.checkin.ui.MedSettingsScreen
@@ -141,6 +143,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // 每次应用回到前台（变为可见）时检查是否已跨零点：
+        // 后台期间进程可能被系统冻结/Doze/杀掉，ViewModel 里的零点定时器不一定触发；
+        // 回到前台主动补查一次"今天"，保证日历选中日跟着新的一天走
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
+                viewModel.checkDayChange()
+            }
+        })
         setContent {
             // 主题：按"我的→主题"所选模式决定深/浅（默认跟随系统）
             val state by viewModel.uiState.collectAsState()
