@@ -6,7 +6,6 @@ import android.provider.OpenableColumns
 import androidx.core.content.FileProvider
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.study.checkin.data.ActivityLevel
 import com.study.checkin.data.AppDatabase
 import com.study.checkin.data.BLOOD_LABELS
 import com.study.checkin.data.BRISTOL_LABELS
@@ -18,7 +17,6 @@ import com.study.checkin.data.MealRecord
 import com.study.checkin.data.MealType
 import com.study.checkin.data.MedRecord
 import com.study.checkin.data.PAIN_LOCATION_LABELS
-import com.study.checkin.data.activityLevel
 import com.study.checkin.data.activityScore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -28,26 +26,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import java.io.File
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-
-/** 日历中每一天 */
-data class CalendarDay(
-    val date: LocalDate,
-    val inCurrentMonth: Boolean,
-    val hasRecord: Boolean,
-    /** 当日排便记录的活动度（null = 无排便记录），驱动日历热力圆点 */
-    val activity: ActivityLevel? = null
-)
-
-/** 一个月的日历视图 */
-data class MonthView(
-    val yearMonth: YearMonth,
-    val days: List<CalendarDay>
-)
 
 /** 添加记录时的草稿 */
 data class DraftRecord(
@@ -123,14 +104,6 @@ enum class DayFilter(val label: String) {
     MED("服药")
 }
 
-/** 日历页记录类别（多选筛选，与首页筛选互不影响） */
-enum class CalendarCategory(val label: String) {
-    MEAL("饮食"),
-    MED("服药"),
-    BOWEL("便便"),
-    NOTE("感受")
-}
-
 /** 可导出的记录类型（导出对话框复选） */
 enum class ExportType(val label: String) {
     MEAL("饮食"),
@@ -170,15 +143,13 @@ val MED_REMINDER_TIME_POOL = listOf("08:00", "12:00", "16:00", "20:00", "22:00",
 
 data class MealUiState(
     val loading: Boolean = true,
-    /** 当前底部 Tab：0 首页 1 耐受 2 日历 3 我的 */
+    /** 当前底部 Tab：0 首页 1 耐受 2 日常管理 3 我的 */
     val selectedTab: Int = 0,
     val today: LocalDate = LocalDate.now(),
     val selectedDate: LocalDate = LocalDate.now(),
     /** 首页周历当前展示的周（滑动换周只移动它，不改变选中日期；点选日期时与选中日期同步） */
     val homeWeekAnchor: LocalDate = LocalDate.now(),
-    val currentMonth: YearMonth = YearMonth.now(),
-    val monthView: MonthView? = null,
-    /** 有记录的日期集合（yyyy-MM-dd），驱动日历小圆点 */
+    /** 有饮食记录的日期集合（yyyy-MM-dd），统计页"记录天数/覆盖日期"用 */
     val recordDates: Set<String> = emptySet(),
     val selectedDateRecords: List<MealRecord> = emptyList(),
     val selectedDateMeds: List<MedRecord> = emptyList(),
@@ -194,8 +165,6 @@ data class MealUiState(
     val selectedDateSymptoms: List<DailySymptom> = emptyList(),
     /** "当天记录"筛选（null = 不筛选；点击统计卡设置，再点一次或点"恢复"清除） */
     val dayRecordFilter: DayFilter? = null,
-    /** 日历页记录类别多选筛选（默认全部类别都显示；与首页 dayRecordFilter 互不影响） */
-    val calendarFilter: Set<CalendarCategory> = CalendarCategory.values().toSet(),
     /** 食物标签列表与"被饮食记录引用次数" */
     val foodTags: List<FoodTag> = emptyList(),
     val foodTagCounts: Map<String, Int> = emptyMap(),
@@ -310,11 +279,10 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 totalNoteDays = noteDao.getCount()
             )
             refreshFoodTagCounts()
-            refreshMonth(s.currentMonth)
         }
     }
 
-    /** 重新加载排便记录（每天最新一条 + 选中日全部条目）并重建月份视图 */
+    /** 重新加载排便记录（每天最新一条 + 选中日全部条目） */
     private fun refreshSymptoms() {
         viewModelScope.launch {
             val all = symptomDao.getAll()
@@ -326,7 +294,6 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                     .sortedByDescending { it.id },
                 allSymptoms = all
             )
-            refreshMonth(_uiState.value.currentMonth)
         }
     }
 
@@ -364,18 +331,16 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
     }
 
     /** 应用常驻内存时日期变化（跨零点）：刷新"今天"；
-     * 选中日期若为旧的"今天"则跟随到新一天并重载当天数据；日历页正显示当前月则翻到新月份 */
+     * 选中日期若为旧的"今天"则跟随到新一天并重载当天数据 */
     private fun checkDayChange() {
         val s = _uiState.value
         val now = LocalDate.now()
         if (now == s.today) return
         val followToday = s.selectedDate == s.today
-        val monthMoved = s.currentMonth == YearMonth.from(s.today) && YearMonth.from(now) != s.currentMonth
         _uiState.value = s.copy(
             today = now,
             selectedDate = if (followToday) now else s.selectedDate,
-            homeWeekAnchor = if (followToday) now else s.homeWeekAnchor,
-            currentMonth = if (monthMoved) YearMonth.from(now) else s.currentMonth
+            homeWeekAnchor = if (followToday) now else s.homeWeekAnchor
         )
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
@@ -390,7 +355,6 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                     selectedDateNote = noteDao.getByDate(dateStr)
                 )
             }
-            if (monthMoved) refreshMonth(YearMonth.from(now))
         }
     }
 
@@ -430,39 +394,9 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    /** 同步重建月份视图（数据已全部在内存中） */
-    private fun refreshMonth(yearMonth: YearMonth) {
-        val state = _uiState.value
-        _uiState.value = state.copy(
-            monthView = buildMonthView(yearMonth, state.recordDates, state.symptomByDate)
-        )
-    }
-
-    private fun buildMonthView(
-        yearMonth: YearMonth,
-        recordDates: Set<String>,
-        symptomByDate: Map<String, DailySymptom>
-    ): MonthView {
-        val firstDay = yearMonth.atDay(1)
-        val lastDay = yearMonth.atEndOfMonth()
-
-        // 从本月第一个周一开始补齐到完整的 6 行（42 天）
-        val startOfWeek = firstDay.with(DayOfWeek.MONDAY)
-        val days = (0 until 42).map { offset ->
-            val date = startOfWeek.plusDays(offset.toLong())
-            CalendarDay(
-                date = date,
-                inCurrentMonth = date >= firstDay && date <= lastDay,
-                hasRecord = recordDates.contains(date.toString()),
-                activity = symptomByDate[date.toString()]?.activityLevel
-            )
-        }
-        return MonthView(yearMonth, days)
-    }
-
     // endregion
 
-    // region 日历导航
+    // region 日期选择
 
     fun selectDate(date: LocalDate) {
         viewModelScope.launch {
@@ -477,26 +411,6 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 selectedDateNote = noteDao.getByDate(dateStr)
             )
         }
-    }
-
-    /** 上一个月 */
-    fun prevMonth() {
-        val prev = _uiState.value.currentMonth.minusMonths(1)
-        _uiState.value = _uiState.value.copy(currentMonth = prev)
-        refreshMonth(prev)
-    }
-
-    /** 下一个月 */
-    fun nextMonth() {
-        val next = _uiState.value.currentMonth.plusMonths(1)
-        _uiState.value = _uiState.value.copy(currentMonth = next)
-        refreshMonth(next)
-    }
-
-    /** 快速跳转到指定年月（点击月份标题选择），行为与滑动翻页一致，选中日期保持不变 */
-    fun jumpToMonth(yearMonth: YearMonth) {
-        _uiState.value = _uiState.value.copy(currentMonth = yearMonth)
-        refreshMonth(yearMonth)
     }
 
     // endregion
@@ -856,7 +770,6 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 totalRecords = dao.getTotalCount(),
                 selectedDateRecords = dao.getRecordsByDate(s.selectedDate.toString())
             )
-            refreshMonth(s.currentMonth)
             refreshFoodTagCounts()
         }
     }
@@ -875,7 +788,6 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 totalRecords = dao.getTotalCount(),
                 selectedDateRecords = dao.getRecordsByDate(s.selectedDate.toString())
             )
-            refreshMonth(s.currentMonth)
             refreshFoodTagCounts()
         }
     }
@@ -989,17 +901,6 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
     /** 清除筛选（"恢复"按钮） */
     fun clearDayRecordFilter() {
         _uiState.value = _uiState.value.copy(dayRecordFilter = null)
-    }
-
-    // endregion
-
-    // region 日历页记录类别多选筛选
-
-    /** 点按日历页筛选按钮：选中取消、未选中加上（可多选） */
-    fun toggleCalendarCategory(category: CalendarCategory) {
-        val current = _uiState.value.calendarFilter
-        val next = if (category in current) current - category else current + category
-        _uiState.value = _uiState.value.copy(calendarFilter = next)
     }
 
     // endregion
@@ -1250,7 +1151,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    /** 点击切换耐受状态：可耐受 → 谨慎 → 不耐受 → 可耐受 */
+    /** 点击切换耐受状态：可耐受 → 尝试 → 不耐受 → 可耐受 */
     fun cycleFoodTag(name: String) {
         viewModelScope.launch {
             val current = _uiState.value.foodTags.firstOrNull { it.name == name } ?: return@launch

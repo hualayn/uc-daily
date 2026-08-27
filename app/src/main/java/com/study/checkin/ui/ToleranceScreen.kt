@@ -40,7 +40,7 @@ import com.study.checkin.data.FoodTolerance
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-/** 耐受状态对应颜色（绿=可耐受 红=不耐受 黄=谨慎）；首页饮食标签也复用 */
+/** 耐受状态对应颜色（绿=可耐受 红=不耐受 黄=尝试）；首页饮食标签也复用 */
 internal fun toleranceColor(t: FoodTolerance): Color = when (t) {
     FoodTolerance.OK -> Color(0xFF4CAF50)
     FoodTolerance.CAUTION -> Color(0xFFF9A825)
@@ -53,7 +53,7 @@ private const val TOLERANCE_NOTE =
         "而发病时期不耐受，因此需按实际情况进行判断。注意每次少量尝试，" +
         "如果两三天后没有问题的话，那应该就是耐受的。但即便如此，还是应该谨慎饮食，不可以放肆。"
 
-/** 分组展示顺序：可耐受 → 不耐受 → 谨慎 */
+/** 分组展示顺序：可耐受 → 不耐受 → 尝试 */
 private val TOLERANCE_ORDER = listOf(FoodTolerance.OK, FoodTolerance.BAD, FoodTolerance.CAUTION)
 
 /** 长按进入拖动的等待时长（ms） */
@@ -77,7 +77,7 @@ private data class DragInfo(
 }
 
 /**
- * 耐受页：食物以 tag 样式展示（框色即状态：绿=可耐受 红=不耐受 黄=谨慎），
+ * 耐受页：食物以 tag 样式展示（框色即状态：绿=可耐受 红=不耐受 黄=尝试），
  * 点 tag 右上角出现 X 角标可删除。
  * 长按 tag（按住 400ms）进入拖动：标签跟随手指移动，
  * 同分区内松开 = 调整前后顺序，拖到另一分区松开 = 改变耐受状态。
@@ -246,7 +246,7 @@ fun ToleranceScreen(
                     }
                 }
             } else {
-                // 三个分区：可耐受 / 不耐受 / 谨慎（状态色分区卡片，区内为对应 tag）
+                // 三个分区：可耐受 / 不耐受 / 尝试（状态色分区卡片，区内为对应 tag）
                 val finger = dragInfo?.fingerRoot
                 TOLERANCE_ORDER.forEach { tol ->
                     item(key = "section_${tol.name}") {

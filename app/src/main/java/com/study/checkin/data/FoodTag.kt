@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 /** 食物耐受状态 */
 enum class FoodTolerance(val label: String) {
     OK("可耐受"),
-    CAUTION("谨慎"),
+    CAUTION("尝试"),
     BAD("不耐受");
 
     companion object {

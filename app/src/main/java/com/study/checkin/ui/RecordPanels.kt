@@ -204,7 +204,7 @@ fun DayRecordHeader(
     }
 }
 
-/** 当日记录列表（首页与日历页共用）：今日感受置顶；排便/饮食/服药按时间顺序混排；支持按统计类别筛选 */
+/** 当日记录列表（首页）：今日感受置顶；排便/饮食/服药按时间顺序混排；支持按统计类别筛选 */
 @Composable
 fun DayRecordList(
     state: MealUiState,
@@ -218,27 +218,11 @@ fun DayRecordList(
     onDeleteMed: (MedRecord) -> Unit,
     onOpenNote: () -> Unit,
     onDeleteNote: () -> Unit,
-    /** 首页模式：点卡片选中（单选），选中后才出现编辑/删除按钮；日历页保持原交互 */
-    selectable: Boolean = false,
-    /** 是否应用首页统计筛选（饮食/服药/便便）；日历页传 false，始终显示全部记录 */
-    applyFilter: Boolean = true,
-    /** 日历页类别多选筛选（非 null 时按所选类别过滤；null = 不应用） */
-    calendarFilter: Set<CalendarCategory>? = null
+    /** 点卡片选中（单选），选中后才出现编辑/删除按钮 */
+    selectable: Boolean = true
 ) {
-    var entries = if (applyFilter) state.visibleEntries() else state.allEntries()
-    var note = if (applyFilter) state.visibleNote() else state.selectedDateNote
-
-    // 日历页：按所选类别过滤（感受仅当 NOTE 选中时显示）
-    if (calendarFilter != null) {
-        entries = entries.filter { entry ->
-            when (entry) {
-                is MealEntry -> CalendarCategory.MEAL in calendarFilter
-                is SymptomEntry -> CalendarCategory.BOWEL in calendarFilter
-                is MedEntry -> CalendarCategory.MED in calendarFilter
-            }
-        }
-        if (CalendarCategory.NOTE !in calendarFilter) note = null
-    }
+    val entries = state.visibleEntries()
+    val note = state.visibleNote()
     val hasAny = entries.isNotEmpty() || note != null
     var selectedKey by remember { mutableStateOf<String?>(null) }
     /** 食物名 -> 耐受状态，用于饮食卡片标签着色 */
@@ -311,17 +295,10 @@ fun DayRecordList(
                 Text(text = "🌿", style = MaterialTheme.typography.headlineMedium)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = when {
-                        applyFilter && state.dayRecordFilter != null ->
-                            "这一天没有${state.dayRecordFilter!!.label}记录"
-                        // 日历页多选筛选后为空：区分"当天本就没有记录"与"当天有记录但被类别筛掉"
-                        calendarFilter != null ->
-                            if (state.allEntries().isNotEmpty() || state.selectedDateNote != null) {
-                                "这一天没有所选类别的记录"
-                            } else {
-                                "这一天还没有记录"
-                            }
-                        else -> "这一天还没有记录"
+                    text = if (state.dayRecordFilter != null) {
+                        "这一天没有${state.dayRecordFilter!!.label}记录"
+                    } else {
+                        "这一天还没有记录"
                     },
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -508,7 +485,7 @@ private fun AddRecordPanel(
                 Spacer(modifier = Modifier.height(20.dp))
                 SectionLabel("食物标签（可多选）")
                 Spacer(modifier = Modifier.height(8.dp))
-                // 按类别摆放：可耐受 → 谨慎 → 不耐受（稳定排序，组内顺序不变）
+                // 按类别摆放：可耐受 → 尝试 → 不耐受（稳定排序，组内顺序不变）
                 val orderedTags = state.foodTags.sortedBy {
                     when (FoodTolerance.fromValue(it.tolerance)) {
                         FoodTolerance.OK -> 0
@@ -1245,7 +1222,7 @@ private fun SectionLabel(text: String) {
 }
 
 /**
- * 食物标签（添加饮食页多选用）：框色即耐受状态（绿=可耐受 红=不耐受 黄=谨慎），
+ * 食物标签（添加饮食页多选用）：框色即耐受状态（绿=可耐受 红=不耐受 黄=尝试），
  * 点击切换选中
  */
 @Composable

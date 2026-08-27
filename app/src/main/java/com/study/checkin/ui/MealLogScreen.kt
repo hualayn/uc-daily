@@ -3,46 +3,27 @@ package com.study.checkin.ui
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -52,7 +33,6 @@ import com.study.checkin.data.BRISTOL_LABELS
 import com.study.checkin.data.DailySymptom
 import com.study.checkin.data.FoodTolerance
 import com.study.checkin.data.MealRecord
-import com.study.checkin.data.MedRecord
 import com.study.checkin.data.PAIN_LOCATION_LABELS
 import com.study.checkin.data.activityLevel
 import com.study.checkin.data.activityScore
@@ -60,238 +40,11 @@ import java.io.File
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
-import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.temporal.WeekFields
-import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
-
-/** 月份切换滑动动画时长（标题与网格共用，保证同步滑动） */
-private const val MONTH_SLIDE_MS = 260
-
-/** 日历页筛选按钮主题色（与首页统计卡一致：饮食/服药/便便；感受用青绿） */
-private fun categoryColor(category: CalendarCategory): Color = when (category) {
-    CalendarCategory.MEAL -> Color(0xFF43A047)   // 与首页"饮食"统计卡一致
-    CalendarCategory.MED -> Color(0xFF1E88E5)    // 与首页"服药"统计卡一致
-    CalendarCategory.BOWEL -> Color(0xFFF9A825)  // 与首页"便便"统计卡一致
-    CalendarCategory.NOTE -> Color(0xFF00897B)   // 感受：青绿色
-}
-
-/**
- * 日历页记录类别筛选按钮（4dp 圆角矩形）：
- * 选中 = 主题色加深背景 + 描边高亮 + 加粗文字；未选中 = 淡色背景、灰色文字。
- * 默认为选中（由 state.calendarFilter 初始值保证）。无打勾符号。
- */
-@Composable
-private fun CalendarFilterPill(
-    label: String,
-    accent: Color,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(4.dp))
-            .background(accent.copy(alpha = if (selected) 0.28f else 0.12f))
-            .then(
-                if (selected) {
-                    Modifier.border(1.dp, accent, RoundedCornerShape(4.dp))
-                } else {
-                    Modifier
-                }
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 8.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-            color = if (selected) accent else MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-/** 日历 Tab：月历（热力图）+ 年月选择 + 选中日全部记录 */
-@Composable
-fun CalendarScreen(
-    state: MealUiState,
-    onDateSelected: (LocalDate) -> Unit,
-    onPrevMonth: () -> Unit,
-    onNextMonth: () -> Unit,
-    onJumpToMonth: (YearMonth) -> Unit,
-    onPhotoClick: (String, List<String>) -> Unit,
-    onEditRecord: (MealRecord) -> Unit,
-    onDeleteRecord: (MealRecord) -> Unit,
-    onEditSymptom: (DailySymptom) -> Unit,
-    onDeleteSymptom: (Int) -> Unit,
-    onEditMed: (MedRecord) -> Unit,
-    onDeleteMed: (MedRecord) -> Unit,
-    onOpenNotePanel: () -> Unit,
-    onDeleteNote: () -> Unit,
-    /** 点按日历页记录类别筛选按钮（多选） */
-    onToggleCalendarCategory: (CalendarCategory) -> Unit
-) {
-    // 是否显示年月快速选择对话框
-    var showYearMonthPicker by remember { mutableStateOf(false) }
-
-    if (state.loading) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-        return
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .padding(top = 12.dp)
-            .padding(horizontal = 12.dp),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // 日历模块（日期头 + 星期头 + 月历）：统一卡片容器（16dp 圆角、4dp 阴影），
-        // 背景/描边随浅深主题切换（blueCardBackground / blueCardBorder）
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(1.dp, blueCardBorder(), RoundedCornerShape(16.dp)),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = blueCardBackground()
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                // 日期头：左右箭头换月；中间大字为展示月的年月（跟随滑动翻页），小字为选中日期，点击中间可快速选择年月
-                CalendarHeader(
-                    displayMonth = state.currentMonth,
-                    selectedDate = state.selectedDate,
-                    onPrevMonth = { onPrevMonth() },
-                    onNextMonth = { onNextMonth() },
-                    onTextClick = { showYearMonthPicker = true }
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // 星期头（与日历同一 7 列网格布局，保证列位置完全对齐；选中日对应的周几高亮为蓝色）
-                val weekDays = listOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
-                val selectedWeekIndex = state.selectedDate.dayOfWeek.value - 1
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(7),
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    itemsIndexed(weekDays) { index, day ->
-                        val highlighted = index == selectedWeekIndex
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(28.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = day,
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = if (highlighted) FontWeight.Bold else FontWeight.Normal,
-                                color = if (highlighted) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                }
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // 日历翻页区
-                state.monthView?.let { monthView ->
-                    CalendarPager(
-                        monthView = monthView,
-                        selectedDate = state.selectedDate,
-                        today = state.today,
-                        onDateClick = onDateSelected,
-                        // 往左滑动 → 下一个月；往右滑动 → 上一个月
-                        onSwipeLeft = { onNextMonth() },
-                        onSwipeRight = { onPrevMonth() }
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 记录类别多选筛选：饮食 / 服药 / 便便 / 感受（与首页统计筛选互不影响；默认全选，选中高亮）
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            CalendarCategory.values().forEach { category ->
-                CalendarFilterPill(
-                    label = category.label,
-                    accent = categoryColor(category),
-                    selected = category in state.calendarFilter,
-                    onClick = { onToggleCalendarCategory(category) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // 当日全部记录（今日感受置顶，其余按时间排序；
-        // 与首页一致：点卡片选中后出现编辑/删除按钮；不受首页统计筛选影响）
-        DayRecordList(
-            state = state,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            onPhotoClick = onPhotoClick,
-            onEditRecord = onEditRecord,
-            onDeleteRecord = onDeleteRecord,
-            onOpenSymptom = onEditSymptom,
-            onDeleteSymptom = onDeleteSymptom,
-            onEditMed = onEditMed,
-            onDeleteMed = onDeleteMed,
-            onOpenNote = onOpenNotePanel,
-            onDeleteNote = onDeleteNote,
-            selectable = true,
-            applyFilter = false,
-            calendarFilter = state.calendarFilter
-        )
-
-        // 累计统计
-        Text(
-            text = "累计 ${state.totalRecordDays} 天有记录 · 共 ${state.totalRecords} 条",
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-    }
-
-    // 年月快速选择对话框
-    if (showYearMonthPicker) {
-        YearMonthPickerDialog(
-            initialYear = state.currentMonth.year,
-            initialMonth = state.currentMonth.monthValue,
-            onConfirm = { year, month ->
-                showYearMonthPicker = false
-                onJumpToMonth(YearMonth.of(year, month))
-            },
-            onDismiss = { showYearMonthPicker = false }
-        )
-    }
-}
 
 /**
  * 导出记录对话框：
@@ -584,76 +337,6 @@ private fun ExportDatePickerDialog(
     }
 }
 
-/**
- * 日历日期头：
- * 左侧箭头 = 上一个月，右侧箭头 = 下一个月；
- * 中间第一行（居中、大字）：X年X月 —— 当前日历展示的年月，
- *   随日历左右滑动、箭头翻页同步更新；
- * 中间第二行（居中、小字灰色）：X月X日 周X —— 当前选中的日期（周几蓝色高亮）；
- * 点击中间文字弹出年月快速选择
- */
-@Composable
-private fun CalendarHeader(
-    displayMonth: YearMonth,
-    selectedDate: LocalDate,
-    onPrevMonth: () -> Unit,
-    onNextMonth: () -> Unit,
-    onTextClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = onPrevMonth) {
-            Icon(
-                imageVector = Icons.Filled.KeyboardArrowLeft,
-                contentDescription = "上一个月"
-            )
-        }
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(8.dp))
-                .clickable(onClick = onTextClick),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // 当前日历展示的年月（跟随左右滑动/箭头翻页）
-            Text(
-                text = "${displayMonth.year}年${displayMonth.monthValue}月",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            // 当前选中的日期（下方记录列表按此日期展示）
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "${selectedDate.monthValue}月${selectedDate.dayOfMonth}日",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = weekLabel(selectedDate),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-        IconButton(onClick = onNextMonth) {
-            Icon(
-                imageVector = Icons.Filled.KeyboardArrowRight,
-                contentDescription = "下一个月"
-            )
-        }
-    }
-}
-
 /** 周几文案（周一~周日），首页与日历页共用 */
 fun weekLabel(date: LocalDate): String =
     "周" + "一二三四五六日"[date.dayOfWeek.value - 1]
@@ -661,298 +344,6 @@ fun weekLabel(date: LocalDate): String =
 /** ISO 周序号（1~53），首页与日历页共用 */
 fun isoWeek(date: LocalDate): Int =
     date.get(WeekFields.ISO.weekOfWeekBasedYear())
-
-/** 年月选择器每列可见条目数 */
-private const val WHEEL_VISIBLE_ITEMS = 5
-/** 年月选择器单个条目高度（dp） */
-private const val WHEEL_ITEM_HEIGHT_DP = 44
-/** 年月选择器最小可选年份 */
-private const val WHEEL_MIN_YEAR = 2000
-/** 滚动内容上下留白（dp）：(可见高度 - 条目高度) / 2，保证首尾条目都能滚到中心线 */
-private val WHEEL_END_PADDING_DP = ((WHEEL_VISIBLE_ITEMS - 1) / 2 * WHEEL_ITEM_HEIGHT_DP).dp
-
-/** 年月快速选择对话框：年、月两列滚动选择，中间高亮项为当前选中，点确定跳转 */
-@Composable
-private fun YearMonthPickerDialog(
-    initialYear: Int,
-    initialMonth: Int,
-    onConfirm: (year: Int, month: Int) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val maxYear = LocalDate.now().year + 1
-    val years = (WHEEL_MIN_YEAR..maxYear).map { it.toString() }
-    val months = (1..12).map { "${it}月" }
-    var yearIndex by remember {
-        mutableIntStateOf((initialYear - WHEEL_MIN_YEAR).coerceIn(0, years.size - 1))
-    }
-    var monthIndex by remember { mutableIntStateOf((initialMonth - 1).coerceIn(0, 11)) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("选择年月") },
-        text = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height((WHEEL_VISIBLE_ITEMS * WHEEL_ITEM_HEIGHT_DP).dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                WheelColumn(
-                    items = years,
-                    selectedIndex = yearIndex,
-                    onSelected = { yearIndex = it },
-                    modifier = Modifier.weight(1f)
-                )
-                Box(
-                    modifier = Modifier
-                        .width(1.dp)
-                        .background(MaterialTheme.colorScheme.outlineVariant)
-                )
-                WheelColumn(
-                    items = months,
-                    selectedIndex = monthIndex,
-                    onSelected = { monthIndex = it },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(WHEEL_MIN_YEAR + yearIndex, monthIndex + 1) }) {
-                Text("确定")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
-        }
-    )
-}
-
-/**
- * 单列轮式选择：中心线处的条目为选中项，支持滚动与直接点击。
- *
- * 滚动内容上下各留 (可见高度 - 条目高度)/2 的空白，这样滚动偏移 i*条目高 时
- * 第 i 个条目正好停在中心线，首尾条目也都能被选中（否则首尾各差 2 个选不到）。
- */
-@Composable
-private fun WheelColumn(
-    items: List<String>,
-    selectedIndex: Int,
-    onSelected: (Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val scope = rememberCoroutineScope()
-    val itemHeightPx = with(LocalDensity.current) { WHEEL_ITEM_HEIGHT_DP.dp.toPx() }
-    // 条目 i 停到中心线时的滚动偏移 = i * 条目高
-    val scrollState = rememberScrollState(initial = (selectedIndex * itemHeightPx).toInt())
-    val onSelectedRef = rememberUpdatedState(onSelected)
-
-    // 滚动时实时更新选中：以距离中心线最近的条目为准
-    LaunchedEffect(scrollState) {
-        snapshotFlow { scrollState.value }
-            .collect { value ->
-                val index = (value / itemHeightPx).roundToInt().coerceIn(0, items.size - 1)
-                onSelectedRef.value(index)
-            }
-    }
-
-    Box(modifier = modifier.height((WHEEL_VISIBLE_ITEMS * WHEEL_ITEM_HEIGHT_DP).dp)) {
-        // 中心高亮条（在滚动内容之下）
-        Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxWidth()
-                .height(WHEEL_ITEM_HEIGHT_DP.dp)
-                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f))
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .clipToBounds()
-                .verticalScroll(scrollState)
-        ) {
-            Spacer(modifier = Modifier.height(WHEEL_END_PADDING_DP))
-            items.forEachIndexed { index, label ->
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = if (index == selectedIndex) FontWeight.Bold else FontWeight.Normal,
-                    color = if (index == selectedIndex) {
-                        MaterialTheme.colorScheme.onSurface
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                    },
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(WHEEL_ITEM_HEIGHT_DP.dp)
-                        .clickable {
-                            onSelected(index)
-                            scope.launch {
-                                scrollState.animateScrollTo((index * itemHeightPx).toInt())
-                            }
-                        }
-                )
-            }
-            Spacer(modifier = Modifier.height(WHEEL_END_PADDING_DP))
-        }
-    }
-}
-
-/**
- * 日历翻页区：单页渲染 + 方向感知滑动动画。
- * 水平拖动超过阈值后切换月份：
- * - 往左滑（手指向左）→ 下一个月
- * - 往右滑（手指向右）→ 上一个月
- * 新月份从对应方向滑入，旧月份滑出，与滑动方向一致。
- */
-@Composable
-private fun CalendarPager(
-    monthView: MonthView,
-    selectedDate: LocalDate?,
-    today: LocalDate,
-    onDateClick: (LocalDate) -> Unit,
-    onSwipeLeft: () -> Unit,
-    onSwipeRight: () -> Unit
-) {
-    val density = LocalDensity.current
-    val onSwipeLeftRef = rememberUpdatedState(onSwipeLeft)
-    val onSwipeRightRef = rememberUpdatedState(onSwipeRight)
-    // 本次手势累计位移（px）。往左滑为负，往右滑为正
-    var dragAccum by remember { mutableFloatStateOf(0f) }
-    // 滑动触发阈值
-    val thresholdPx = with(density) { 60.dp.toPx() }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clipToBounds()
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures(
-                    onDragEnd = {
-                        val accum = dragAccum
-                        dragAccum = 0f
-                        when {
-                            accum < -thresholdPx -> onSwipeLeftRef.value()
-                            accum > thresholdPx -> onSwipeRightRef.value()
-                        }
-                    },
-                    onDragCancel = { dragAccum = 0f },
-                    onHorizontalDrag = { _, dragAmount ->
-                        dragAccum += dragAmount
-                    }
-                )
-            }
-    ) {
-        AnimatedContent(
-            targetState = monthView,
-            transitionSpec = {
-                // targetState.isAfter = 往后的月份（往左滑触发）：新页从右滑入
-                if (targetState.yearMonth.isAfter(initialState.yearMonth)) {
-                    slideInHorizontally(tween(MONTH_SLIDE_MS)) { it } togetherWith
-                        slideOutHorizontally(tween(MONTH_SLIDE_MS)) { -it }
-                } else {
-                    slideInHorizontally(tween(MONTH_SLIDE_MS)) { -it } togetherWith
-                        slideOutHorizontally(tween(MONTH_SLIDE_MS)) { it }
-                }
-            },
-            label = "calendarMonth"
-        ) { view ->
-            MonthGrid(
-                days = view.days,
-                selectedDate = selectedDate,
-                today = today,
-                onDateClick = onDateClick
-            )
-        }
-    }
-}
-
-/** 单页日历网格 */
-@Composable
-private fun MonthGrid(
-    days: List<CalendarDay>,
-    selectedDate: LocalDate?,
-    today: LocalDate,
-    onDateClick: (LocalDate) -> Unit
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(7),
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-        horizontalArrangement = Arrangement.spacedBy(2.dp)
-    ) {
-        items(days) { day ->
-            CalendarDayCell(
-                day = day,
-                isSelected = day.date == selectedDate,
-                isToday = day.date == today,
-                onClick = { onDateClick(day.date) }
-            )
-        }
-    }
-}
-
-/** 日历单元格 */
-@Composable
-private fun CalendarDayCell(
-    day: CalendarDay,
-    isSelected: Boolean,
-    isToday: Boolean,
-    onClick: () -> Unit
-) {
-    val bgColor = when {
-        isSelected -> MaterialTheme.colorScheme.primary
-        else -> Color.Transparent
-    }
-    val textColor = when {
-        !day.inCurrentMonth -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-        isSelected -> MaterialTheme.colorScheme.onPrimary
-        isToday -> MaterialTheme.colorScheme.primary
-        else -> MaterialTheme.colorScheme.onSurface
-    }
-
-    Box(
-        modifier = Modifier
-            .size(44.dp)
-            .clip(CircleShape)
-            .background(bgColor)
-            .then(
-                // 今天且未被选中：蓝色描边突出
-                if (isToday && !isSelected) {
-                    Modifier.border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                } else {
-                    Modifier
-                }
-            )
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = day.date.dayOfMonth.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Normal,
-                color = textColor
-            )
-            // 底部状态点：有排便记录时按活动度着热力色（绿=缓解 黄=轻 橙=中 红=重），
-            // 仅有饮食记录时保持中性小圆点
-            val dotColor = when {
-                day.activity != null -> activityColor(day.activity)
-                day.hasRecord -> if (isToday) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.primaryContainer
-                else -> null
-            }
-            if (dotColor != null && !isSelected) {
-                Spacer(modifier = Modifier.height(1.dp))
-                Box(
-                    modifier = Modifier
-                        .size(if (day.activity != null) 6.dp else 4.dp)
-                        .background(dotColor, CircleShape)
-                )
-            }
-        }
-    }
-}
 
 /** 活动度对应的热力色（日历圆点与徽章共用） */
 fun activityColor(level: ActivityLevel): Color = when (level) {
@@ -1049,7 +440,7 @@ fun RecordCard(
     selectable: Boolean = false,
     selected: Boolean = false,
     onSelect: () -> Unit = {},
-    /** 食物名 -> 耐受状态（用于标签着色，绿=可耐受 红=不耐受 黄=谨慎） */
+    /** 食物名 -> 耐受状态（用于标签着色，绿=可耐受 红=不耐受 黄=尝试） */
     tagTolerances: Map<String, FoodTolerance> = emptyMap()
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -1117,7 +508,7 @@ fun RecordCard(
                 )
             }
 
-            // 食物标签：按耐受列表中的状态着色（绿=可耐受 红=不耐受 黄=谨慎，无记录则中性色）
+            // 食物标签：按耐受列表中的状态着色（绿=可耐受 红=不耐受 黄=尝试，无记录则中性色）
             if (record.tags.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 FlowRow(

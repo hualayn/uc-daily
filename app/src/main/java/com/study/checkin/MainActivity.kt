@@ -31,7 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
@@ -55,7 +55,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.study.checkin.ui.CalendarScreen
+import com.study.checkin.ui.DailyManagementScreen
 import com.study.checkin.ui.HomeScreen
 import com.study.checkin.ui.MedSettingsScreen
 import com.study.checkin.ui.MealLogViewModel
@@ -232,23 +232,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
 
-                                2 -> CalendarScreen(
-                                    state = state,
-                                    onDateSelected = { viewModel.selectDate(it) },
-                                    onPrevMonth = { viewModel.prevMonth() },
-                                    onNextMonth = { viewModel.nextMonth() },
-                                    onJumpToMonth = { viewModel.jumpToMonth(it) },
-                                    onPhotoClick = { path, photos -> viewModel.showPhoto(path, photos) },
-                                    onEditRecord = { viewModel.startEdit(it) },
-                                    onDeleteRecord = { viewModel.deleteRecord(it.id) },
-                                    onEditSymptom = { viewModel.startEditSymptom(it) },
-                                    onDeleteSymptom = { viewModel.deleteSymptom(it) },
-                                    onEditMed = { viewModel.startEditMed(it) },
-                                    onDeleteMed = { viewModel.deleteMed(it.id) },
-                                    onOpenNotePanel = { viewModel.openNotePanel() },
-                                    onDeleteNote = { viewModel.deleteNote() },
-                                    onToggleCalendarCategory = { viewModel.toggleCalendarCategory(it) }
-                                )
+                                2 -> DailyManagementScreen()
 
                                 else -> ProfileScreen(
                                     state = state,
@@ -342,7 +326,7 @@ private fun BottomTabs(
     val tabs = listOf(
         TabItem("首页", Icons.Filled.Home),
         TabItem("耐受", Icons.Filled.CheckCircle),
-        TabItem("日历", Icons.Filled.DateRange),
+        TabItem("日常管理", Icons.Filled.MenuBook),
         TabItem("我的", Icons.Filled.Person)
     )
     Box(modifier = Modifier.fillMaxWidth()) {
