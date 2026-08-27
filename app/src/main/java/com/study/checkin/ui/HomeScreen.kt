@@ -385,7 +385,12 @@ private fun timeToMinutes(t: String): Int? {
     return parts[0].toIntOrNull()?.let { h -> parts[1].toIntOrNull()?.let { m -> h * 60 + m } }
 }
 
-/** 今天未服的服药时间点：提醒时间已过但还没记录服药（提前最多 2 小时服下的药算作该点） */
+/**
+ * 今天未服的服药时间点：已到点的提醒时间若没有"专属"的服药记录覆盖，即视为未服。
+ * 匹配规则：一条服药记录最多覆盖一个提醒点（窗口 = 提醒时间前后 2 小时），
+ * 各提醒点按时间先后、优先认领窗口内时间最接近的一条未用服药记录——
+ * 避免一次服药"抹掉"多个实际未服的提醒点（如 16:00 吃的药不算 12:00 那个点）。
+ */
 private fun computeMissedMedTimes(
     reminders: List<String>,
     todayMedTimes: List<String>,
@@ -393,9 +398,24 @@ private fun computeMissedMedTimes(
 ): List<String> {
     val nowMin = now.hour * 60 + now.minute
     val medMins = todayMedTimes.mapNotNull { timeToMinutes(it) }
-    return reminders.filter { t ->
-        val m = timeToMinutes(t) ?: return@filter false
-        nowMin >= m && medMins.none { it >= m - 120 }
+    val usedMed = BooleanArray(medMins.size)
+    val covered = BooleanArray(reminders.size)
+    // 按提醒时间先后认领：每个点取窗口内未用且时间最接近的一条服药记录
+    reminders.indices
+        .sortedBy { timeToMinutes(reminders[it]) ?: Int.MAX_VALUE }
+        .forEach { i ->
+            val m = timeToMinutes(reminders[i]) ?: return@forEach
+            medMins.indices
+                .filter { !usedMed[it] && medMins[it] in (m - 120)..(m + 120) }
+                .minByOrNull { abs(medMins[it] - m) }
+                ?.let { idx ->
+                    usedMed[idx] = true
+                    covered[i] = true
+                }
+        }
+    return reminders.filterIndexed { i, t ->
+        val m = timeToMinutes(t) ?: return@filterIndexed false
+        nowMin >= m && !covered[i]
     }
 }
 
