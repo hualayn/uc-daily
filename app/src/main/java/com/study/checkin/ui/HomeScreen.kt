@@ -98,7 +98,7 @@ private fun WelcomeCard(state: MealUiState, missedMedTimes: List<String>, onBell
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = BANNERS[state.today.dayOfYear % BANNERS.size],
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

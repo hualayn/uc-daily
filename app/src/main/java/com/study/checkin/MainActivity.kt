@@ -63,6 +63,8 @@ import com.study.checkin.ui.StatsScreen
 import com.study.checkin.ui.ThemeMode
 import com.study.checkin.ui.UcDailyTheme
 import com.study.checkin.ui.ProfileScreen
+import com.study.checkin.ui.ExportType
+import com.study.checkin.ui.RecordListScreen
 import com.study.checkin.ui.RecordOverlays
 import com.study.checkin.ui.ToleranceScreen
 
@@ -157,6 +159,8 @@ class MainActivity : ComponentActivity() {
                     var showExitDialog by remember { mutableStateOf(false) }
                     var showStats by remember { mutableStateOf(false) }
                     var showMedSettings by remember { mutableStateOf(false) }
+                    /** 记录汇总列表（统计页点数量块打开，覆盖在统计页之上） */
+                    var recordListType by remember { mutableStateOf<ExportType?>(null) }
 
                     // 系统返回键：逐层返回（退出确认 → 快捷菜单 → 全屏照片 → 各记录面板 → 非首页 Tab → 首页则弹退出确认）
                     BackHandler {
@@ -168,6 +172,7 @@ class MainActivity : ComponentActivity() {
                             state.isSymptomPanelOpen -> viewModel.cancelSymptomPanel()
                             state.isMedPanelOpen -> viewModel.cancelMedPanel()
                             state.isNotePanelOpen -> viewModel.cancelNotePanel()
+                            recordListType != null -> recordListType = null
                             showStats -> showStats = false
                             showMedSettings -> showMedSettings = false
                             state.selectedTab != 0 -> viewModel.selectTab(0)
@@ -299,7 +304,19 @@ class MainActivity : ComponentActivity() {
 
                     // 我的页二级全屏页：统计信息 / 服药设置（覆盖底部导航，返回键关闭）
                     if (showStats) {
-                        StatsScreen(state = state, onBack = { showStats = false })
+                        StatsScreen(
+                            state = state,
+                            onBack = { showStats = false },
+                            onOpenRecords = { recordListType = it }
+                        )
+                    }
+                    // 记录汇总列表（统计页数量块 → 全时段明细，返回回统计页）
+                    recordListType?.let { type ->
+                        RecordListScreen(
+                            state = state,
+                            type = type,
+                            onBack = { recordListType = null }
+                        )
                     }
                     if (showMedSettings) {
                         MedSettingsScreen(

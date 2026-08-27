@@ -158,18 +158,25 @@ fun ToleranceScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            // 标题
-            Text(
-                text = "食物耐受",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(4.dp))
+            // 标题（风格与日常管理手册页一致：图标 + 标题、副标题、分隔线）
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "🥗", fontSize = 22.sp)
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "食物耐受",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = "记录哪些食物能吃、哪些要小心；饮食记录时打标签，方便回溯",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 21.sp
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             Spacer(modifier = Modifier.height(14.dp))
 
@@ -273,6 +280,15 @@ fun ToleranceScreen(
                             onDragEnd = { name, pos -> endDrag(name, pos) }
                         )
                     }
+                }
+                // 底部提示（左对齐）
+                item(key = "drag_hint") {
+                    Text(
+                        modifier = Modifier.padding(top = 2.dp, bottom = 6.dp),
+                        text = "提示：拖动标签可以变更类别",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }

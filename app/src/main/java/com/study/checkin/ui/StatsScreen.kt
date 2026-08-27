@@ -1,6 +1,7 @@
 package com.study.checkin.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -30,7 +31,9 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun StatsScreen(
     state: MealUiState,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    /** 点数量块：打开对应类别的全时段记录汇总列表 */
+    onOpenRecords: (ExportType) -> Unit
 ) {
     val today = LocalDate.now()
 
@@ -116,7 +119,6 @@ fun StatsScreen(
                     Row(modifier = Modifier.fillMaxWidth()) {
                         StatsBigNumber("第 $totalDays 天", "坚持记录", Modifier.weight(1f))
                         StatsBigNumber("$streak 天", "连续记录", Modifier.weight(1f))
-                        StatsBigNumber("有记录天数", "${state.totalRecordDays} 天", Modifier.weight(1f))
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -130,19 +132,25 @@ fun StatsScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // ② 数量统计（2×2）
+            // ② 数量统计（2×2；点击打开对应类别的全时段记录汇总列表）
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                StatsTile("饮食记录", "${state.totalRecords} 条", Modifier.weight(1f))
+                StatsTile("饮食记录", "${state.totalRecords} 条", Modifier.weight(1f)) {
+                    onOpenRecords(ExportType.MEAL)
+                }
                 StatsTile(
                     "排便记录",
                     "${state.symptomByDate.size} 天 · ${symptoms.sumOf { it.bowelCount }} 次",
                     Modifier.weight(1f)
-                )
+                ) { onOpenRecords(ExportType.BOWEL) }
             }
             Spacer(modifier = Modifier.height(12.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                StatsTile("服药记录", "${state.totalMedRecords} 条", Modifier.weight(1f))
-                StatsTile("感受记录", "${state.totalNoteDays} 天", Modifier.weight(1f))
+                StatsTile("服药记录", "${state.totalMedRecords} 条", Modifier.weight(1f)) {
+                    onOpenRecords(ExportType.MED)
+                }
+                StatsTile("感受记录", "${state.totalNoteDays} 天", Modifier.weight(1f)) {
+                    onOpenRecords(ExportType.NOTE)
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -326,13 +334,19 @@ private fun StatsBigNumber(title: String, value: String, modifier: Modifier = Mo
     }
 }
 
-/** 数量统计小块 */
+/** 数量统计小块（可点击跳转对应记录列表） */
 @Composable
-private fun StatsTile(title: String, value: String, modifier: Modifier = Modifier) {
+private fun StatsTile(
+    title: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+            .clickable(onClick = onClick)
             .padding(vertical = 14.dp, horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

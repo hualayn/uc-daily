@@ -57,12 +57,12 @@ import androidx.compose.ui.unit.sp
  * 日常管理 Tab：日常管理手册（手风琴卡片）+ 病情自评工具。
  *
  * 卡片互斥展开（点开一个会收起其他，再点当前卡片可全部收起，
- * 默认展开第一张"饮食管理"）。内容参考循证建议，仅供自我参考，不替代医生诊断。
+ * 默认全部收起）。内容参考循证建议，仅供自我参考，不替代医生诊断。
  */
 @Composable
 fun DailyManagementScreen() {
-    /** 当前展开的卡片下标；-1 = 全部收起（默认展开第一张） */
-    var expandedIndex by remember { mutableIntStateOf(0) }
+    /** 当前展开的卡片下标；-1 = 全部收起（默认） */
+    var expandedIndex by remember { mutableIntStateOf(-1) }
 
     LazyColumn(
         modifier = Modifier
@@ -167,6 +167,7 @@ private fun ManualFooter() {
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         Spacer(modifier = Modifier.height(16.dp))
         Text(
+            modifier = Modifier.fillMaxWidth(),
             text = "📌 重要提示\n以上信息仅供参考，不能替代专业医疗建议。\n具体方案请务必与你的主治医生共同制定。",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -370,7 +371,7 @@ private fun HighlightBox(markup: String) {
 // 五张卡片的内容
 // ---------------------------------------------------------------------------
 
-/** 卡片 1：饮食管理（默认展开） */
+/** 卡片 1：饮食管理 */
 @Composable
 private fun DietContent() {
     // 核心原则（一行连续文本：期别用行内加粗 + 主题色强调，自然换行）

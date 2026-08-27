@@ -271,7 +271,8 @@ fun ProfileScreen(
                             "· 饮食拍照 + 食物耐受标签\n" +
                             "· 服药记录与提醒时间设置\n" +
                             "· 便便记录（布里斯托分级）与活动度自评\n" +
-                            "· 每日感受与日历回溯",
+                            "· 每日感受与日历回溯\n" +
+                            "· 溃结日常管理手册：饮食 / 生活方式 / 药物医疗 / 心理调适的循证参考建议（仅供自我参考）",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))

@@ -19,6 +19,10 @@ interface MealRecordDao {
     @Query("SELECT * FROM meal_records")
     suspend fun getAllRecords(): List<MealRecord>
 
+    /** 全部饮食记录（日期倒序；统计页"饮食记录"汇总列表用） */
+    @Query("SELECT * FROM meal_records ORDER BY date DESC")
+    suspend fun getAllRecordsDesc(): List<MealRecord>
+
     @Query("SELECT * FROM meal_records WHERE date = :date ORDER BY id ASC")
     suspend fun getRecordsByDate(date: String): List<MealRecord>
 

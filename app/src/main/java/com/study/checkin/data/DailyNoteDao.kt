@@ -18,6 +18,10 @@ interface DailyNoteDao {
     @Query("SELECT * FROM daily_notes WHERE date BETWEEN :start AND :end ORDER BY date ASC")
     suspend fun getBetween(start: String, end: String): List<DailyNote>
 
+    /** 全部感受（日期倒序；统计页"感受记录"汇总列表用） */
+    @Query("SELECT * FROM daily_notes ORDER BY date DESC")
+    suspend fun getAllNotesDesc(): List<DailyNote>
+
     @Query("SELECT COUNT(*) FROM daily_notes")
     suspend fun getCount(): Int
 

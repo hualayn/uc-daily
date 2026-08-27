@@ -202,7 +202,13 @@ data class MealUiState(
     /** 全部排便记录（未去重；统计页算总量/分布用，symptomByDate 仍为每天最新一条） */
     val allSymptoms: List<DailySymptom> = emptyList(),
     /** 有感受记录的天数（统计页用） */
-    val totalNoteDays: Int = 0
+    val totalNoteDays: Int = 0,
+    /** 全部饮食记录（日期倒序；统计页"饮食记录"汇总列表用） */
+    val allMeals: List<MealRecord> = emptyList(),
+    /** 全部服药记录（日期倒序；统计页"服药记录"汇总列表用） */
+    val allMeds: List<MedRecord> = emptyList(),
+    /** 全部感受（日期倒序；统计页"感受记录"汇总列表用） */
+    val allNotes: List<DailyNote> = emptyList()
 )
 
 /** 关闭所有记录面板（打开新面板前调用，保证面板互斥） */
@@ -276,7 +282,10 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 themeMode = ThemeMode.fromKey(prefs.getString(PREF_THEME_MODE, null)),
                 medReminderTimes = loadMedReminderTimes(),
                 allSymptoms = allSymptoms,
-                totalNoteDays = noteDao.getCount()
+                totalNoteDays = noteDao.getCount(),
+                allMeals = dao.getAllRecordsDesc(),
+                allMeds = medDao.getAllMedsDesc(),
+                allNotes = noteDao.getAllNotesDesc()
             )
             refreshFoodTagCounts()
         }
@@ -320,11 +329,12 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    /** 重新加载服药总数与今天的服药时间（保存/删除服药后调用） */
+    /** 重新加载服药总数、全部服药列表与今天的服药时间（保存/删除服药后调用） */
     private fun refreshMedStats() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 totalMedRecords = medDao.getCount(),
+                allMeds = medDao.getAllMedsDesc(),
                 todayMedTimes = medDao.getByDate(_uiState.value.today.toString()).map { it.time }
             )
         }
@@ -768,7 +778,8 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 recordDates = dao.getRecordDates().toSet(),
                 totalRecordDays = dao.getRecordDays(),
                 totalRecords = dao.getTotalCount(),
-                selectedDateRecords = dao.getRecordsByDate(s.selectedDate.toString())
+                selectedDateRecords = dao.getRecordsByDate(s.selectedDate.toString()),
+                allMeals = dao.getAllRecordsDesc()
             )
             refreshFoodTagCounts()
         }
@@ -786,7 +797,8 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 recordDates = dao.getRecordDates().toSet(),
                 totalRecordDays = dao.getRecordDays(),
                 totalRecords = dao.getTotalCount(),
-                selectedDateRecords = dao.getRecordsByDate(s.selectedDate.toString())
+                selectedDateRecords = dao.getRecordsByDate(s.selectedDate.toString()),
+                allMeals = dao.getAllRecordsDesc()
             )
             refreshFoodTagCounts()
         }
@@ -1112,7 +1124,9 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
             _uiState.value = s.copy(
                 isNotePanelOpen = false,
                 noteDraft = NoteDraft(),
-                selectedDateNote = noteDao.getByDate(date.toString())
+                selectedDateNote = noteDao.getByDate(date.toString()),
+                allNotes = noteDao.getAllNotesDesc(),
+                totalNoteDays = noteDao.getCount()
             )
         }
     }
@@ -1122,7 +1136,11 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             val s = _uiState.value
             s.selectedDateNote?.let { noteDao.deleteById(it.id) }
-            _uiState.value = _uiState.value.copy(selectedDateNote = null)
+            _uiState.value = _uiState.value.copy(
+                selectedDateNote = null,
+                allNotes = noteDao.getAllNotesDesc(),
+                totalNoteDays = noteDao.getCount()
+            )
         }
     }
 

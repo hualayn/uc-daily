@@ -23,6 +23,10 @@ interface MedRecordDao {
     @Query("SELECT * FROM med_records WHERE date BETWEEN :start AND :end ORDER BY date ASC, time ASC, id ASC")
     suspend fun getMedsBetween(start: String, end: String): List<MedRecord>
 
+    /** 全部服药记录（日期倒序；统计页"服药记录"汇总列表用） */
+    @Query("SELECT * FROM med_records ORDER BY date DESC")
+    suspend fun getAllMedsDesc(): List<MedRecord>
+
     @Query("SELECT COUNT(*) FROM med_records")
     suspend fun getCount(): Int
 
