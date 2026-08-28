@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 系统通知小图标：白色医疗十字剪影（通知栏/状态栏图标） -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M10,3 h4 v7 h7 v4 h-7 v7 h-4 v-7 h-7 v-4 h7 z" />
+</vector>

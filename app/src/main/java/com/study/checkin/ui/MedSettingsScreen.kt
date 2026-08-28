@@ -1,17 +1,20 @@
 package com.study.checkin.ui
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.LocalPharmacy
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,8 +22,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import com.study.checkin.MedReminder
 
 /** 服药设置页（我的→服药设置）：每天服药次数（1~6）+ 对应提醒时间 */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -178,6 +186,11 @@ fun MedSettingsScreen(
             }
 
             Spacer(modifier = Modifier.height(12.dp))
+
+            // ③ 精确闹钟权限（保证应用处于后台/被杀时仍能到点提醒）
+            ExactAlarmPermissionCard()
+
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = "添加或补录服药时默认取当前时间。",
                 style = MaterialTheme.typography.bodySmall,
@@ -221,5 +234,69 @@ fun MedSettingsScreen(
                 }
             }
         )
+    }
+}
+
+/**
+ * 精确闹钟权限卡片（Android 12+ SCHEDULE_EXACT_ALARM）：
+ * 未授予时精确闹钟退化为不精确闹钟，MIUI 等对后台严格的管理型系统上
+ * 到点提醒可能被延后；权限状态在页面回到前台（ON_RESUME）时刷新。
+ */
+@Composable
+private fun ExactAlarmPermissionCard() {
+    val ctx = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var granted by remember { mutableStateOf(MedReminder.canScheduleExactAlarms(ctx)) }
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                granted = MedReminder.canScheduleExactAlarms(ctx)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = "到点提醒（精确闹钟）", style = MaterialTheme.typography.bodyLarge)
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = if (granted) {
+                        "已开启：应用退到后台也能按时提醒"
+                    } else {
+                        "未开启：应用关闭时可能无法按时提醒"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            if (granted) {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = "已开启",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            } else {
+                TextButton(
+                    onClick = {
+                        (ctx as? Activity)?.let { MedReminder.requestExactAlarmPermission(it) }
+                    }
+                ) {
+                    Text("去开启")
+                }
+            }
+        }
     }
 }

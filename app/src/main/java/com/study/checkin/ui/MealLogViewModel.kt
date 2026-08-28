@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.study.checkin.MedReminder
 import org.json.JSONArray
 import java.io.File
 import java.time.LocalDate
@@ -253,6 +254,16 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 checkDayChange()
             }
         }
+        // 服药提醒：到点由系统精确闹钟唤醒应用检查/发出通知（不依赖应用驻留，
+        // 见 MedReminder + MedAlarmReceiver）；应用存活期间再每分钟同步一次
+        // （服药记录刚保存/删除后立刻刷新或取消通知）
+        MedReminder.scheduleNext(app)
+        viewModelScope.launch {
+            while (true) {
+                delay(60_000L)
+                MedReminder.sync(app)
+            }
+        }
     }
 
     // region 数据加载
@@ -289,6 +300,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 allNotes = noteDao.getAllNotesDesc()
             )
             refreshFoodTagCounts()
+            syncMedReminderNotification()
         }
     }
 
@@ -338,6 +350,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 allMeds = medDao.getAllMedsDesc(),
                 todayMedTimes = medDao.getByDate(_uiState.value.today.toString()).map { it.time }
             )
+            syncMedReminderNotification()
         }
     }
 
@@ -369,6 +382,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                     selectedDateNote = noteDao.getByDate(dateStr)
                 )
             }
+            syncMedReminderNotification()
         }
     }
 
@@ -1270,6 +1284,22 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         val sorted = times.sorted()
         prefs.edit().putString(PREF_MED_REMINDER_TIMES, sorted.joinToString(",")).apply()
         _uiState.value = _uiState.value.copy(medReminderTimes = sorted)
+        // 提醒时间变化：重新安排精确闹钟
+        MedReminder.scheduleNext(app)
+        syncMedReminderNotification()
+    }
+
+    // region 服药提醒（统一在 MedReminder：通知发出 / 取消 + 精确闹钟安排，与首页铃铛同一判定口径）
+
+    /**
+     * 同步服药提醒系统通知：
+     * 应服药总数 = 已到点（<= 当前时刻）的提醒时间个数；实际服药总数 = 今天服药记录总条数。
+     * 实际 < 应服 → 发出 / 刷新通知（状态栏常驻图标 / 应用角标）；实际 >= 应服 → 取消。
+     * 由以下时机触发：应用启动、每分钟定时、服药记录增删、提醒时间 / 次数修改、跨零点，
+     * 以及 Android 13+ 通知权限授予后（MainActivity 回调）。
+     */
+    fun syncMedReminderNotification() {
+        viewModelScope.launch { MedReminder.sync(app) }
     }
 
     // endregion

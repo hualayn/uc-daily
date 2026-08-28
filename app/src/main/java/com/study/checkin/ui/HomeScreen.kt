@@ -60,9 +60,9 @@ private val MEAL_ACCENT = Color(0xFF43A047)
 private val BOWEL_ACCENT = Color(0xFFF9A825)
 private val MED_ACCENT = Color(0xFF1E88E5)
 
-/** 欢迎卡：渐变底 + 头像 + 按时段问候 + 今日寄语 + 右上角服药提醒铃铛（有未服药点亮红点） */
+/** 欢迎卡：渐变底 + 头像 + 按时段问候 + 今日寄语 + 右上角服药提醒铃铛（未到剂量时亮红点） */
 @Composable
-private fun WelcomeCard(state: MealUiState, missedMedTimes: List<String>, onBellClick: () -> Unit) {
+private fun WelcomeCard(state: MealUiState, medMissing: Boolean, onBellClick: () -> Unit) {
     val greeting = when (LocalTime.now().hour) {
         in 5..10 -> "早上好"
         in 11..13 -> "中午好"
@@ -102,7 +102,7 @@ private fun WelcomeCard(state: MealUiState, missedMedTimes: List<String>, onBell
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        // 右上角服药提醒铃铛：有"已到点未服药"时亮红点
+        // 右上角服药提醒铃铛：今天实际服药数 < 已到点的应服药数时亮红点
         Box {
             IconButton(onClick = onBellClick) {
                 Icon(
@@ -112,7 +112,7 @@ private fun WelcomeCard(state: MealUiState, missedMedTimes: List<String>, onBell
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            if (missedMedTimes.isNotEmpty()) {
+            if (medMissing) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -176,7 +176,7 @@ fun HomeScreen(
             delay((60 - nowMinute.second % 60) * 1000L)
         }
     }
-    val missedMedTimes = computeMissedMedTimes(state.medReminderTimes, state.todayMedTimes, nowMinute)
+    val medStatus = computeMedReminderStatus(state.medReminderTimes, state.todayMedTimes.size, nowMinute)
     var showMedReminder by remember { mutableStateOf(false) }
 
     Column(
@@ -187,7 +187,7 @@ fun HomeScreen(
             .padding(top = 12.dp)
     ) {
         // ① 欢迎卡：渐变底 + 头像 + 按时段问候 + 今日寄语（右上角 = 服药提醒铃铛）
-        WelcomeCard(state = state, missedMedTimes = missedMedTimes, onBellClick = { showMedReminder = true })
+        WelcomeCard(state = state, medMissing = medStatus.missing, onBellClick = { showMedReminder = true })
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -340,7 +340,7 @@ fun HomeScreen(
         )
     }
 
-    // 点铃铛：有未服药时列出未服时间点 + "去服药"入口
+    // 点铃铛：未达剂量时给出已服/应服数量 + "去服药"入口
     if (showMedReminder) {
         AlertDialog(
             onDismissRequest = { showMedReminder = false },
@@ -354,23 +354,27 @@ fun HomeScreen(
             title = { Text("服药提醒") },
             text = {
                 Text(
-                    if (missedMedTimes.isEmpty()) {
+                    if (medStatus.missing) {
+                        // 与系统通知同一文案，下行为补充明细
+                        "您还有 ${medStatus.dueTimes.size - state.todayMedTimes.size} 次未服药，请尽快服药！\n" +
+                            "已到点的服药时间：${medStatus.dueTimes.joinToString("、")}（已记录 ${state.todayMedTimes.size}/${medStatus.dueTimes.size} 次）"
+                    } else if (medStatus.dueTimes.isEmpty()) {
                         "今天还没有到点的服药时间，记得按时服药。"
                     } else {
-                        "以下时间已过，还没有记录服药：\n${missedMedTimes.joinToString("、")}\n该服药了！"
+                        "已到点的服药时间都已记录（${state.todayMedTimes.size}/${medStatus.dueTimes.size} 次）。"
                     }
                 )
             },
             confirmButton = {
                 TextButton(onClick = {
                     showMedReminder = false
-                    if (missedMedTimes.isNotEmpty()) onAddMed()
+                    if (medStatus.missing) onAddMed()
                 }) {
-                    Text(if (missedMedTimes.isNotEmpty()) "去服药" else "知道了")
+                    Text(if (medStatus.missing) "去服药" else "知道了")
                 }
             },
             dismissButton = {
-                if (missedMedTimes.isNotEmpty()) {
+                if (medStatus.missing) {
                     TextButton(onClick = { showMedReminder = false }) { Text("稍后") }
                 }
             }
@@ -378,45 +382,35 @@ fun HomeScreen(
     }
 }
 
-/** "HH:mm" 转当天分钟数（格式不合法返回 null） */
-private fun timeToMinutes(t: String): Int? {
+/** "HH:mm" 转当天分钟数（格式不合法返回 null）；服药提醒通知（ViewModel）也复用 */
+internal fun timeToMinutes(t: String): Int? {
     val parts = t.split(':')
     if (parts.size != 2) return null
     return parts[0].toIntOrNull()?.let { h -> parts[1].toIntOrNull()?.let { m -> h * 60 + m } }
 }
 
+/** 服药提醒状态：已到点的提醒时间列表 + 是否未达剂量 */
+private data class MedReminderStatus(
+    /** 今天已到点（<= 当前时刻）的提醒时间 */
+    val dueTimes: List<String>,
+    /** 未达剂量：今天实际服药总条数 < 已到点的应服药总次数 */
+    val missing: Boolean
+)
+
 /**
- * 今天未服的服药时间点：已到点的提醒时间若没有"专属"的服药记录覆盖，即视为未服。
- * 匹配规则：一条服药记录最多覆盖一个提醒点（窗口 = 提醒时间前后 2 小时），
- * 各提醒点按时间先后、优先认领窗口内时间最接近的一条未用服药记录——
- * 避免一次服药"抹掉"多个实际未服的提醒点（如 16:00 吃的药不算 12:00 那个点）。
+ * 今天是否未服药（按总数判定）：
+ * - 当前应服药总数 = 已到点（<= 当前时刻）的提醒时间个数；
+ * - 实际服药总数 = 今天的服药记录总条数；
+ * - 实际 < 应服 → 未服药（亮红点）；实际 >= 应服 → 已服药。
  */
-private fun computeMissedMedTimes(
+private fun computeMedReminderStatus(
     reminders: List<String>,
-    todayMedTimes: List<String>,
+    todayMedCount: Int,
     now: LocalTime
-): List<String> {
+): MedReminderStatus {
     val nowMin = now.hour * 60 + now.minute
-    val medMins = todayMedTimes.mapNotNull { timeToMinutes(it) }
-    val usedMed = BooleanArray(medMins.size)
-    val covered = BooleanArray(reminders.size)
-    // 按提醒时间先后认领：每个点取窗口内未用且时间最接近的一条服药记录
-    reminders.indices
-        .sortedBy { timeToMinutes(reminders[it]) ?: Int.MAX_VALUE }
-        .forEach { i ->
-            val m = timeToMinutes(reminders[i]) ?: return@forEach
-            medMins.indices
-                .filter { !usedMed[it] && medMins[it] in (m - 120)..(m + 120) }
-                .minByOrNull { abs(medMins[it] - m) }
-                ?.let { idx ->
-                    usedMed[idx] = true
-                    covered[i] = true
-                }
-        }
-    return reminders.filterIndexed { i, t ->
-        val m = timeToMinutes(t) ?: return@filterIndexed false
-        nowMin >= m && !covered[i]
-    }
+    val dueTimes = reminders.filter { timeToMinutes(it)?.let { m -> nowMin >= m } == true }
+    return MedReminderStatus(dueTimes, todayMedCount < dueTimes.size)
 }
 
 /**

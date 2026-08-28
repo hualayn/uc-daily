@@ -3,6 +3,7 @@ package com.study.checkin
 import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -106,6 +107,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /** Android 13+ 通知权限（服药提醒系统通知用；授予后下一次同步自动发出通知） */
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) viewModel.syncMedReminderNotification()
+    }
+
     private fun launchCamera() {
         val uri = viewModel.prepareCameraFile()
         if (uri == null) {
@@ -143,6 +151,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Android 13+：首次启动请求通知权限（服药提醒需要系统通知）
+        if (Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
         // 每次应用回到前台（变为可见）时检查是否已跨零点：
         // 后台期间进程可能被系统冻结/Doze/杀掉，ViewModel 里的零点定时器不一定触发；
         // 回到前台主动补查一次"今天"，保证日历选中日跟着新的一天走

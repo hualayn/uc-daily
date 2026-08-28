@@ -30,6 +30,10 @@ interface MedRecordDao {
     @Query("SELECT COUNT(*) FROM med_records")
     suspend fun getCount(): Int
 
+    /** 某天服药记录条数（非挂起：后台闹钟/广播场景不走协程；单次 COUNT 查询，任意线程可查） */
+    @Query("SELECT COUNT(*) FROM med_records WHERE date = :date")
+    fun countByDate(date: String): Int
+
     /** 最近用过的药名（去重），供服药面板快捷选择 */
     @Query("SELECT DISTINCT name FROM med_records WHERE name != '' ORDER BY rowid DESC LIMIT 12")
     suspend fun getRecentNames(): List<String>
