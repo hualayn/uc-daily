@@ -52,6 +52,12 @@ object MedReminder {
     private const val ALARM_REQUEST_CODE_BASE = 1000
     private const val MAX_MED_TIMES = 6
 
+    /**
+     * 通知角标样式（setBadgeIconType 取值）：0=无角标 1=圆点 2=数字。
+     * 高版本 SDK 移除了 Notification.BADGE_ICON_TYPE_* 常量，但接口取值沿用原约定，故硬编码。
+     */
+    private const val BADGE_ICON_TYPE_NUMERICAL = 2
+
     /** 当前提醒状态 */
     data class Status(
         val dueTimes: List<String>,
@@ -121,6 +127,11 @@ object MedReminder {
             .setSmallIcon(R.drawable.ic_med_notify)
             // 图标 / 应用角标着色（与首页铃铛红点同色）
             .setColor(0xFFE53935.toInt())
+            // 角标数量与样式：请求"数字型"角标（红底显示未服药次数）。
+            // 是否显示数字由桌面启动器决定：支持角标的（如三星、Nova 等）显示数字红点；
+            // 只支持圆点的（如 Pixel、小米）仍显示红点，无跨厂商强制数字的 API
+            .setNumber(s.missedCount)
+            .setBadgeIconType(BADGE_ICON_TYPE_NUMERICAL)
             .setContentTitle("服药提醒")
             .setContentText("您还有 ${s.missedCount} 次未服药，请尽快服药！")
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
