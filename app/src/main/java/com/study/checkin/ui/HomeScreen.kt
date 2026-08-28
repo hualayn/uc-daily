@@ -340,7 +340,7 @@ fun HomeScreen(
         )
     }
 
-    // 点铃铛：未达剂量时给出已服/应服数量 + "去服药"入口
+    // 点铃铛：未达剂量时显示未服次数 + "去服药"入口
     if (showMedReminder) {
         AlertDialog(
             onDismissRequest = { showMedReminder = false },
@@ -355,9 +355,8 @@ fun HomeScreen(
             text = {
                 Text(
                     if (medStatus.missing) {
-                        // 与系统通知同一文案，下行为补充明细
-                        "您还有 ${medStatus.dueTimes.size - state.todayMedTimes.size} 次未服药，请尽快服药！\n" +
-                            "已到点的服药时间：${medStatus.dueTimes.joinToString("、")}（已记录 ${state.todayMedTimes.size}/${medStatus.dueTimes.size} 次）"
+                        // 与系统通知同一文案
+                        "您还有 ${medStatus.dueTimes.size - state.todayMedTimes.size} 次未服药，请尽快服药！"
                     } else if (medStatus.dueTimes.isEmpty()) {
                         "今天还没有到点的服药时间，记得按时服药。"
                     } else {

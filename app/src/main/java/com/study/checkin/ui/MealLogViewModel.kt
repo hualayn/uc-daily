@@ -254,7 +254,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 checkDayChange()
             }
         }
-        // 服药提醒：到点由系统精确闹钟唤醒应用检查/发出通知（不依赖应用驻留，
+        // 服药提醒：到点由系统闹钟唤醒应用检查/发出通知（不依赖应用驻留，
         // 见 MedReminder + MedAlarmReceiver）；应用存活期间再每分钟同步一次
         // （服药记录刚保存/删除后立刻刷新或取消通知）
         MedReminder.scheduleNext(app)
@@ -1284,12 +1284,12 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         val sorted = times.sorted()
         prefs.edit().putString(PREF_MED_REMINDER_TIMES, sorted.joinToString(",")).apply()
         _uiState.value = _uiState.value.copy(medReminderTimes = sorted)
-        // 提醒时间变化：重新安排精确闹钟
+        // 提醒时间变化：重新安排系统闹钟
         MedReminder.scheduleNext(app)
         syncMedReminderNotification()
     }
 
-    // region 服药提醒（统一在 MedReminder：通知发出 / 取消 + 精确闹钟安排，与首页铃铛同一判定口径）
+    // region 服药提醒（统一在 MedReminder：通知发出 / 取消 + 系统闹钟安排，与首页铃铛同一判定口径）
 
     /**
      * 同步服药提醒系统通知：

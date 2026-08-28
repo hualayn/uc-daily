@@ -1,6 +1,5 @@
 package com.study.checkin
 
-import android.app.Activity
 import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,9 +7,6 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import android.provider.Settings
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -28,7 +24,7 @@ import java.time.LocalTime
 import java.time.ZoneId
 
 /**
- * 服药提醒（系统通知 + 精确闹钟），独立于 ViewModel/UI：
+ * 服药提醒（系统通知 + 系统闹钟），独立于 ViewModel/UI：
  * 前台（ViewModel 每分钟同步）与后台（闹钟/开机广播）共用同一套判定与发通知逻辑，
  * 保证应用被系统杀掉（MIUI 等）后，到点仍由系统闹钟唤醒并提醒。
  *
@@ -149,7 +145,7 @@ object MedReminder {
         }
     }
 
-    // region 精确闹钟：应用关闭时到点唤醒（后台可靠性的关键）
+    // region 系统闹钟：应用关闭时到点唤醒（后台可靠性的关键）
 
     private fun alarmPendingIntent(ctx: Context, slot: Int): PendingIntent {
         val intent = Intent(ctx, MedAlarmReceiver::class.java).setAction(ALARM_ACTION)
@@ -161,15 +157,11 @@ object MedReminder {
         )
     }
 
-    /** 是否可用精确闹钟（Android 12+ 需要 SCHEDULE_EXACT_ALARM 权限，清单声明后安装时默认授予） */
-    fun canScheduleExactAlarms(ctx: Context): Boolean =
-        Build.VERSION.SDK_INT < 31 ||
-            ctx.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()
-
     /**
      * （重新）为每个提醒时间安排下一次触发：今天的该时间未过则今天触发，否则明天。
      * 先清除本应用已有闹钟再逐个设置，重复调用（启动/改时间/触发后）不会残留旧闹钟。
-     * 无精确闹钟权限时退化为不精确闹钟（系统可能合并延后）。
+     * 用 allowWhileIdle 的不精确闹钟（无需任何权限，系统可能合并延后；
+     * 前台/后台保活期间另有 ViewModel 每分钟同步兜底）。
      */
     fun scheduleNext(ctx: Context) {
         val app = ctx.applicationContext
@@ -178,7 +170,6 @@ object MedReminder {
         for (slot in 0 until MAX_MED_TIMES) {
             am.cancel(alarmPendingIntent(app, slot))
         }
-        val exactAllowed = canScheduleExactAlarms(app)
         val now = LocalDateTime.now()
         reminderTimes(app).forEachIndexed { slot, t ->
             val minutes = timeToMinutes(t) ?: return@forEachIndexed
@@ -191,29 +182,9 @@ object MedReminder {
             val triggerAt = fireAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
             if (triggerAt <= System.currentTimeMillis()) return@forEachIndexed
             val pi = alarmPendingIntent(app, slot)
-            if (exactAllowed) {
-                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi)
-            } else {
-                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi)
-            }
+            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi)
         }
-        Log.i(TAG, "已安排服药提醒闹钟：${reminderTimes(app).joinToString("、")}（精确=${exactAllowed}）")
-    }
-
-    /**
-     * 打开“精确闹钟”权限页（Android 12+）：
-     * 13+ 打开系统专项授权页；12 回到系统设置首页。只能在前台（用户点击）时调用。
-     */
-    fun requestExactAlarmPermission(activity: Activity) {
-        val intent = if (Build.VERSION.SDK_INT >= 33) {
-            Intent(
-                Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
-                Uri.parse("package:${activity.packageName}")
-            )
-        } else {
-            Intent(Settings.ACTION_SETTINGS)
-        }
-        activity.startActivity(intent)
+        Log.i(TAG, "已安排服药提醒闹钟：${reminderTimes(app).joinToString("、")}")
     }
 
     // endregion
