@@ -250,7 +250,10 @@ private fun ExactAlarmPermissionCard() {
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                granted = MedReminder.canScheduleExactAlarms(ctx)
+                val nowGranted = MedReminder.canScheduleExactAlarms(ctx)
+                // 刚从系统设置回来且权限新授予：重排闹钟，把之前的不精确闹钟升级为精确闹钟
+                if (nowGranted && !granted) MedReminder.scheduleNext(ctx)
+                granted = nowGranted
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

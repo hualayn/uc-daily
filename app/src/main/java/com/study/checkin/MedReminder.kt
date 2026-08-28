@@ -218,16 +218,26 @@ object MedReminder {
 }
 
 /**
- * 精确闹钟触发：到点时即便应用处于后台/已被杀死，
+ * 闹钟触发：到点时即便应用处于后台/已被杀死，
  * 先重排今天剩余 + 明天的闹钟，再检查应服情况并通知（发出 / 取消）。
+ *
+ * 必须 goAsync()：onReceive 返回后系统会立即回收刚为广播拉起的进程，
+ * fire-and-forget 协程（读库 + 发通知）大概率被杀在半路，导致到点没有通知。
+ * goAsync() 把进程"借住"到异步工作完成（pending.finish()）为止。
  */
 class MedAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         val ctx = context.applicationContext
         Log.i(MedReminder.TAG, "服药提醒闹钟触发")
         MedReminder.scheduleNext(ctx)
-        // sync 是挂起函数（要读数据库）：后台广播里用全局协程 fire-and-forget 执行
-        CoroutineScope(Dispatchers.IO).launch { MedReminder.sync(ctx) }
+        val pending = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                MedReminder.sync(ctx)
+            } finally {
+                pending.finish()
+            }
+        }
     }
 }
 
