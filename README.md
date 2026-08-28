@@ -3,6 +3,8 @@
 溃结（溃疡性结肠炎）日常记录 Android 应用 — 每天把吃的、拉的、吃的药、身体的感受都记下来，方便回溯"症状出现前吃了什么"，也方便复诊时给医生看。
 
 > 📄 英文版：[README-en.md](./README-en.md)
+>
+> 📦 APK 下载（最新 release，打 tag 后由 GitHub Actions 自动编译更新）：[uc-daily.apk](https://github.com/hualayn/uc-daily/releases/latest/download/uc-daily.apk)
 
 ## 界面结构（四个底部 Tab + 中间凸起"+"快捷添加）
 
