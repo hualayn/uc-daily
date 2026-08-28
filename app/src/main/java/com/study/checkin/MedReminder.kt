@@ -35,8 +35,9 @@ import java.time.ZoneId
  * 判定口径（与首页铃铛一致）：
  *  应服药总数 = 已到点（<= 当前时刻）的提醒时间个数
  *  实际服药总数 = 今天服药记录总条数
- *  实际 < 应服 → 发出 / 刷新通知（状态栏常驻图标 / 应用图标角标）
- *  实际 >= 应服 → 取消通知
+ *  实际 < 应服 → 发出 / 刷新通知（状态栏常驻图标；桌面角标数量 = notification.number，
+ *   MIUI 12+ 桌面读取该公开 API 显示未服药次数）
+ *  实际 >= 应服 → 取消通知（角标随之清除）
  */
 object MedReminder {
     const val CHANNEL_ID = "med_reminder"
@@ -127,10 +128,11 @@ object MedReminder {
             .setSmallIcon(R.drawable.ic_med_notify)
             // 图标 / 应用角标着色（与首页铃铛红点同色）
             .setColor(0xFFE53935.toInt())
-            // 角标数量与样式：请求"数字型"角标（红底显示未服药次数）。
-            // 是否显示数字由桌面启动器决定：支持角标的（如三星、Nova 等）显示数字红点；
-            // 只支持圆点的（如 Pixel、小米）仍显示红点，无跨厂商强制数字的 API
+            // 桌面角标数量：写入 notification.number。
+            // MIUI 12+ 桌面直接读取该公开 API（无需 hideAPI 反射），
+            // 应用图标上显示未服药次数角标；未服归零时取消通知，角标随之清除
             .setNumber(s.missedCount)
+            // 角标样式：Android 16（API 35+）系统桌面请求"数字型"角标，低版本忽略此调用
             .setBadgeIconType(BADGE_ICON_TYPE_NUMERICAL)
             .setContentTitle("服药提醒")
             .setContentText("您还有 ${s.missedCount} 次未服药，请尽快服药！")
