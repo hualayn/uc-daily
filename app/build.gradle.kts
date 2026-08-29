@@ -22,6 +22,34 @@ android {
         compose = true
     }
 
+    // release 签名：GitHub Actions 把仓库 secret 里的 keystore 解码成文件，
+    // 通过 -P 参数传入（RELEASE_KEYSTORE_FILE / RELEASE_KEYSTORE_PASSWORD /
+    // RELEASE_KEY_ALIAS / RELEASE_KEY_PASSWORD）；
+    // 本地构建（无密钥）时 release 自动退回 debug 签名，仍可安装
+    // val releaseSigningProps = listOf(
+    //     (project.findProperty("RELEASE_KEYSTORE_FILE") as? String),
+    //     (project.findProperty("RELEASE_KEYSTORE_PASSWORD") as? String),
+    //     (project.findProperty("RELEASE_KEY_ALIAS") as? String),
+    //     (project.findProperty("RELEASE_KEY_PASSWORD") as? String)
+    // ).map { it?.takeIf { s -> s.isNotBlank() } }
+    // val hasReleaseSigning = releaseSigningProps.none { it == null }
+
+    // if (hasReleaseSigning) {
+    //     signingConfigs {
+    //         create("release") {
+    //             storeFile = file(releaseSigningProps[0]!!)
+    //             storePassword = releaseSigningProps[1]!!
+    //             keyAlias = releaseSigningProps[2]!!
+    //             keyPassword = releaseSigningProps[3]!!
+    //         }
+    //     }
+    // }
+    // val releaseSigningConfig = if (hasReleaseSigning) {
+    //     signingConfigs.getByName("release")
+    // } else {
+    //     signingConfigs.getByName("debug")
+    // }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -29,6 +57,15 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+    }
+
+    signingConfigs {     
+        create("release") {
+            storeFile = file("/home/ll/app-key-store.jks")
+            storePassword = "111111"
+            keyAlias = "key0"
+            keyPassword = "111111"
+        }        
     }
 
     buildTypes {
@@ -39,6 +76,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // signingConfig = releaseSigningConfig
+            signingConfig = signingConfigs.getByName("release")
         }
         debug {
             isMinifyEnabled = false
