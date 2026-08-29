@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.study.checkin.MedReminder
+import com.study.checkin.util.PhotoCompressor
 import org.json.JSONArray
 import java.io.File
 import java.time.LocalDate
@@ -696,12 +697,15 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    /** 相机拍摄成功，将照片并入草稿 */
+    /** 相机拍摄成功：压缩到 300KB 以下后再并入草稿（IO 线程压缩，不阻塞 UI） */
     fun onCameraPhotoTaken() {
         val path = pendingCameraPath
         pendingCameraPath = null
         if (path != null && File(path).exists()) {
-            appendDraftPhoto(path)
+            viewModelScope.launch {
+                val file = withContext(Dispatchers.IO) { compressPhotoInPlace(File(path)) }
+                appendDraftPhoto(file.absolutePath)
+            }
         }
     }
 
@@ -725,7 +729,12 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                         app.contentResolver.openInputStream(uri)?.use { input ->
                             file.outputStream().use { output -> input.copyTo(output) }
                         }
-                        if (file.length() > 0) file.absolutePath else null
+                        // 与拍照一致：压缩到 300KB 以下再入草稿（压缩失败则保留原图）
+                        if (file.length() > 0) compressPhotoInPlace(file).absolutePath
+                        else {
+                            file.delete()
+                            null
+                        }
                     } catch (e: Exception) {
                         null
                     }
@@ -738,6 +747,27 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 )
             }
         }
+    }
+
+    /**
+     * 原地压缩照片文件至 300KB 以下（重编码为 JPEG）。
+     * 压缩成功且比原图小时替换原文件（原为 PNG/WebP 时文件名改为 .jpg）；
+     * 压缩失败（如 HEIC 无法解码）原样返回原文件。
+     */
+    private fun compressPhotoInPlace(file: File): File {
+        val tmp = File(file.parentFile, "${file.nameWithoutExtension}~compress.jpg")
+        val ok = PhotoCompressor.compress(file, tmp) != null &&
+            tmp.length() > 0 &&
+            tmp.length() < file.length()
+        if (ok) {
+            val target = File(file.parentFile, "${file.nameWithoutExtension}.jpg")
+            tmp.copyTo(target, overwrite = true)
+            tmp.delete()
+            if (target.absolutePath != file.absolutePath) file.delete()
+            return target
+        }
+        tmp.delete()
+        return file
     }
 
     private fun queryExtension(uri: Uri): String {
@@ -1300,6 +1330,16 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
      */
     fun syncMedReminderNotification() {
         viewModelScope.launch { MedReminder.sync(app) }
+    }
+
+    /**
+     * 应用退到后台时刷新桌面角标：换新通知 id 静默重发一次。
+     * 真机验证：MIUI 桌面在应用前台期间不处理角标重新显示（应用打开时重发
+     * 无效果且多一次通知事件，已移除），应用退到后台时（onStop）的这次重发
+     * 即可让角标恢复；延迟补发反而造成角标闪动，不再使用。
+     */
+    fun refreshMedReminderBadgeToBackground() {
+        viewModelScope.launch { MedReminder.refreshLauncherBadge(app, "退后台") }
     }
 
     // endregion

@@ -165,6 +165,13 @@ class MainActivity : ComponentActivity() {
             override fun onStart(owner: LifecycleOwner) {
                 viewModel.checkDayChange()
             }
+
+            override fun onStop(owner: LifecycleOwner) {
+                // 从桌面 / 最近任务打开应用会触发"桌面隐藏角标"的系统默认行为；
+                // 桌面在应用前台期间不处理角标更新，只有应用真正退后台后到达的
+                // 新通知（换新 id 静默重发，不响铃）才会恢复角标
+                viewModel.refreshMedReminderBadgeToBackground()
+            }
         })
         setContent {
             // 主题：按"我的→主题"所选模式决定深/浅（默认跟随系统）

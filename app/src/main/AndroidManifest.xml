@@ -41,6 +41,12 @@
             </intent-filter>
         </receiver>
 
+        <!-- 服药提醒后台服务：普通后台服务（不持有通知、不占通知栏），
+             Handler 定时器到点检查未服药并发通知 + 桌面角标 -->
+        <service
+            android:name=".MedReminderService"
+            android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.study.checkin.fileprovider"
