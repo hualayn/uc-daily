@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ucdaily.AppLocale
+import com.ucdaily.BuildConfig
 import com.ucdaily.R
 
 /**
@@ -44,6 +45,9 @@ fun SettingsScreen(
     var showFontSizeDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
+
+    // 版本号：直接读构建时注入的 versionName（CI 按 tag 注入，本地默认 1.1.0，避免文案写死）
+    val versionName = BuildConfig.VERSION_NAME
 
     // 内置默认寄语（按当前语言解析）：用于判断寄语列表是否仍为默认
     val defaultSlogans = DEFAULT_HOME_SLOGANS_RES.map { stringResource(it) }
@@ -142,7 +146,7 @@ fun SettingsScreen(
                     ProfileMenuItem(
                         icon = Icons.Filled.SystemUpdateAlt,
                         label = stringResource(R.string.profile_menu_update),
-                        trailing = stringResource(R.string.profile_menu_update_trailing),
+                        trailing = stringResource(R.string.profile_menu_update_trailing, versionName),
                         onClick = onCheckUpdate
                     )
                     HorizontalDivider(
@@ -152,7 +156,7 @@ fun SettingsScreen(
                     ProfileMenuItem(
                         icon = Icons.Filled.Info,
                         label = stringResource(R.string.profile_menu_about),
-                        trailing = stringResource(R.string.profile_menu_about_trailing),
+                        trailing = stringResource(R.string.profile_menu_about_trailing, versionName),
                         onClick = { showAboutDialog = true }
                     )
                 }
@@ -259,7 +263,7 @@ fun SettingsScreen(
             text = {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = stringResource(R.string.profile_about_version),
+                        text = stringResource(R.string.profile_about_version, versionName),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )

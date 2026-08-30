@@ -196,7 +196,7 @@
     <string name="tolerance_title">Tolerância alimentar</string>
     <string name="tolerance_subtitle">Registre quais alimentos você pode comer e quais exigem cuidado; marque alimentos ao registrar refeições para revisar facilmente</string>
     <string name="tolerance_note_title">Sobre a tolerância</string>
-    <string name="tolerance_note">A tolerância alimentar varia conforme sua condição física e o estado da doença: você pode tolerar um alimento em fase estável, mas não durante uma crise. Julgue de acordo com sua situação real. Sempre experimente pequenas quantidades; se após dois ou três dias não houver problema, provavelmente é tolerado. Mesmo assim, mantenha uma dieta prudente e não exagere.</string>
+    <string name="tolerance_note">A tolerância alimentar varia de pessoa para pessoa conforme as condições físicas e o estado da doença. Atualmente, nenhum alimento foi claramente identificado como causador de inflamação. Na fase ativa da doença, é indispensável seguir uma dieta leve, de baixo resíduo, comendo pouco e várias vezes ao dia, para reduzir a carga sobre o intestino. Uma vez em fase de remissão, você poderá começar os testes de tolerância alimentar. Adicione pequenas quantidades por vez; se em dois ou três dias não houver problema, poderá basicamente ser considerado tolerado. Mesmo assim, mantenha um estilo de alimentação prudente e saudável, evite alimentos irritantes e favoreça a saúde intestinal.</string>
     <string name="tolerance_note_collapse">Recolher</string>
     <string name="tolerance_note_expand">Expandir</string>
     <string name="tolerance_empty_title">Ainda não há alimentos</string>
@@ -254,12 +254,12 @@
     <string name="profile_menu_language">Idioma</string>
     <string name="profile_menu_update">Atualização</string>
     <string name="profile_menu_about">Sobre</string>
-    <string name="profile_menu_about_trailing">v1.0</string>
-    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_menu_about_trailing">v%1$s</string>
+    <string name="profile_menu_update_trailing">v%1$s</string>
     <string name="profile_font_desc">Ajusta o tamanho do texto nas páginas Início, Tolerância e Cuidados</string>
     <string name="profile_font_sample">Texto</string>
     <string name="profile_about_title">Sobre o Diário UC</string>
-    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">Um diário diário projetado para pessoas com retocolite ulcerativa (RCU):\n· Fotos de refeições + etiquetas de tolerância alimentar\n· Registro de medicação e configuração de horários\n· Registro de fezes (escala de Bristol) e autoavaliação de atividade\n· Estado diário e revisão no calendário\n· Manual de cuidados diários: recomendações de referência baseadas em evidências (alimentação / estilo de vida / medicação e cuidados médicos / bem-estar psicológico) — apenas para referência pessoal</string>
     <string name="profile_about_disclaimer">A atividade é um UCDAI simplificado (0~8 pts) apenas para automonitoramento. Dados e fotos são armazenados somente na pasta do aplicativo no seu dispositivo e nunca são enviados.</string>
 

@@ -196,7 +196,7 @@
     <string name="tolerance_title">Tolleranza alimentare</string>
     <string name="tolerance_subtitle">Registra quali cibi puoi mangiare e quali richiedono attenzione; etichetta i cibi durante la registrazione dei pasti per un facile controllo</string>
     <string name="tolerance_note_title">Sulla tolleranza</string>
-    <string name="tolerance_note">La tolleranza alimentare varia in base alle condizioni fisiche e alla malattia: un alimento può essere tollerato in fase di remissione ma non durante una riacutizzazione. Valuta quindi in base alla tua situazione reale. Prova sempre piccole quantità; se dopo due o tre giorni non ci sono problemi, probabilmente è tollerato. Anche in questo caso, resta prudente e non esagerare.</string>
+    <string name="tolerance_note">La tolleranza alimentare varia da persona a persona a seconda delle condizioni fisiche e dello stato della malattia. Attualmente nessun cibo è stato chiaramente identificato come causa di infiammazione. Nella fase attiva della malattia è indispensabile seguire una dieta leggera, a basso residuo, mangiando poco e spesso per ridurre il carico sull\'intestino. Una volta in fase di remissione, si possono iniziare i test di tolleranza alimentare. Aggiungi piccole quantità alla volta; se dopo due o tre giorni non compaiono problemi, il cibo può in linea di massima essere considerato tollerato. Anche in questo caso, è opportuno mantenere uno stile alimentare prudente e sano, evitare cibi irritanti e favorire la salute intestinale.</string>
     <string name="tolerance_note_collapse">Riduci</string>
     <string name="tolerance_note_expand">Espandi</string>
     <string name="tolerance_empty_title">Ancora nessun alimento</string>
@@ -254,12 +254,12 @@
     <string name="profile_menu_language">Lingua</string>
     <string name="profile_menu_update">Aggiornamento</string>
     <string name="profile_menu_about">Informazioni</string>
-    <string name="profile_menu_about_trailing">v1.0</string>
-    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_menu_about_trailing">v%1$s</string>
+    <string name="profile_menu_update_trailing">v%1$s</string>
     <string name="profile_font_desc">Regola la dimensione del testo nelle pagine Home, Tolleranza e Gestione</string>
     <string name="profile_font_sample">Testo</string>
     <string name="profile_about_title">Informazioni su Diario UC</string>
-    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">Un diario quotidiano pensato per chi convive con la colite ulcerosa (CU):\n· Foto dei pasti + etichette di tolleranza alimentare\n· Registro dei farmaci e orari di assunzione\n· Registro delle feci (scala di Bristol) e autovalutazione dell\'attività\n· Stato quotidiano e riepilogo sul calendario\n· Manuale di gestione quotidiana: consigli di riferimento basati sull\'evidenza (alimentazione / stile di vita / farmaci e cure / benessere psicologico) — solo per riferimento personale</string>
     <string name="profile_about_disclaimer">L\'attività è un UCDAI semplificato (0~8 pti) solo per l\'automonitoraggio. Dati e foto sono conservati esclusivamente nella cartella dell\'app sul dispositivo e non vengono mai caricati.</string>
 

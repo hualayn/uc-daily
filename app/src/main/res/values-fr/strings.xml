@@ -196,7 +196,7 @@
     <string name="tolerance_title">Tolérance alimentaire</string>
     <string name="tolerance_subtitle">Suivez les aliments que vous pouvez manger et ceux à surveiller ; étiquetez vos aliments lors de la saisie des repas pour y revenir facilement</string>
     <string name="tolerance_note_title">À propos de la tolérance</string>
-    <string name="tolerance_note">La tolérance alimentaire varie selon votre état physique et votre maladie : vous pouvez tolérer un aliment quand la maladie est stable, mais pas pendant une poussée. Jugez donc selon votre situation réelle. Essayez toujours une petite quantité d\'abord ; si aucun problème n\'apparaît après deux ou trois jours, il est probablement toléré. Même dans ce cas, restez prudent dans votre alimentation.</string>
+    <string name="tolerance_note">La tolérance alimentaire varie d\'une personne à l\'autre selon l\'état physique et l\'état de la maladie. Actuellement, aucun aliment n\'a été clairement identifié comme pouvant provoquer une inflammation. En phase active de la maladie, vous devez impérativement suivre un régime léger, pauvre en résidus, en mangeant peu et souvent, afin de réduire la charge sur les intestins. Une fois en phase de rémission, vous pourrez commencer les essais de tolérance alimentaire. Ajoutez de petites quantités à la fois ; si aucun problème ne survient après deux ou trois jours, vous pouvez considérer qu\'il est en principe toléré. Même dans ce cas, vous devez maintenir une alimentation prudente et saine, éviter les aliments irritants et favoriser la santé intestinale.</string>
     <string name="tolerance_note_collapse">Réduire</string>
     <string name="tolerance_note_expand">Déplier</string>
     <string name="tolerance_empty_title">Aucun aliment pour l\'instant</string>
@@ -254,12 +254,12 @@
     <string name="profile_menu_language">Langue</string>
     <string name="profile_menu_update">Mise à jour</string>
     <string name="profile_menu_about">À propos</string>
-    <string name="profile_menu_about_trailing">v1.0</string>
-    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_menu_about_trailing">v%1$s</string>
+    <string name="profile_menu_update_trailing">v%1$s</string>
     <string name="profile_font_desc">Ajuste la taille du texte des pages Accueil, Tolérance et Soins</string>
     <string name="profile_font_sample">Texte</string>
     <string name="profile_about_title">À propos d\'UC Quotidien</string>
-    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">Un journal quotidien conçu pour les personnes atteintes de rectocolite hémorragique (RCH) :\n· Photos de repas + étiquettes de tolérance alimentaire\n· Journal de médicaments et réglage des heures de prise\n· Journal des selles (échelle de Bristol) et auto-évaluation de l\'activité\n· Ressenti quotidien et retour sur le calendrier\n· Manuel de soins quotidiens : conseils de référence fondés sur les données probantes (alimentation / mode de vie / médicaments et soins médicaux / bien-être psychologique) — pour référence personnelle uniquement</string>
     <string name="profile_about_disclaimer">L\'activité est un UCDAI simplifié (0~8 pts) pour l\'auto-surveillance uniquement. Les données et photos sont stockées uniquement dans le dossier de l\'application sur votre appareil et ne sont jamais téléversées.</string>
 

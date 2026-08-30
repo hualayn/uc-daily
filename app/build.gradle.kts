@@ -21,6 +21,8 @@ android {
 
     buildFeatures {
         compose = true
+        // 生成 BuildConfig，供界面读取 BuildConfig.VERSION_NAME（随 -PVERSION_NAME 注入）
+        buildConfig = true
     }
 
     // release 签名：GitHub Actions 把仓库 secret 里的 keystore 解码成文件，

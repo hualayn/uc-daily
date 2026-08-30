@@ -196,7 +196,7 @@
     <string name="tolerance_title">تحمّل الأطعمة</string>
     <string name="tolerance_subtitle">سجّل الأطعمة التي يمكنك تناولها والتي تحتاج إلى حذر؛ وأضف وسومًا عند تسجيل الوجبات لسهولة المراجعة</string>
     <string name="tolerance_note_title">عن التحمل</string>
-    <string name="tolerance_note">يختلف تحمّل الطعام باختلاف حالة الجسم والمرض: فقد تتحمل طعامًا في فترة استقرار المرض، ولا تتحمله أثناء النوبة. احكم حسب وضعك الفعلي. جرّب دائمًا كمية صغيرة؛ فإذا لم تظهر مشكلة بعد يومين أو ثلاثة، فالأرجح أنه متحمّل. ومع ذلك، حافظ على حذر في غذائك ولا تفرط.</string>
+    <string name="tolerance_note">يتفاوت تحمّل الطعام من شخص إلى آخر تبعًا لحالة الجسم ودرجة المرض. وحتى الآن، لم يثبت بوضوح أن أي طعام معيّن يسبّب التهابًا. في المرحلة النشطة من المرض، يجب الالتزام بنظام غذائي خفيف ومنخفض الحطام، وتناول وجبات صغيرة متكررة لتقليل العبء على الأمعاء. بعد الدخول في مرحلة الهدوّ، يمكنك البدء بتجارب تحمّل الأطعمة. أضف كمية صغيرة في كل مرة، فإذا لم تظهر مشكلة خلال يومين أو ثلاثة أيام، يمكن اعتباره متحمّلًا في الأساس. ومع ذلك، ينبغي الاستمرار في الحفاظ على نمط غذائي حذر وصحي، وتجنّب الأطعمة المهيجة، وتعزيز صحة الأمعاء.</string>
     <string name="tolerance_note_collapse">طي</string>
     <string name="tolerance_note_expand">توسيع</string>
     <string name="tolerance_empty_title">لا توجد أطعمة بعد</string>
@@ -254,12 +254,12 @@
     <string name="profile_menu_language">اللغة</string>
     <string name="profile_menu_update">تحديث التطبيق</string>
     <string name="profile_menu_about">حول</string>
-    <string name="profile_menu_about_trailing">v1.0</string>
-    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_menu_about_trailing">v%1$s</string>
+    <string name="profile_menu_update_trailing">v%1$s</string>
     <string name="profile_font_desc">اضبط حجم النص في صفحات الرئيسية والتحمل والرعاية اليومية</string>
     <string name="profile_font_sample">نص</string>
     <string name="profile_about_title">حول يوميات UC</string>
-    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">مذكرة يومية مصممة لمرضى التهاب القولون التقرحي (UC):\n· صور الوجبات + وسوم تحمّل الأطعمة\n· سجل الأدوية وضبط مواعيد الجرعات\n· سجل البراز (مقياس بريستول) وتقييم ذاتي للنشاط\n· الحالة اليومية والمراجعة عبر التقويم\n· دليل الرعاية اليومية: إرشادات مرجعية مبنية على الأدلة (الغذاء / نمط الحياة / الأدوية والرعاية الطبية / الصحة النفسية) — للاطلاع الشخصي فقط</string>
     <string name="profile_about_disclaimer">النشاط هو UCDAI مبسّط (0~8 نقاط) للمراقبة الذاتية فقط. تُحفظ البيانات والصور في مجلد التطبيق على جهازك فقط ولا يتم رفعها أبدًا.</string>
 

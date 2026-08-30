@@ -216,7 +216,7 @@
     <string name="tolerance_title">食物耐受</string>
     <string name="tolerance_subtitle">记录哪些食物能吃、哪些要小心；饮食记录时打标签，方便回溯</string>
     <string name="tolerance_note_title">耐受说明</string>
-    <string name="tolerance_note">食物耐受程度因个人身体条件和病情影响，各有不同：可能在病情稳定时期耐受，而发病时期不耐受，因此需按实际情况进行判断。注意每次少量尝试，如果两三天后没有问题的话，那应该就是耐受的。但即便如此，还是应该谨慎饮食，不可以放肆。</string>
+    <string name="tolerance_note">食物耐受因每个人的身体条件和病情影响，各不相同。目前，并没有明确的食物会引起炎症。病情活动期必须清淡、低渣饮食，少食多餐，减轻肠道负担。等到缓解期之后，再做食物耐受尝试。每次少量添加，如果两三天后没有问题，则基本可以视为耐受。但是，即便如此，仍应该保持谨慎、健康的饮食方式，避免刺激性食物，促进肠道健康。</string>
     <string name="tolerance_note_collapse">收起说明</string>
     <string name="tolerance_note_expand">展开说明</string>
     <string name="tolerance_empty_title">还没有食物</string>
@@ -275,12 +275,12 @@
     <string name="profile_menu_language">语言</string>
     <string name="profile_menu_update">软件更新</string>
     <string name="profile_menu_about">关于</string>
-    <string name="profile_menu_about_trailing">v1.0</string>
-    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_menu_about_trailing">v%1$s</string>
+    <string name="profile_menu_update_trailing">v%1$s</string>
     <string name="profile_font_desc">调整首页记录、耐受页和日常管理页的文字大小</string>
     <string name="profile_font_sample">文字</string>
     <string name="profile_about_title">关于溃结日常记录</string>
-    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">为溃疡性结肠炎（UC）设计的日常记录工具：\n· 饮食拍照 + 食物耐受标签\n· 服药记录与提醒时间设置\n· 便便记录（布里斯托分级）与活动度自评\n· 每日感受与日历回溯\n· 溃结日常管理手册：饮食 / 生活方式 / 药物医疗 / 心理调适的循证参考建议（仅供自我参考）</string>
     <string name="profile_about_disclaimer">活动度为简化 UCDAI（0~8 分），仅供自我监测参考。数据与照片仅保存在本机应用目录，不会上传。</string>
 

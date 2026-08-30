@@ -196,7 +196,7 @@
     <string name="tolerance_title">음식 내성</string>
     <string name="tolerance_subtitle">먹을 수 있는 음식과 주의할 음식을 기록하고, 식사 기록 시 태그를 달아 쉽게 되돌아볼 수 있습니다</string>
     <string name="tolerance_note_title">내성 설명</string>
-    <string name="tolerance_note">음식 내성은 개인의 신체 조건과 병세에 따라 다릅니다. 병세가 안정된 시기에는 내성이 있어도, 발병 시기에는 내성이 없을 수 있으므로 실제 상황에 따라 판단해야 합니다. 매번 소량씩 시도하고, 이삼 일이 지나도 문제가 없다면 내성이 있는 것으로 볼 수 있습니다. 그렇더라도 여전히 조심해서 먹어야 하며 방심해서는 안 됩니다.</string>
+    <string name="tolerance_note">음식 내성은 각 개인의 신체 조건과 병세에 따라 달라집니다. 현재까지 염증을 유발하는 것으로 명확히 밝혀진 음식은 없습니다. 병의 활동기에는 반드시 담백하고 저잔사 식이, 소식다식을 하여 장의 부담을 줄여야 합니다. 완화기에 접어들면 음식 내성 시도를 시작해도 됩니다. 매번 소량씩 추가하고, 2~3일 후 문제가 없다면 기본적으로 내성이 있는 것으로 볼 수 있습니다. 그렇더라도 여전히 신중하고 건강한 식생활 방식을 유지하고, 자극적인 음식을 피하며 장 건강을 촉진해야 합니다.</string>
     <string name="tolerance_note_collapse">설명 접기</string>
     <string name="tolerance_note_expand">설명 펼치기</string>
     <string name="tolerance_empty_title">아직 음식이 없습니다</string>
@@ -254,12 +254,12 @@
     <string name="profile_menu_language">언어</string>
     <string name="profile_menu_update">업데이트</string>
     <string name="profile_menu_about">정보</string>
-    <string name="profile_menu_about_trailing">v1.0</string>
-    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_menu_about_trailing">v%1$s</string>
+    <string name="profile_menu_update_trailing">v%1$s</string>
     <string name="profile_font_desc">홈, 내성, 일상 관리 페이지의 글자 크기를 조절합니다</string>
     <string name="profile_font_sample">문자</string>
     <string name="profile_about_title">UC 데일리 기록 소개</string>
-    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">궤양성 대장염(UC)을 위한 일상 기록 도구:\n· 식사 사진 + 음식 내성 태그\n· 복약 기록과 복약 시간 설정\n· 배변 기록(브리스톨 척도)과 활동도 자가 평가\n· 매일의 컨디션 메모와 달력 되돌아보기\n· 궤양성 대장염 일상 관리 핸드북: 식이/생활 습관/약물과 의료/심리 케어에 대한 근거 기반 참고 조언(자기 참고용)</string>
     <string name="profile_about_disclaimer">활동도는 간이 UCDAI(0~8점)로, 자기 관찰 참고용입니다. 데이터와 사진은 이 기기의 앱 폴더에만 저장되며 업로드되지 않습니다.</string>
 

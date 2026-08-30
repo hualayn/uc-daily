@@ -196,7 +196,7 @@
     <string name="tolerance_title">Lebensmittel-Verträglichkeit</string>
     <string name="tolerance_subtitle">Erfassen Sie, welche Lebensmittel Sie vertragen und bei welchen Sie vorsichtig sein sollten; taggen Sie Lebensmittel beim Erfassen von Mahlzeiten zum einfachen Nachschlagen</string>
     <string name="tolerance_note_title">Zur Verträglichkeit</string>
-    <string name="tolerance_note">Die Verträglichkeit von Lebensmitteln hängt von Ihrer körperlichen Verfassung und dem Krankheitszustand ab: Sie vertragen ein Lebensmittel möglicherweise in stabilen Phasen, aber nicht während eines Schubs. Beurteilen Sie daher anhand Ihrer tatsächlichen Situation. Probieren Sie immer nur eine kleine Menge; wenn nach zwei oder drei Tagen kein Problem auftritt, ist es wahrscheinlich verträglich. Trotzdem bleiben Sie vorsichtig und übertreiben Sie es nicht.</string>
+    <string name="tolerance_note">Die Verträglichkeit von Lebensmitteln unterscheidet sich von Person zu Person und hängt von der körperlichen Verfassung und dem Krankheitszustand ab. Derzeit ist kein Lebensmittel nachgewiesen, das Entzündungen auslöst. In der aktiven Krankheitsphase müssen Sie leicht und ballaststoffarm (niedrigresiduell) essen und in kleinen, häufigen Portionen, um die Belastung des Darms zu verringern. Erst wenn die Krankheit in Remission ist, können Sie mit Verträglichkeitsproben beginnen. Fügen Sie jeweils nur kleine Mengen hinzu; wenn nach zwei oder drei Tagen kein Problem auftritt, gilt es im Wesentlichen als verträglich. Dennoch sollten Sie weiterhin einen vorsichtigen, gesunden Ernährungsstil beibehalten, reizende Lebensmittel meiden und die Darmgesundheit fördern.</string>
     <string name="tolerance_note_collapse">Einklappen</string>
     <string name="tolerance_note_expand">Ausklappen</string>
     <string name="tolerance_empty_title">Noch keine Lebensmittel</string>
@@ -254,12 +254,12 @@
     <string name="profile_menu_language">Sprache</string>
     <string name="profile_menu_update">Update</string>
     <string name="profile_menu_about">Über</string>
-    <string name="profile_menu_about_trailing">v1.0</string>
-    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_menu_about_trailing">v%1$s</string>
+    <string name="profile_menu_update_trailing">v%1$s</string>
     <string name="profile_font_desc">Passt die Textgröße auf Start-, Verträglichkeits- und Alltagspflege-Seiten an</string>
     <string name="profile_font_sample">Text</string>
     <string name="profile_about_title">Über UC-Tagebuch</string>
-    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">Ein tägliches Begleittagebuch für Menschen mit Colitis ulcerosa (CU):\n· Mahlzeiten-Fotos + Verträglichkeits-Tags\n· Medikamenten-Protokoll und Einnahmezeiten\n· Stuhlgang-Protokoll (Bristol-Skala) und Selbstbeurteilung der Aktivität\n· Tägliches Befinden und Kalender-Rückblick\n· Handbuch zur Alltagspflege: evidenzbasierte Referenzhinweise (Ernährung / Lebensstil / Medikamente &amp; medizinische Versorgung / psychisches Wohlbefinden) – nur zur eigenen Orientierung</string>
     <string name="profile_about_disclaimer">Die Aktivität ist ein vereinfachter UCDAI (0~8 Pkt.) nur zur Selbstbeobachtung. Daten und Fotos werden nur im App-Ordner auf Ihrem Gerät gespeichert und nie hochgeladen.</string>
 

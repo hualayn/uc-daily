@@ -196,7 +196,7 @@
     <string name="tolerance_title">食品耐性</string>
     <string name="tolerance_subtitle">食べられる食品と注意が必要な食品を記録。食事記録のときにタグ付けして振り返りやすくします</string>
     <string name="tolerance_note_title">耐性について</string>
-    <string name="tolerance_note">食品耐性は体調や病状によって人それぞれ異なり、病状が安定している時期には耐性があっても、発症時期には耐性がないことがあります。実際の状況に合わせて判断してください。毎回少量ずつ試し、2〜3日経っても問題がなければ耐性があると考えられます。それでも油断せず、控えめな食事を心がけましょう。</string>
+    <string name="tolerance_note">食品耐性は、それぞれの人の体調や病状によって異なります。現時点では、炎症を引き起こすと明確に示されている食品はありません。病気の活動期には、必ずさっぱりした低残渣食とし、少量多食で腸への負担を軽減してください。寛解期になってから、食品耐性のトライアルを行ってください。毎回少量ずつ加え、2〜3日間問題がなければ、基本的に耐性があるとみなせます。それでもなお、注意深く健康的な食事のスタイルを心がけ、刺激の強い食品を避け、腸の健康を促進してください。</string>
     <string name="tolerance_note_collapse">説明を閉じる</string>
     <string name="tolerance_note_expand">説明を開く</string>
     <string name="tolerance_empty_title">食品がまだありません</string>
@@ -254,12 +254,12 @@
     <string name="profile_menu_language">言語</string>
     <string name="profile_menu_update">アップデート</string>
     <string name="profile_menu_about">このアプリについて</string>
-    <string name="profile_menu_about_trailing">v1.0</string>
-    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_menu_about_trailing">v%1$s</string>
+    <string name="profile_menu_update_trailing">v%1$s</string>
     <string name="profile_font_desc">ホーム・耐性・日常管理ページの文字サイズを調整します</string>
     <string name="profile_font_sample">文字</string>
     <string name="profile_about_title">潰結デイリー記録について</string>
-    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">潰瘍性大腸炎（UC）のための日常記録ツール：\n・食事の写真＋食品耐性タグ\n・服薬記録と服薬時間の設定\n・排便記録（ブリストル分類）と活動度の自己評価\n・毎日の体調メモとカレンダーで振り返り\n・潰瘍性大腸炎の日常管理ハンドブック：食事／生活習慣／薬と医療／心理的なケアのエビデンスに基づく参考アドバイス（自己参考用）</string>
     <string name="profile_about_disclaimer">活動度は簡易版 UCDAI（0~8 点）で、自己観察の参考のみです。データと写真は端末内のアプリ領域にのみ保存され、アップロードされることはありません。</string>
 

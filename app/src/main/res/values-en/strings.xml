@@ -196,7 +196,7 @@
     <string name="tolerance_title">Food Tolerance</string>
     <string name="tolerance_subtitle">Track which foods you can eat and which to be careful with; tag foods when logging meals for easy review</string>
     <string name="tolerance_note_title">About tolerance</string>
-    <string name="tolerance_note">Food tolerance varies with your physical condition and disease state: you may tolerate a food when the disease is stable but not during a flare-up, so judge each food by your actual situation. Always try a small amount first; if there is no problem after two or three days, it is probably tolerable. Even so, stay cautious with your diet and do not overdo it.</string>
+    <string name="tolerance_note">Food tolerance varies from person to person depending on physical condition and disease state. Currently, no specific food has been clearly shown to cause inflammation. During active disease, you must eat a light, low-residue diet and take small, frequent meals to reduce the burden on your intestines. After the disease has settled into remission, you can start testing food tolerance. Add small amounts at a time; if there is no problem after two or three days, you can basically consider it tolerable. Even so, you should still maintain a cautious, healthy eating style, avoid irritating foods, and promote intestinal health.</string>
     <string name="tolerance_note_collapse">Collapse</string>
     <string name="tolerance_note_expand">Expand</string>
     <string name="tolerance_empty_title">No foods yet</string>
@@ -254,12 +254,12 @@
     <string name="profile_menu_language">Language</string>
     <string name="profile_menu_update">App Update</string>
     <string name="profile_menu_about">About</string>
-    <string name="profile_menu_about_trailing">v1.0</string>
-    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_menu_about_trailing">v%1$s</string>
+    <string name="profile_menu_update_trailing">v%1$s</string>
     <string name="profile_font_desc">Adjust the text size on the Home, Tolerance and Daily Care pages</string>
     <string name="profile_font_sample">Text</string>
     <string name="profile_about_title">About UC Daily</string>
-    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">A daily self-care journal designed for people with Ulcerative Colitis (UC):\n· Meal photos + food tolerance tags\n· Medication log and reminder time settings\n· Bowel log (Bristol scale) and activity self-assessment\n· Daily notes and calendar review\n· UC daily care handbook: evidence-based reference advice on diet / lifestyle / medication &amp; medical care / mental well-being (for self-reference only)</string>
     <string name="profile_about_disclaimer">Activity is a simplified UCDAI (0~8 pts) for self-monitoring reference only. Data and photos are stored only in the app directory on your device and are never uploaded.</string>
 
