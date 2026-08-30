@@ -46,37 +46,35 @@ jobs:
           RELEASE_KEYSTORE_FILE: ${{ secrets.RELEASE_KEYSTORE_FILE }}
         run: |
           if [ -z "$RELEASE_KEYSTORE_FILE" ]; then
-            echo "未设置 RELEASE_KEYSTORE_FILE secret，跳过解码"
-            exit 0
+            echo "::error::未设置 RELEASE_KEYSTORE_FILE secret（Settings → Secrets and variables → Actions）"
+            exit 1
           fi
           echo "$RELEASE_KEYSTORE_FILE" | base64 -d > "$GITHUB_WORKSPACE/release-keystore.jks"
           ls -l "$GITHUB_WORKSPACE/release-keystore.jks"
 
       - name: Gradle 编译 release APK（正式签名）
-        # secret 齐全时用 release keystore 签名；
-        # 缺 secret 时 build.gradle.kts 自动回退 debug 签名，流水线仍可跑通
+        # 四个签名 secret 缺一不可：发布包必须是 release 签名，
+        # 回退 debug 签名会破坏升级链（与已安装 release 包签名冲突），故直接失败
         env:
           RELEASE_KEYSTORE_FILE: ${{ secrets.RELEASE_KEYSTORE_FILE }}
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: |
-          SIGNING_ARGS=()
-          if [ -n "$RELEASE_KEYSTORE_FILE" ]; then
-            echo "构建正式签名 release APK"
-            SIGNING_ARGS=(
-              "-PRELEASE_KEYSTORE_FILE=$GITHUB_WORKSPACE/release-keystore.jks"
-              "-PRELEASE_KEYSTORE_PASSWORD=$RELEASE_KEYSTORE_PASSWORD"
-              "-PRELEASE_KEY_ALIAS=$RELEASE_KEY_ALIAS"
-              "-PRELEASE_KEY_PASSWORD=$RELEASE_KEY_PASSWORD"
-            )
-          else
-            echo "::warning::未设置 RELEASE_KEYSTORE_FILE secret，release 回退 debug 签名"
-          fi
+          for v in RELEASE_KEYSTORE_FILE RELEASE_KEYSTORE_PASSWORD RELEASE_KEY_ALIAS RELEASE_KEY_PASSWORD; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Secret $v 未设置或为空，请在 Settings → Secrets and variables → Actions 配置后重推 tag"
+              exit 1
+            fi
+          done
+          echo "构建正式签名 release APK"
           ./gradlew :app:assembleRelease --no-daemon --stacktrace \
+            "-PRELEASE_KEYSTORE_FILE=$GITHUB_WORKSPACE/release-keystore.jks" \
+            "-PRELEASE_KEYSTORE_PASSWORD=$RELEASE_KEYSTORE_PASSWORD" \
+            "-PRELEASE_KEY_ALIAS=$RELEASE_KEY_ALIAS" \
+            "-PRELEASE_KEY_PASSWORD=$RELEASE_KEY_PASSWORD" \
             "-PVERSION_NAME=$VERSION_NAME" \
-            "-PVERSION_CODE=$VERSION_CODE" \
-            "${SIGNING_ARGS[@]}"
+            "-PVERSION_CODE=$VERSION_CODE"
 
       - name: 统一产物文件名
         run: cp app/build/outputs/apk/release/app-release.apk uc-daily.apk
