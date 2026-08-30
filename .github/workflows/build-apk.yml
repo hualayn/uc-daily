@@ -41,10 +41,14 @@ jobs:
           echo "VERSION_CODE=$((MAJOR * 10000 + MINOR * 100 + PATCH))" >> "$GITHUB_ENV"
 
       - name: 解码 release keystore（来自仓库 secret）
-        if: ${{ secrets.RELEASE_KEYSTORE_FILE != '' }}
+        # 注意：secrets 上下文不能用在 if 条件里，改为在脚本内判空
         env:
           RELEASE_KEYSTORE_FILE: ${{ secrets.RELEASE_KEYSTORE_FILE }}
         run: |
+          if [ -z "$RELEASE_KEYSTORE_FILE" ]; then
+            echo "未设置 RELEASE_KEYSTORE_FILE secret，跳过解码"
+            exit 0
+          fi
           echo "$RELEASE_KEYSTORE_FILE" | base64 -d > "$GITHUB_WORKSPACE/release-keystore.jks"
           ls -l "$GITHUB_WORKSPACE/release-keystore.jks"
 
