@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================== 앱 ==================== -->
+    <string name="app_name">UC 데일리 기록</string>
+
+    <!-- ==================== 공통 ==================== -->
+    <string name="common_cancel">취소</string>
+    <string name="common_save">저장</string>
+    <string name="common_ok">확인</string>
+    <string name="common_delete">삭제</string>
+    <string name="common_edit">수정</string>
+    <string name="common_back">뒤로</string>
+    <string name="common_close">닫기</string>
+    <string name="common_later">나중에</string>
+    <string name="common_restore">복원</string>
+    <string name="common_got_it">알겠어요</string>
+    <string name="common_add">추가</string>
+    <string name="common_yes">있음</string>
+    <string name="common_no">없음</string>
+    <string name="common_points">점</string>
+    <string name="common_items_count">%1$d개</string>
+    <string name="common_times_count">%1$d회</string>
+    <string name="common_days_count">%1$d일</string>
+
+    <!-- ==================== 날짜 패턴 (DateTimeFormatter 패턴) ==================== -->
+    <string name="date_pattern_md">M월 d일</string>
+    <string name="date_pattern_md_week">M월 d일 E</string>
+
+    <!-- ==================== 하단 내비 / 빠른 추가 ==================== -->
+    <string name="tab_home">홈</string>
+    <string name="tab_tolerance">내성</string>
+    <string name="tab_daily_management">일상 관리</string>
+    <string name="tab_profile">내 정보</string>
+    <string name="quick_add_title">기록 추가</string>
+
+    <string name="type_meal">식사</string>
+    <string name="type_bowel">배변</string>
+    <string name="type_med">복약</string>
+    <string name="type_note">컨디션</string>
+    <string name="type_tolerance">내성</string>
+
+    <string name="meal_breakfast">아침</string>
+    <string name="meal_lunch">점심</string>
+    <string name="meal_dinner">저녁</string>
+    <string name="meal_snack">간식</string>
+
+    <string name="tolerance_ok">괜찮음</string>
+    <string name="tolerance_try">시도</string>
+    <string name="tolerance_bad">주의</string>
+
+    <string name="bristol_1">딱딱한 덩어리</string>
+    <string name="bristol_2">소시지 모양이지만 울퉁불퉁</string>
+    <string name="bristol_3">갈라진 소시지 모양</string>
+    <string name="bristol_4">매끈한 소시지 모양</string>
+    <string name="bristol_5">부드러운 덩어리</string>
+    <string name="bristol_6">죽처럼 묽음</string>
+    <string name="bristol_7">물처럼 묽음</string>
+
+    <string name="blood_none">없음</string>
+    <string name="blood_little">소량</string>
+    <string name="blood_clear">뚜렷함</string>
+    <string name="blood_clots">혈괴</string>
+
+    <string name="pain_loc_none">없음</string>
+    <string name="pain_loc_right_lower">우하복부</string>
+    <string name="pain_loc_left_lower">좌하복부</string>
+    <string name="pain_loc_periumbilical">배꼽 주위</string>
+    <string name="pain_loc_whole">복부 전체</string>
+
+    <string name="activity_remission">관해</string>
+    <string name="activity_mild">경증 활동성</string>
+    <string name="activity_moderate">중등도 활동성</string>
+    <string name="activity_severe">중증 활동성</string>
+
+    <string name="week_mon">월요일</string>
+    <string name="week_tue">화요일</string>
+    <string name="week_wed">수요일</string>
+    <string name="week_thu">목요일</string>
+    <string name="week_fri">금요일</string>
+    <string name="week_sat">토요일</string>
+    <string name="week_sun">일요일</string>
+
+    <!-- ==================== MainActivity ==================== -->
+    <string name="camera_permission_required">사진을 찍으려면 카메라 권한이 필요합니다</string>
+    <string name="camera_file_create_failed">카메라 파일을 만들 수 없습니다</string>
+    <string name="camera_app_not_found">카메라 앱을 찾을 수 없습니다. 카메라 설정을 확인해 주세요.</string>
+    <string name="camera_file_create_failed_detail">카메라 파일을 만들 수 없습니다: %1$s</string>
+    <string name="exit_dialog_title">앱 종료</string>
+    <string name="exit_dialog_message">앱을 닫으시겠습니까?</string>
+    <string name="exit_dialog_confirm">종료</string>
+
+    <!-- ==================== 복약 알림 (시스템 알림) ==================== -->
+    <string name="med_reminder_channel">복약 알림</string>
+    <string name="med_reminder_channel_desc">오늘 실제 복약 횟수가 지금까지 도래한 복약 횟수에 미치지 못할 때 알립니다</string>
+    <string name="med_reminder_channel_silent">복약 알림 (무음 갱신)</string>
+    <string name="med_reminder_channel_silent_desc">복용하지 않은 횟수 배지를 무음으로 갱신하며 알림음이 없습니다</string>
+    <string name="med_reminder_notification_title">복약 알림</string>
+    <string name="med_reminder_missed">아직 %1$d회 복약하지 않았습니다. 빨리 약을 드세요!</string>
+
+    <!-- ==================== 홈 ==================== -->
+    <string name="greeting_morning">좋은 아침이에요</string>
+    <string name="greeting_noon">안녕하세요</string>
+    <string name="greeting_afternoon">안녕하세요</string>
+    <string name="greeting_evening">좋은 저녁이에요</string>
+    <string name="greeting_night">늦은 밤이네요</string>
+    <string name="home_avatar_content_desc">아바타 (탭하면 내 정보로 이동)</string>
+    <string name="home_prev_month">지난달</string>
+    <string name="home_prev_week">지난주</string>
+    <string name="home_next_month">다음달</string>
+    <string name="home_next_week">다음주</string>
+    <string name="home_month_header">%1$d년 %2$d월</string>
+    <string name="home_date_header">%1$d월 %2$d일</string>
+    <string name="home_year_week_header">%1$d년, 제%2$d주</string>
+    <string name="home_med_no_due_time">오늘은 아직 복약 시간이 되지 않았습니다. 제때 약을 드는 것을 잊지 마세요.</string>
+    <string name="home_med_all_done">도래한 복약 시간을 모두 기록했습니다 (%1$d/%2$d회).</string>
+    <string name="home_med_go">약 먹기</string>
+
+    <string name="day_records_title">당일 기록</string>
+    <string name="day_records_empty_filtered">이 날의 %1$s 기록이 없습니다</string>
+    <string name="day_records_empty">이 날의 기록이 아직 없습니다</string>
+    <string name="day_records_empty_hint">잘 먹고, 제때 약 먹고, 나를 위해 한 줄 기록해 보세요</string>
+
+    <string name="record_edit">기록 편집</string>
+    <string name="record_delete">기록 삭제</string>
+    <string name="record_meal_photo">식사 사진</string>
+    <string name="record_delete_meal_message">이 %1$s 기록을 삭제할까요? 사진은 기기에서 삭제되지 않습니다.</string>
+    <string name="symptom_edit">배변 기록 편집</string>
+    <string name="symptom_delete">배변 기록 삭제</string>
+    <string name="symptom_delete_message">이 배변 기록을 삭제할까요?</string>
+    <string name="med_edit">복약 기록 편집</string>
+    <string name="med_delete">복약 기록 삭제</string>
+    <string name="med_delete_message">"%1$s" 기록을 삭제할까요?</string>
+    <string name="note_edit">컨디션 메모 편집</string>
+    <string name="note_delete">컨디션 메모 삭제</string>
+    <string name="note_delete_message">이 날의 컨디션 메모를 삭제할까요?</string>
+    <string name="summary_bowel">배변 %1$d회</string>
+    <string name="summary_blood">혈변·%1$s</string>
+    <string name="summary_pain">복통 %1$d점%2$s</string>
+    <string name="bristol_label">브리스톨 %1$d %2$s</string>
+    <string name="flag_blood">혈변%1$s</string>
+    <string name="flag_pain">복통%1$d점%2$s</string>
+    <string name="symptom_night_diarrhea">야간 설사</string>
+    <string name="symptom_mucus">점액</string>
+    <string name="symptom_urgency">절박감</string>
+    <string name="activity_badge">%1$s %2$d점</string>
+
+    <!-- ==================== 기록 패널 (추가/편집) ==================== -->
+    <string name="panel_today">오늘</string>
+    <string name="panel_editing_on">%1$s 기록을 편집 중</string>
+    <string name="panel_record_to">기록할 날짜: </string>
+    <string name="panel_editing_label">편집 중: </string>
+    <string name="panel_backfill">(소급 기록)</string>
+    <string name="panel_time">시간</string>
+    <string name="panel_meal_type">식사 종류</string>
+    <string name="panel_photos">사진 (여러 장 추가 가능)</string>
+    <string name="panel_pending_photo">저장 전 사진</string>
+    <string name="panel_remove_photo">사진 제거</string>
+    <string name="panel_take_photo">📷 촬영</string>
+    <string name="panel_from_album">🖼️ 앨범에서</string>
+    <string name="panel_add_food_tag">음식 태그 추가</string>
+    <string name="panel_food_tags">음식 태그 (다중 선택)</string>
+    <string name="panel_note">메모</string>
+    <string name="panel_meal_note_hint">조리 방법은? 먹고 난 기분은 어때요?</string>
+    <string name="panel_save_changes">변경 사항 저장</string>
+    <string name="panel_save_record">기록 저장</string>
+    <string name="panel_edit_meal">식사 편집</string>
+    <string name="panel_add_meal">식사 추가</string>
+    <string name="panel_edit_med">복약 편집</string>
+    <string name="panel_add_med">복약 추가</string>
+    <string name="panel_common_meds">자주 먹는 약</string>
+    <string name="panel_med_name">약 이름</string>
+    <string name="panel_med_name_hint">예: 메살라진</string>
+    <string name="panel_med_dose">용량</string>
+    <string name="panel_med_dose_hint">예: 1정 / 500mg</string>
+    <string name="panel_note_title">오늘의 컨디션</string>
+    <string name="panel_note_hint">오늘 기분이 어떠세요?\n배변, 수면, 기분, 불편함…</string>
+    <string name="panel_save_note">메모 저장</string>
+    <string name="panel_edit_bowel">배변 편집</string>
+    <string name="panel_bowel_title">배변 기록</string>
+    <string name="panel_bowel_count">배변 횟수 (낮 시간)</string>
+    <string name="panel_bristol_title">대변 형태 (브리스톨 척도 1~7)</string>
+    <string name="panel_blood">혈변</string>
+    <string name="panel_other_symptoms">기타 증상</string>
+    <string name="panel_mucus">점액</string>
+    <string name="panel_urgency">절박감</string>
+    <string name="panel_pain">복통 (0~10점)</string>
+    <string name="panel_no_pain">복통 없음</string>
+    <string name="panel_other_discomfort">기타 불편감</string>
+    <string name="panel_other_discomfort_hint">복부 팽만, 무기력, 발열 등</string>
+    <string name="panel_activity_hint">참고 활동도 (간이 점수, 자기 관찰용)</string>
+    <string name="panel_tap_to_adjust">탭하여 조정</string>
+    <string name="panel_select_time">시간 선택</string>
+
+    <!-- ==================== 내성 페이지 ==================== -->
+    <string name="tolerance_title">음식 내성</string>
+    <string name="tolerance_subtitle">먹을 수 있는 음식과 주의할 음식을 기록하고, 식사 기록 시 태그를 달아 쉽게 되돌아볼 수 있습니다</string>
+    <string name="tolerance_note_title">내성 설명</string>
+    <string name="tolerance_note">음식 내성은 개인의 신체 조건과 병세에 따라 다릅니다. 병세가 안정된 시기에는 내성이 있어도, 발병 시기에는 내성이 없을 수 있으므로 실제 상황에 따라 판단해야 합니다. 매번 소량씩 시도하고, 이삼 일이 지나도 문제가 없다면 내성이 있는 것으로 볼 수 있습니다. 그렇더라도 여전히 조심해서 먹어야 하며 방심해서는 안 됩니다.</string>
+    <string name="tolerance_note_collapse">설명 접기</string>
+    <string name="tolerance_note_expand">설명 펼치기</string>
+    <string name="tolerance_empty_title">아직 음식이 없습니다</string>
+    <string name="tolerance_empty_hint">"식사 추가" 페이지에서 음식을 추가하세요 (예: 우유, 달걀)</string>
+    <string name="tolerance_drag_hint">힌트: 태그를 드래그하면 분류를 바꿀 수 있습니다</string>
+    <string name="tolerance_types_count">%1$d종</string>
+    <string name="tolerance_empty_section">아직 없음</string>
+    <string name="tolerance_add_placeholder">음식 추가 (예: 우유)</string>
+
+    <!-- ==================== 홈 문구 ==================== -->
+    <string name="slogan_title">홈 문구</string>
+    <string name="slogan_desc">홈 상단 배너는 아래 문구를 매일 순서대로 돌려 보여줍니다. 항목을 탭하면 수정, 휴지통 아이콘을 탭하면 삭제할 수 있습니다.</string>
+    <string name="slogan_empty">문구 목록이 비어 있습니다. 홈에서는 기본 내장 문구를 돌려 보여줍니다.</string>
+    <string name="slogan_reset">기본 문구로 복원</string>
+    <string name="slogan_add">문구 추가</string>
+    <string name="slogan_edit">문구 수정</string>
+    <string name="slogan_field">배너 문구 (%1$d/%2$d)</string>
+    <string name="slogan_reset_message">문구 목록을 기본 내장 %1$d개로 복원합니다. 현재 사용자 지정 내용은 교체됩니다.</string>
+    <string name="default_slogan_1">오늘도 꼭 잘 먹자!</string>
+    <string name="default_slogan_2">하루를 기록하면, 안심이 하나씩 늘어요</string>
+    <string name="default_slogan_3">조금씩 자주 먹고, 장을 부드럽게</string>
+    <string name="default_slogan_4">증상은 흔들려도, 당신은 더 강해요</string>
+    <string name="default_slogan_5">오늘도 나를 잘 챙기자</string>
+    <string name="default_slogan_6">담백하게 먹으면, 장도 가벼워져요</string>
+    <string name="default_slogan_7">제때 먹고, 제때 기록하자</string>
+    <string name="default_slogan_8">오늘을 기억하세요, 몸은 다 기억하고 있으니까</string>
+
+    <!-- ==================== 내 정보 ==================== -->
+    <string name="profile_subtitle">UC 데일리 기록 · 데이터는 이 기기에만 저장됩니다</string>
+    <string name="profile_tap_avatar">탭하여 아바타 변경</string>
+    <string name="profile_default_nickname">기록자</string>
+    <string name="profile_edit_nickname_title">별명 수정</string>
+    <string name="profile_edit_avatar_title">아바타 변경</string>
+    <string name="profile_avatar_boy">남자 아바타</string>
+    <string name="profile_avatar_girl">여자 아바타</string>
+    <string name="profile_menu_stats">통계 정보</string>
+    <string name="profile_menu_settings">설정</string>
+    <string name="profile_menu_stats_trailing">상세 통계</string>
+    <string name="profile_menu_export">기록 내보내기</string>
+    <string name="profile_menu_export_trailing">클립보드/파일</string>
+    <string name="profile_menu_restore">기록 복원</string>
+    <string name="profile_menu_restore_trailing">CSV에서 가져오기</string>
+    <string name="export_csv_restore_hint">일상 기록과 음식 내성을 복원할 수 있습니다</string>
+    <string name="restore_result_title">복원 완료</string>
+    <string name="restore_result_summary">복원됨: 식사 %1$d개, 복약 %2$d개, 배변 %3$d개, 메모 %4$d개, 식품 %5$d개</string>
+    <string name="restore_result_skipped">중복 %1$d개 건너뜀</string>
+    <string name="restore_result_failed">%1$d행 분석 실패</string>
+    <string name="restore_error_invalid">파일을 인식할 수 없습니다. "기록 내보내기 → 파일 → CSV"로 내보낸 CSV를 선택하세요 (내보내기와 복원은 같은 언어로 하세요).</string>
+    <string name="profile_menu_med_settings">복약 설정</string>
+    <string name="profile_menu_med_settings_trailing">%1$d회/일</string>
+    <string name="profile_menu_slogans">홈 문구</string>
+    <string name="profile_menu_slogans_default_trailing">기본 문구</string>
+    <string name="profile_menu_font">글자 크기</string>
+    <string name="profile_menu_theme">테마</string>
+    <string name="profile_menu_language">언어</string>
+    <string name="profile_menu_update">업데이트</string>
+    <string name="profile_menu_about">정보</string>
+    <string name="profile_menu_about_trailing">v1.0</string>
+    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_font_desc">홈, 내성, 일상 관리 페이지의 글자 크기를 조절합니다</string>
+    <string name="profile_font_sample">문자</string>
+    <string name="profile_about_title">UC 데일리 기록 소개</string>
+    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_desc">궤양성 대장염(UC)을 위한 일상 기록 도구:\n· 식사 사진 + 음식 내성 태그\n· 복약 기록과 복약 시간 설정\n· 배변 기록(브리스톨 척도)과 활동도 자가 평가\n· 매일의 컨디션 메모와 달력 되돌아보기\n· 궤양성 대장염 일상 관리 핸드북: 식이/생활 습관/약물과 의료/심리 케어에 대한 근거 기반 참고 조언(자기 참고용)</string>
+    <string name="profile_about_disclaimer">활동도는 간이 UCDAI(0~8점)로, 자기 관찰 참고용입니다. 데이터와 사진은 이 기기의 앱 폴더에만 저장되며 업로드되지 않습니다.</string>
+
+    <string name="language_system">시스템 언어 따르기</string>
+
+    <string name="theme_system">시스템 따르기</string>
+    <string name="theme_light">라이트</string>
+    <string name="theme_dark">다크</string>
+    <string name="font_size_small">작게</string>
+    <string name="font_size_standard">표준</string>
+    <string name="font_size_large">크게</string>
+    <string name="font_size_extra_large">아주 크게</string>
+
+    <!-- ==================== 복약 설정 ==================== -->
+    <string name="med_settings_title">복약 설정</string>
+    <string name="med_settings_daily_count">하루 복약 횟수</string>
+    <string name="med_settings_times_hint">최대 6회, 복약 시간과 1:1로 대응</string>
+    <string name="med_settings_decrease_one">1회 줄이기</string>
+    <string name="med_settings_increase_one">1회 늘리기</string>
+    <string name="med_settings_nth">%1$d번째</string>
+    <string name="med_settings_change_time">시간 수정</string>
+    <string name="med_settings_note">복약을 추가하거나 소급 기록할 때 기본적으로 현재 시간을 사용합니다.</string>
+    <string name="med_settings_picker_title">%1$d번째 복약 시간</string>
+
+    <!-- ==================== 내보내기 ==================== -->
+    <string name="export_saved">%1$s 저장됨</string>
+    <string name="export_save_failed">저장 실패: %1$s</string>
+    <string name="export_clipboard">클립보드</string>
+    <string name="export_file">파일</string>
+    <string name="export_no_records">선택한 범위에 해당 유형의 기록이 없습니다</string>
+    <string name="export_copied">클립보드에 복사되었습니다</string>
+    <string name="export_select_type">기록 유형을 선택하세요</string>
+    <string name="export_button">내보내기</string>
+    <string name="export_start_date">시작 날짜</string>
+    <string name="export_end_date">종료 날짜</string>
+    <string name="export_select_date">날짜를 선택하세요</string>
+    <string name="export_date_headline">%1$d년 %2$d월 %3$d일</string>
+    <string name="export_file_name">기록내보내기_%1$s_%2$s</string>
+    <string name="export_txt_title">기록 내보내기</string>
+    <string name="export_txt_range">범위: %1$s ~ %2$s</string>
+    <string name="export_txt_types">유형: %1$s</string>
+    <string name="export_txt_day_header">====== %1$s %2$s ======</string>
+    <string name="export_txt_meal">[식사] %1$s %2$s</string>
+    <string name="export_txt_med">[복약] %1$s %2$s</string>
+    <string name="export_txt_bowel">[배변]</string>
+    <string name="export_txt_note">[컨디션]</string>
+    <string name="export_txt_count">횟수</string>
+    <string name="export_txt_night">(야간 포함)</string>
+    <string name="export_txt_bristol">| 브리스톨</string>
+    <string name="export_txt_not_recorded">기록 안 됨</string>
+    <string name="export_txt_blood">| 혈변</string>
+    <string name="export_txt_mucus">| 점액</string>
+    <string name="export_txt_pain">| 복통</string>
+    <string name="export_txt_urgency">| 절박감</string>
+    <string name="export_txt_other">| 기타: </string>
+    <string name="export_csv_header">날짜,유형,시간,내용,메모</string>
+    <string name="export_csv_bristol">브리스톨</string>
+    <string name="export_csv_blood">혈변</string>
+    <string name="export_csv_mucus">점액</string>
+    <string name="export_csv_pain">복통</string>
+    <string name="export_csv_urgency">절박감</string>
+
+    <!-- ==================== 통계 정보 ==================== -->
+    <string name="stats_title">통계 정보</string>
+    <string name="stats_days_label">기록 유지</string>
+    <string name="stats_days_value">%1$d일째</string>
+    <string name="stats_streak_label">연속 기록</string>
+    <string name="stats_streak_value">%1$d일</string>
+    <string name="stats_first_record">첫 기록 %1$s</string>
+    <string name="stats_empty">아직 기록이 없습니다</string>
+    <string name="stats_meal_records">식사 기록</string>
+    <string name="stats_bowel_records">배변 기록</string>
+    <string name="stats_bowel_summary">%1$d일 · %2$d회</string>
+    <string name="stats_med_records">복약 기록</string>
+    <string name="stats_note_records">컨디션 메모 기록</string>
+    <string name="stats_bowel_detail">배변 상세</string>
+    <string name="stats_avg_pain">평균 복통 %1$s점 (0~10)</string>
+    <string name="stats_tolerance_title">내성 현황</string>
+    <string name="stats_tolerance_value">%1$s %2$d</string>
+    <string name="stats_disclaimer">위 통계는 이 기기의 데이터를 바탕으로 한 것으로, 자기 관찰 참고용이며 의학적 조언을 구성하지 않습니다.</string>
+
+    <!-- ==================== 기록 목록 ==================== -->
+    <string name="list_title_meal">식사 기록 목록</string>
+    <string name="list_title_bowel">배변 기록 목록</string>
+    <string name="list_title_med">복약 기록 목록</string>
+    <string name="list_title_note">컨디션 메모 목록</string>
+    <string name="list_empty_meal">아직 식사 기록이 없습니다</string>
+    <string name="list_empty_bowel">아직 배변 기록이 없습니다</string>
+    <string name="list_empty_med">아직 복약 기록이 없습니다</string>
+    <string name="list_empty_note">아직 컨디션 메모가 없습니다</string>
+    <string name="list_level_year">년</string>
+    <string name="list_level_month">월</string>
+    <string name="list_level_day">일</string>
+    <string name="list_year_header">%1$d년</string>
+    <string name="list_total_count">총 %1$d개</string>
+    <string name="list_month_header">%1$d월</string>
+    <string name="list_day_header">%1$d월 %2$d일 %3$s</string>
+
+    <!-- ==================== 일상 관리 핸드북 ==================== -->
+    <string name="dm_title">일상 관리 핸드북</string>
+    <string name="dm_subtitle">근거 기반 권고 · 병기(病期)에 따라 유연하게 조절\n담당 의사와 함께 개인 맞춤 계획을 세우세요</string>
+    <string name="dm_disclaimer">📌 중요 안내\n위 정보는 참고용이며 전문 의료 조언을 대체할 수 없습니다.\n구체적인 계획은 반드시 담당 의사와 함께 결정하세요.</string>
+    <string name="dm_card_diet">식이 관리</string>
+    <string name="dm_card_lifestyle">생활 습관 관리</string>
+    <string name="dm_card_medical">약물과 의료 관리</string>
+    <string name="dm_card_psych">심리 케어</string>
+    <string name="dm_card_assessment">병세 자가 평가 · 증상 대조</string>
+    <string name="dm_diet_core_principle">**핵심 원칙:** **급성기** 또는 **관해기**에 따라 유연하게 조절하여 장에 "부담을 덜거나" "회복"시킵니다.</string>
+    <string name="dm_diet_acute_title">🔴 급성 발작기 · 부담을 엄격히 줄이기</string>
+    <string name="dm_diet_acute_b1_lead">잔사 없음, 부드러운 유동식/반유동식</string>
+    <string name="dm_diet_acute_b1">미음, 연근가루, 계란찜, 푹 익힌 국수, 기름을 뺀 맑은 국물.</string>
+    <string name="dm_diet_acute_b2_lead">목적</string>
+    <string name="dm_diet_acute_b2">배변량과 배변 횟수를 줄여 장을 쉬게 합니다.</string>
+    <string name="dm_diet_remission_title">🟢 관해기 · 단계적 회복</string>
+    <string name="dm_diet_remission_b1_lead">고영양, 소화 잘 되는, 저잔사</string>
+    <string name="dm_diet_remission_b1">찜으로 익힌 생선, 계란찜, 부드러운 두부, 곱게 간 살코기.</string>
+    <string name="dm_diet_remission_b2">양질의 단백질을 보충하여 장 점막을 회복시킵니다.</string>
+    <string name="dm_diet_issues_title">⚠️ 주의할 "문제 음식"</string>
+    <string name="dm_diet_fiber_lead">고섬유</string>
+    <string name="dm_diet_fiber">(발작기에는 피하기): 견과류, 씨앗, 옥수수, 팝콘, 생채소.</string>
+    <string name="dm_diet_dairy_lead">유제품</string>
+    <string name="dm_diet_dairy">일부 환자는 내성이 없으므로 잠시 중단하고 관찰해 볼 수 있습니다.</string>
+    <string name="dm_diet_drinks_lead">자극성 음료</string>
+    <string name="dm_diet_drinks">알코올, 카페인, 탄산음료.</string>
+    <string name="dm_diet_greasy_lead">기름지고 매운 음식</string>
+    <string name="dm_diet_greasy">튀김, 구이, 고추.</string>
+    <string name="dm_diet_tips_title">💡 실용 팁</string>
+    <string name="dm_diet_cooking_lead">조리 방법 바꾸기</string>
+    <string name="dm_diet_cooking">채소와 과일은 찌거나, 끓이거나, 굽거나, 갈아서 충분히 익혀 먹습니다.</string>
+    <string name="dm_diet_soluble_fiber_lead">수용성 식이섬유</string>
+    <string name="dm_diet_soluble_fiber">(내성이 있을 때): 오트밀, 껍질 벗긴 고구마, 바나나, 잘 익힌 당근.</string>
+    <string name="dm_diet_small_meals_lead">소식(小食) 여러 번</string>
+    <string name="dm_diet_small_meals">하루 5~6번 소량의 식사로 1회 부담을 줄입니다.</string>
+    <string name="dm_diet_diary_lead">식사 일기</string>
+    <string name="dm_diet_diary">먹은 음식과 반응을 기록해 "문제 음식"을 정확히 피합니다.</string>
+    <string name="dm_lifestyle_sleep_title">😴 규칙적인 생활</string>
+    <string name="dm_lifestyle_sleep">매일 밤 **7~8시간**의 질 높은 수면을 지키고 과로를 피하면 면역 체계가 안정됩니다.</string>
+    <string name="dm_lifestyle_exercise_title">🚶 적절한 운동</string>
+    <string name="dm_lifestyle_exercise_acute_lead">급성기</string>
+    <string name="dm_lifestyle_exercise_acute">휴식을 우선하고 운동은 피합니다.</string>
+    <string name="dm_lifestyle_exercise_remission_lead">관해기</string>
+    <string name="dm_lifestyle_exercise_remission">가벼운 유산소 운동(산책, 조깅, 요가, 태극권, 수영). 빈도: **주 3~5회**, 1회 20~60분, 운동 후 지나친 피로를 느끼지 않는 정도로.</string>
+    <string name="dm_lifestyle_stress_title">🧘 스트레스 관리</string>
+    <string name="dm_lifestyle_stress">정신적 스트레스는 증상을 악화시킬 수 있습니다. **명상, 심호흡, 가족·친구와의 대화, 환우 상호 도움 모임** 등으로 풀어내세요.</string>
+    <string name="dm_med_meds_title">💊 올바른 복약</string>
+    <string name="dm_med_meds">**의사의 지시를 엄격히 따르고** 스스로 약을 끊거나 줄이거나 바꾸지 마세요. 흔히 쓰는 약으로는 아미노살리실산계, 면역 조절제, 생물학적 제제 등이 있습니다. 또한 염증이 생긴 부위에 따라 맞는 약을 씁니다. 예를 들어 염증이 직장에 있다면 좌약이 더 효과적일 수 있습니다.</string>
+    <string name="dm_med_pain_title">🚫 진통제는 신중하게</string>
+    <string name="dm_med_pain">**비스테로이드성 소염진통제(NSAID)**(이부프로펜, 나프록센 등)는 피하세요. 발작을 유발할 수 있습니다.</string>
+    <string name="dm_med_nutrition_title">🧪 영양소 보충</string>
+    <string name="dm_med_nutrition">오래 지속되는 설사는 영양 손실로 이어질 수 있습니다. 의사 지도 아래 **철분, 칼슘, 비타민 D**를 보충하세요.</string>
+    <string name="dm_med_checkup_title">📅 정기 검진</string>
+    <string name="dm_med_checkup">유병 기간 **8~10년** 이상이면 의사의 지시에 따라 **1~2년마다** 대장내시경 검사를 받아 병세를 관찰하고 암 위험을 선별할 것을 권장합니다.</string>
+    <string name="dm_med_vaccine_title">💉 예방접종</string>
+    <string name="dm_med_vaccine">의사와 상담한 뒤 **독감 백신**과 **폐렴구균 백신**을 제때 접종하세요(질환이나 약물이 면역 체계에 영향을 줄 수 있기 때문입니다).</string>
+    <string name="dm_psych_p1">궤양성 대장염이 만성 질환이라는 것을 인식하고, 그것과 공존하는 법을 배우는 것은 매우 중요합니다. 긍정적인 마음과 과학적인 질병 인식 그 자체가 강력한 "약"입니다.</string>
+    <string name="dm_psych_tip">**🌱 제안:** 불안하거나 우울하다고 느껴지면 망설이지 말고 **전문 심리 상담사**의 도움을 제때 받으세요.</string>
+    <string name="dm_psych_p2">가족, 친구, 환우와 마음을 나누고 지원 모임에 참여하면 심리적 부담을 덜 수 있습니다.</string>
+    <string name="dm_assess_intro">전형적인 증상 대조와 간이 점수로 현재 단계를 대략적으로 판단합니다. ⚠️ 이 도구는 전문 진단을 대체할 수 없으며, 의심되면 빨리 진료를 받으세요.</string>
+    <string name="dm_assess_active_title">🔄 발작기(활동기)의 흔한 증상</string>
+    <string name="dm_assess_diarrhea_lead">설사</string>
+    <string name="dm_assess_diarrhea">배변 횟수가 뚜렷이 늘어나고(하루 3회 이상) 묽은 변이나 수양변인 경우가 많습니다.</string>
+    <string name="dm_assess_blood_lead">혈변</string>
+    <string name="dm_assess_blood">변에 혈액이나 점액이 섞여 표면에 붙거나 변과 혼합되며, 때로 혈괴나 점액 화농성 물질이 동반됩니다.</string>
+    <string name="dm_assess_blood_color_lead">혈변 색깔 참고</string>
+    <string name="dm_assess_blood_color">선홍색이나 짙은 붉은색은 직장이나 구불결장(항문에 가까움)의 병변을 시사하는 경우가 많고, 혈액이 빨리 배출되어 산화가 적기 때문입니다. 짙은 붉은색이나 검은색(타르색) 변은 횡행결장, 상행결장, 심지어 회장 말단부처럼 높은 위치의 병변을 시사하며, 혈액이 장에 오래 머물며 산화되어 색이 짙어집니다. 색깔은 어디까지나 판단의 한 단서이며, 확진이나 자가 진단의 유일한 근거가 될 수 없습니다.</string>
+    <string name="dm_assess_pain_lead">복통</string>
+    <string name="dm_assess_pain">하복부의 산통(쥐어짜는 통증)이나 지속적인 둔통으로, 배변 후 가벼워질 수 있습니다.</string>
+    <string name="dm_assess_urgency_lead">후중감</string>
+    <string name="dm_assess_urgency">항상 변의가 있지만 시원하게 다 비워지지 않는 느낌입니다.</string>
+    <string name="dm_assess_systemic_lead">전신 증상</string>
+    <string name="dm_assess_systemic">발열, 무기력, 체중 감소, 식욕 부진.</string>
+    <string name="dm_assess_remission_title">🟢 관해기의 흔한 증상</string>
+    <string name="dm_assess_normal_bowel_lead">배변이 정상</string>
+    <string name="dm_assess_normal_bowel">하루 1~2회의 성형변, 혈변 없음.</string>
+    <string name="dm_assess_no_pain_lead">복통 소실</string>
+    <string name="dm_assess_no_pain">복부에 불편감이 없거나 가벼운 둔통만 있습니다.</string>
+    <string name="dm_assess_condition_lead">전신 상태</string>
+    <string name="dm_assess_condition">기력 회복, 체중 안정, 발열 없음.</string>
+    <string name="dm_assess_mucosa">내시경 검사에서 점막 치유 또는 뚜렷한 개선.</string>
+    <string name="dm_assess_score_title">📝 간이 활동성 점수 (자가 평가 참고)</string>
+    <string name="dm_assess_score_intro">최근 3일의 평균 상태를 기준으로 가장 가까운 항목을 선택하고 아래 버튼을 눌러 평가하세요.</string>
+    <string name="dm_assess_q1">1. 하루 배변 횟수</string>
+    <string name="dm_assess_q2">2. 혈변 상태</string>
+    <string name="dm_assess_q3">3. 복통 정도</string>
+    <string name="dm_assess_q4">4. 체온 (겨드랑이)</string>
+    <string name="dm_assess_opt_freq_0">3회 미만 (0점)</string>
+    <string name="dm_assess_opt_freq_1">3~5회 (1점)</string>
+    <string name="dm_assess_opt_freq_2">6~10회 (2점)</string>
+    <string name="dm_assess_opt_freq_3">10회 초과 (3점)</string>
+    <string name="dm_assess_opt_blood_0">없음 (0점)</string>
+    <string name="dm_assess_opt_blood_1">소량 (1점)</string>
+    <string name="dm_assess_opt_blood_2">중등도 (2점)</string>
+    <string name="dm_assess_opt_blood_3">대량 (3점)</string>
+    <string name="dm_assess_opt_pain_0">없음 (0점)</string>
+    <string name="dm_assess_opt_pain_1">경증 (1점)</string>
+    <string name="dm_assess_opt_pain_2">중등도 (2점)</string>
+    <string name="dm_assess_opt_pain_3">중증 (3점)</string>
+    <string name="dm_assess_opt_temp_0">37.5℃ 미만 (0점)</string>
+    <string name="dm_assess_opt_temp_1">37.5~38.5℃ (1점)</string>
+    <string name="dm_assess_opt_temp_2">38.5℃ 초과 (2점)</string>
+    <string name="dm_assess_score_button">📐 점수 계산</string>
+    <string name="dm_assess_total">총점: </string>
+    <string name="dm_assess_result_0">관해기 (증상 잘 조절됨)</string>
+    <string name="dm_assess_result_1">경증 활동기 (의사 상담 권장)</string>
+    <string name="dm_assess_result_2">중등도 활동기 (빠른 진료 필요)</string>
+    <string name="dm_assess_result_3">중증 활동기 (즉시 진료 필요)</string>
+    <string name="dm_assess_legend">* 0~2점: 관해기; 3~5점: 경증 활동; 6~8점: 중등도 활동; 9점 이상: 중증 활동.</string>
+
+    <!-- ==================== 업데이트 (Google Play Core) ==================== -->
+    <string name="update_dialog_title">새 버전이 있습니다</string>
+    <string name="update_dialog_message">새 버전에는 다국어 지원 등의 개선이 포함되어 있습니다. 업데이트 후 "내 정보 → 언어"에서 앱 언어를 전환할 수 있습니다.</string>
+    <string name="update_now">지금 업데이트</string>
+    <string name="update_download_title">업데이트 중</string>
+    <string name="update_download_message">새 버전을 다운로드하는 중입니다. 앱을 닫지 마세요.</string>
+    <string name="update_ready_title">업데이트 완료</string>
+    <string name="update_ready_message">새 버전 다운로드가 완료되었습니다. 앱을 다시 시작하면 적용됩니다.</string>
+    <string name="update_restart">지금 다시 시작</string>
+    <string name="update_check_failed">업데이트 확인에 실패했습니다. 나중에 다시 시도해 주세요.</string>
+    <string name="update_up_to_date">현재 최신 버전입니다</string>
+
+</resources>

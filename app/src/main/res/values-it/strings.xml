@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================== App ==================== -->
+    <string name="app_name">Diario UC</string>
+
+    <!-- ==================== Comuni ==================== -->
+    <string name="common_cancel">Annulla</string>
+    <string name="common_save">Salva</string>
+    <string name="common_ok">OK</string>
+    <string name="common_delete">Elimina</string>
+    <string name="common_edit">Modifica</string>
+    <string name="common_back">Indietro</string>
+    <string name="common_close">Chiudi</string>
+    <string name="common_later">Più tardi</string>
+    <string name="common_restore">Ripristina</string>
+    <string name="common_got_it">Ho capito</string>
+    <string name="common_add">Aggiungi</string>
+    <string name="common_yes">Sì</string>
+    <string name="common_no">No</string>
+    <string name="common_points">pti</string>
+    <string name="common_items_count">%1$d voci</string>
+    <string name="common_times_count">%1$d volte</string>
+    <string name="common_days_count">%1$d giorni</string>
+
+    <!-- ==================== Modelli di data (motivo DateTimeFormatter) ==================== -->
+    <string name="date_pattern_md">d MMM</string>
+    <string name="date_pattern_md_week">d MMM, EEE</string>
+
+    <!-- ==================== Navigazione / aggiunta rapida ==================== -->
+    <string name="tab_home">Home</string>
+    <string name="tab_tolerance">Tolleranza</string>
+    <string name="tab_daily_management">Gestione</string>
+    <string name="tab_profile">Profilo</string>
+    <string name="quick_add_title">Aggiungi registrazione</string>
+
+    <string name="type_meal">Pasto</string>
+    <string name="type_bowel">Feci</string>
+    <string name="type_med">Farmaco</string>
+    <string name="type_note">Stato</string>
+    <string name="type_tolerance">Tolleranza</string>
+
+    <string name="meal_breakfast">Colazione</string>
+    <string name="meal_lunch">Pranzo</string>
+    <string name="meal_dinner">Cena</string>
+    <string name="meal_snack">Spuntino</string>
+
+    <string name="tolerance_ok">Tollerato</string>
+    <string name="tolerance_try">Prova</string>
+    <string name="tolerance_bad">Da evitare</string>
+
+    <string name="bristol_1">Grumi duri separati</string>
+    <string name="bristol_2">A salsiccia ma grumoso</string>
+    <string name="bristol_3">A salsiccia con crepe</string>
+    <string name="bristol_4">Salsiccia liscia</string>
+    <string name="bristol_5">Masse morbide</string>
+    <string name="bristol_6">Pastoso</string>
+    <string name="bristol_7">Liquido</string>
+
+    <string name="blood_none">Nessuno</string>
+    <string name="blood_little">Lieve</string>
+    <string name="blood_clear">Evidente</string>
+    <string name="blood_clots">Coaguli</string>
+
+    <string name="pain_loc_none">Nessuna</string>
+    <string name="pain_loc_right_lower">Fossa iliaca destra</string>
+    <string name="pain_loc_left_lower">Fossa iliaca sinistra</string>
+    <string name="pain_loc_periumbilical">Periombelicale</string>
+    <string name="pain_loc_whole">Tutto l\'addome</string>
+
+    <string name="activity_remission">Remissione</string>
+    <string name="activity_mild">Attività lieve</string>
+    <string name="activity_moderate">Attività moderata</string>
+    <string name="activity_severe">Attività grave</string>
+
+    <string name="week_mon">lunedì</string>
+    <string name="week_tue">martedì</string>
+    <string name="week_wed">mercoledì</string>
+    <string name="week_thu">giovedì</string>
+    <string name="week_fri">venerdì</string>
+    <string name="week_sat">sabato</string>
+    <string name="week_sun">domenica</string>
+
+    <!-- ==================== MainActivity ==================== -->
+    <string name="camera_permission_required">Per scattare foto è necessaria l\'autorizzazione alla fotocamera</string>
+    <string name="camera_file_create_failed">Impossibile creare il file della fotocamera</string>
+    <string name="camera_app_not_found">Nessuna app fotocamera trovata. Controllare le impostazioni della fotocamera.</string>
+    <string name="camera_file_create_failed_detail">Impossibile creare il file della fotocamera: %1$s</string>
+    <string name="exit_dialog_title">Esci dall\'app</string>
+    <string name="exit_dialog_message">Vuoi davvero chiudere l\'app?</string>
+    <string name="exit_dialog_confirm">Esci</string>
+
+    <!-- ==================== Promemoria farmaci (notifica di sistema) ==================== -->
+    <string name="med_reminder_channel">Promemoria farmaci</string>
+    <string name="med_reminder_channel_desc">Ricorda quando il numero di assunzioni effettuate oggi non ha raggiunto le assunzioni già programmate</string>
+    <string name="med_reminder_channel_silent">Promemoria farmaci (aggiornamento silenzioso)</string>
+    <string name="med_reminder_channel_silent_desc">Aggiornamento silenzioso del badge delle dosi mancate, senza suono</string>
+    <string name="med_reminder_notification_title">Promemoria farmaci</string>
+    <string name="med_reminder_missed">Ti mancano ancora %1$d dosi da assumere. Prendi subito i tuoi farmaci!</string>
+
+    <!-- ==================== Home ==================== -->
+    <string name="greeting_morning">Buongiorno</string>
+    <string name="greeting_noon">Buon pomeriggio</string>
+    <string name="greeting_afternoon">Buon pomeriggio</string>
+    <string name="greeting_evening">Buonasera</string>
+    <string name="greeting_night">È tardi</string>
+    <string name="home_avatar_content_desc">Avatar (tocca per aprire il Profilo)</string>
+    <string name="home_prev_month">Mese precedente</string>
+    <string name="home_prev_week">Settimana precedente</string>
+    <string name="home_next_month">Mese successivo</string>
+    <string name="home_next_week">Settimana successiva</string>
+    <string name="home_month_header">%2$d/%1$d</string>
+    <string name="home_date_header">%2$d/%1$d</string>
+    <string name="home_year_week_header">%1$d, settimana %2$d</string>
+    <string name="home_med_no_due_time">Oggi non è ancora arrivato alcun orario di assunzione. Ricorda di prendere i farmaci in orario.</string>
+    <string name="home_med_all_done">Tutte le assunzioni previste sono state registrate (%1$d/%2$d).</string>
+    <string name="home_med_go">Prendi i farmaci</string>
+
+    <string name="day_records_title">Registrazioni del giorno</string>
+    <string name="day_records_empty_filtered">Nessuna registrazione di %1$s per questo giorno</string>
+    <string name="day_records_empty">Ancora nessuna registrazione per questo giorno</string>
+    <string name="day_records_empty_hint">Mangia bene, prendi i farmaci in orario e scrivi una nota per te</string>
+
+    <string name="record_edit">Modifica registrazione</string>
+    <string name="record_delete">Elimina registrazione</string>
+    <string name="record_meal_photo">Foto del pasto</string>
+    <string name="record_delete_meal_message">Eliminare questa registrazione di %1$s? Le foto non verranno rimosse dal dispositivo.</string>
+    <string name="symptom_edit">Modifica registrazione feci</string>
+    <string name="symptom_delete">Elimina registrazione feci</string>
+    <string name="symptom_delete_message">Eliminare questa registrazione delle feci?</string>
+    <string name="med_edit">Modifica registrazione farmaco</string>
+    <string name="med_delete">Elimina registrazione farmaco</string>
+    <string name="med_delete_message">Eliminare la registrazione « %1$s »?</string>
+    <string name="note_edit">Modifica stato</string>
+    <string name="note_delete">Elimina stato</string>
+    <string name="note_delete_message">Eliminare lo stato di questo giorno?</string>
+    <string name="summary_bowel">Feci: %1$d volte</string>
+    <string name="summary_blood">Sangue·%1$s</string>
+    <string name="summary_pain">Dolore %1$d pti%2$s</string>
+    <string name="bristol_label">Bristol %1$d %2$s</string>
+    <string name="flag_blood">Sangue%1$s</string>
+    <string name="flag_pain">Dolore%1$dpti%2$s</string>
+    <string name="symptom_night_diarrhea">Diarrea notturna</string>
+    <string name="symptom_mucus">Muco</string>
+    <string name="symptom_urgency">Urgenza</string>
+    <string name="activity_badge">%1$s %2$d pti</string>
+
+    <!-- ==================== Pannelli di registrazione (aggiunta/modifica) ==================== -->
+    <string name="panel_today">Oggi</string>
+    <string name="panel_editing_on">Modifica della registrazione del %1$s</string>
+    <string name="panel_record_to">Registra al: </string>
+    <string name="panel_editing_label">Modifica: </string>
+    <string name="panel_backfill">(retroattivo)</string>
+    <string name="panel_time">Ora</string>
+    <string name="panel_meal_type">Tipo di pasto</string>
+    <string name="panel_photos">Foto (più di una possibile)</string>
+    <string name="panel_pending_photo">Foto non salvata</string>
+    <string name="panel_remove_photo">Rimuovi foto</string>
+    <string name="panel_take_photo">📷 Fotocamera</string>
+    <string name="panel_from_album">🖼️ Galleria</string>
+    <string name="panel_add_food_tag">Aggiungi alimento</string>
+    <string name="panel_food_tags">Alimenti (selezione multipla)</string>
+    <string name="panel_note">Nota</string>
+    <string name="panel_meal_note_hint">Metodo di cottura? Come ti sei sentito dopo?</string>
+    <string name="panel_save_changes">Salva le modifiche</string>
+    <string name="panel_save_record">Salva registrazione</string>
+    <string name="panel_edit_meal">Modifica pasto</string>
+    <string name="panel_add_meal">Aggiungi pasto</string>
+    <string name="panel_edit_med">Modifica farmaco</string>
+    <string name="panel_add_med">Aggiungi farmaco</string>
+    <string name="panel_common_meds">Farmaci comuni</string>
+    <string name="panel_med_name">Nome del farmaco</string>
+    <string name="panel_med_name_hint">es. Mesalazina</string>
+    <string name="panel_med_dose">Dose</string>
+    <string name="panel_med_dose_hint">es. 1 compressa / 500 mg</string>
+    <string name="panel_note_title">Stato di oggi</string>
+    <string name="panel_note_hint">Come ti senti oggi?\nFeci, sonno, umore, disturbi…</string>
+    <string name="panel_save_note">Salva stato</string>
+    <string name="panel_edit_bowel">Modifica feci</string>
+    <string name="panel_bowel_title">Registrazione feci</string>
+    <string name="panel_bowel_count">Evacuazioni (diurne)</string>
+    <string name="panel_bristol_title">Tipo di feci (scala di Bristol 1~7)</string>
+    <string name="panel_blood">Sangue</string>
+    <string name="panel_other_symptoms">Altri sintomi</string>
+    <string name="panel_mucus">Muco</string>
+    <string name="panel_urgency">Urgenza</string>
+    <string name="panel_pain">Dolore addominale (0~10 pti)</string>
+    <string name="panel_no_pain">Nessun dolore</string>
+    <string name="panel_other_discomfort">Altri disturbi</string>
+    <string name="panel_other_discomfort_hint">Gonfiore, stanchezza, febbre, ecc.</string>
+    <string name="panel_activity_hint">Attività di riferimento (punteggio semplificato, solo automonitoraggio)</string>
+    <string name="panel_tap_to_adjust">Tocca per regolare</string>
+    <string name="panel_select_time">Scegli l\'ora</string>
+
+    <!-- ==================== Pagina Tolleranza ==================== -->
+    <string name="tolerance_title">Tolleranza alimentare</string>
+    <string name="tolerance_subtitle">Registra quali cibi puoi mangiare e quali richiedono attenzione; etichetta i cibi durante la registrazione dei pasti per un facile controllo</string>
+    <string name="tolerance_note_title">Sulla tolleranza</string>
+    <string name="tolerance_note">La tolleranza alimentare varia in base alle condizioni fisiche e alla malattia: un alimento può essere tollerato in fase di remissione ma non durante una riacutizzazione. Valuta quindi in base alla tua situazione reale. Prova sempre piccole quantità; se dopo due o tre giorni non ci sono problemi, probabilmente è tollerato. Anche in questo caso, resta prudente e non esagerare.</string>
+    <string name="tolerance_note_collapse">Riduci</string>
+    <string name="tolerance_note_expand">Espandi</string>
+    <string name="tolerance_empty_title">Ancora nessun alimento</string>
+    <string name="tolerance_empty_hint">Aggiungi cibi nella pagina « Aggiungi pasto » (es. latte, uova)</string>
+    <string name="tolerance_drag_hint">Suggerimento: trascina un\'etichetta per cambiarne la categoria</string>
+    <string name="tolerance_types_count">%1$d tipi</string>
+    <string name="tolerance_empty_section">Nessuno</string>
+    <string name="tolerance_add_placeholder">Aggiungi un alimento, es. latte</string>
+
+    <!-- ==================== Messaggi della home ==================== -->
+    <string name="slogan_title">Messaggi della home</string>
+    <string name="slogan_desc">Il banner in cima alla home mostra questi messaggi in ordine ogni giorno. Tocca una voce per modificarla, il cestino per eliminarla.</string>
+    <string name="slogan_empty">L\'elenco è vuoto; la home mostrerà i messaggi predefiniti.</string>
+    <string name="slogan_reset">Ripristina i messaggi predefiniti</string>
+    <string name="slogan_add">Aggiungi messaggio</string>
+    <string name="slogan_edit">Modifica messaggio</string>
+    <string name="slogan_field">Testo banner (%1$d/%2$d)</string>
+    <string name="slogan_reset_message">L\'elenco verrà ripristinato con i %1$d messaggi predefiniti, sostituendo i contenuti personalizzati.</string>
+    <string name="default_slogan_1">Mangia bene, ogni giorno!</string>
+    <string name="default_slogan_2">Registra ogni giorno, preoccupati un po\' meno</string>
+    <string name="default_slogan_3">Pasti piccoli e frequenti, gentili con l\'intestino</string>
+    <string name="default_slogan_4">I sintomi fluttuano — tu sei più forte</string>
+    <string name="default_slogan_5">Prenditi cura di te anche oggi</string>
+    <string name="default_slogan_6">Mangia leggero, e l\'intestino starà meglio</string>
+    <string name="default_slogan_7">Mangia in orario, registra in orario</string>
+    <string name="default_slogan_8">Ricorda oggi — il corpo ricorda tutto</string>
+
+    <!-- ==================== Profilo ==================== -->
+    <string name="profile_subtitle">Diario UC · I dati restano solo su questo dispositivo</string>
+    <string name="profile_tap_avatar">Tocca per cambiare avatar</string>
+    <string name="profile_default_nickname">Cronista</string>
+    <string name="profile_edit_nickname_title">Modifica soprannome</string>
+    <string name="profile_edit_avatar_title">Cambia avatar</string>
+    <string name="profile_avatar_boy">Avatar maschile</string>
+    <string name="profile_avatar_girl">Avatar femminile</string>
+    <string name="profile_menu_stats">Statistiche</string>
+    <string name="profile_menu_settings">Impostazioni</string>
+    <string name="profile_menu_stats_trailing">Statistiche dettagliate</string>
+    <string name="profile_menu_export">Esporta registrazioni</string>
+    <string name="profile_menu_export_trailing">Appunti/File</string>
+    <string name="profile_menu_restore">Ripristina record</string>
+    <string name="profile_menu_restore_trailing">Importa da CSV</string>
+    <string name="export_csv_restore_hint">Ripristina record giornalieri e tolleranza alimentare</string>
+    <string name="restore_result_title">Ripristino completato</string>
+    <string name="restore_result_summary">Ripristinati: %1$d pasti, %2$d farmaci, %3$d evacuazioni, %4$d note, %5$d alimenti</string>
+    <string name="restore_result_skipped">%1$d duplicati saltati</string>
+    <string name="restore_result_failed">%1$d righe non analizzate</string>
+    <string name="restore_error_invalid">File non riconosciuto. Scegli un CSV esportato con "Esporta registrazioni → File → CSV" (esporta e ripristina nella stessa lingua).</string>
+    <string name="profile_menu_med_settings">Impostazioni farmaci</string>
+    <string name="profile_menu_med_settings_trailing">%1$d volte/giorno</string>
+    <string name="profile_menu_slogans">Messaggi della home</string>
+    <string name="profile_menu_slogans_default_trailing">Messaggi predefiniti</string>
+    <string name="profile_menu_font">Dimensione testo</string>
+    <string name="profile_menu_theme">Tema</string>
+    <string name="profile_menu_language">Lingua</string>
+    <string name="profile_menu_update">Aggiornamento</string>
+    <string name="profile_menu_about">Informazioni</string>
+    <string name="profile_menu_about_trailing">v1.0</string>
+    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_font_desc">Regola la dimensione del testo nelle pagine Home, Tolleranza e Gestione</string>
+    <string name="profile_font_sample">Testo</string>
+    <string name="profile_about_title">Informazioni su Diario UC</string>
+    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_desc">Un diario quotidiano pensato per chi convive con la colite ulcerosa (CU):\n· Foto dei pasti + etichette di tolleranza alimentare\n· Registro dei farmaci e orari di assunzione\n· Registro delle feci (scala di Bristol) e autovalutazione dell\'attività\n· Stato quotidiano e riepilogo sul calendario\n· Manuale di gestione quotidiana: consigli di riferimento basati sull\'evidenza (alimentazione / stile di vita / farmaci e cure / benessere psicologico) — solo per riferimento personale</string>
+    <string name="profile_about_disclaimer">L\'attività è un UCDAI semplificato (0~8 pti) solo per l\'automonitoraggio. Dati e foto sono conservati esclusivamente nella cartella dell\'app sul dispositivo e non vengono mai caricati.</string>
+
+    <string name="language_system">Segui la lingua di sistema</string>
+
+    <string name="theme_system">Segui il sistema</string>
+    <string name="theme_light">Chiaro</string>
+    <string name="theme_dark">Scuro</string>
+    <string name="font_size_small">Piccolo</string>
+    <string name="font_size_standard">Standard</string>
+    <string name="font_size_large">Grande</string>
+    <string name="font_size_extra_large">Molto grande</string>
+
+    <!-- ==================== Impostazioni farmaci ==================== -->
+    <string name="med_settings_title">Impostazioni farmaci</string>
+    <string name="med_settings_daily_count">Assunzioni al giorno</string>
+    <string name="med_settings_times_hint">Fino a 6 volte, un orario di promemoria ciascuna</string>
+    <string name="med_settings_decrease_one">Riduci di uno</string>
+    <string name="med_settings_increase_one">Aumenta di uno</string>
+    <string name="med_settings_nth">N.° %1$d</string>
+    <string name="med_settings_change_time">Modifica ora</string>
+    <string name="med_settings_note">Quando aggiungi o registri retroattivamente un farmaco, viene usata per impostazione predefinita l\'ora corrente.</string>
+    <string name="med_settings_picker_title">Orario di assunzione n.° %1$d</string>
+
+    <!-- ==================== Esportazione ==================== -->
+    <string name="export_saved">%1$s salvato</string>
+    <string name="export_save_failed">Salvataggio non riuscito: %1$s</string>
+    <string name="export_clipboard">Appunti</string>
+    <string name="export_file">File</string>
+    <string name="export_no_records">Nessuna registrazione del tipo selezionato nell\'intervallo scelto</string>
+    <string name="export_copied">Copiato negli appunti</string>
+    <string name="export_select_type">Seleziona un tipo di registrazione</string>
+    <string name="export_button">Esporta</string>
+    <string name="export_start_date">Data di inizio</string>
+    <string name="export_end_date">Data di fine</string>
+    <string name="export_select_date">Scegli una data</string>
+    <string name="export_date_headline">%3$d/%2$d/%1$d</string>
+    <string name="export_file_name">esportazione_%1$s_%2$s</string>
+    <string name="export_txt_title">Esportazione registrazioni</string>
+    <string name="export_txt_range">Intervallo: %1$s ~ %2$s</string>
+    <string name="export_txt_types">Tipi: %1$s</string>
+    <string name="export_txt_day_header">====== %1$s %2$s ======</string>
+    <string name="export_txt_meal">[Pasto] %1$s %2$s</string>
+    <string name="export_txt_med">[Farmaco] %1$s %2$s</string>
+    <string name="export_txt_bowel">[Feci]</string>
+    <string name="export_txt_note">[Stato]</string>
+    <string name="export_txt_count">Numero</string>
+    <string name="export_txt_night">(incl. notte)</string>
+    <string name="export_txt_bristol">| Bristol</string>
+    <string name="export_txt_not_recorded">Non registrato</string>
+    <string name="export_txt_blood">| Sangue</string>
+    <string name="export_txt_mucus">| Muco</string>
+    <string name="export_txt_pain">| Dolore</string>
+    <string name="export_txt_urgency">| Urgenza</string>
+    <string name="export_txt_other">| Altro: </string>
+    <string name="export_csv_header">data,tipo,ora,contenuto,nota</string>
+    <string name="export_csv_bristol">Bristol</string>
+    <string name="export_csv_blood">Sangue</string>
+    <string name="export_csv_mucus">Muco</string>
+    <string name="export_csv_pain">Dolore</string>
+    <string name="export_csv_urgency">Urgenza</string>
+
+    <!-- ==================== Statistiche ==================== -->
+    <string name="stats_title">Statistiche</string>
+    <string name="stats_days_label">Giorni tracciati</string>
+    <string name="stats_days_value">Giorno %1$d</string>
+    <string name="stats_streak_label">Serie in corso</string>
+    <string name="stats_streak_value">%1$d giorni</string>
+    <string name="stats_first_record">Prima registrazione %1$s</string>
+    <string name="stats_empty">Ancora nessuna registrazione</string>
+    <string name="stats_meal_records">Registrazioni pasti</string>
+    <string name="stats_bowel_records">Registrazioni feci</string>
+    <string name="stats_bowel_summary">%1$d giorni · %2$d volte</string>
+    <string name="stats_med_records">Registrazioni farmaci</string>
+    <string name="stats_note_records">Registrazioni stato</string>
+    <string name="stats_bowel_detail">Dettaglio feci</string>
+    <string name="stats_avg_pain">Dolore medio %1$s pti (0~10)</string>
+    <string name="stats_tolerance_title">Tolleranza</string>
+    <string name="stats_tolerance_value">%1$s %2$d</string>
+    <string name="stats_disclaimer">Queste sono statistiche locali per l\'automonitoraggio e non costituiscono consulenza medica.</string>
+
+    <!-- ==================== Elenco registrazioni ==================== -->
+    <string name="list_title_meal">Registrazioni pasti</string>
+    <string name="list_title_bowel">Registrazioni feci</string>
+    <string name="list_title_med">Registrazioni farmaci</string>
+    <string name="list_title_note">Registrazioni stato</string>
+    <string name="list_empty_meal">Ancora nessuna registrazione pasto</string>
+    <string name="list_empty_bowel">Ancora nessuna registrazione feci</string>
+    <string name="list_empty_med">Ancora nessuna registrazione farmaco</string>
+    <string name="list_empty_note">Ancora nessuna registrazione stato</string>
+    <string name="list_level_year">Anno</string>
+    <string name="list_level_month">Mese</string>
+    <string name="list_level_day">Giorno</string>
+    <string name="list_year_header">%1$d</string>
+    <string name="list_total_count">%1$d voci in totale</string>
+    <string name="list_month_header">%1$d</string>
+    <string name="list_day_header">%2$d/%1$d %3$s</string>
+
+    <!-- ==================== Manuale di gestione quotidiana ==================== -->
+    <string name="dm_title">Manuale di gestione quotidiana</string>
+    <string name="dm_subtitle">Consigli basati sull\'evidenza · Da adattare alla fase della malattia\nElabora un piano personalizzato con il tuo medico</string>
+    <string name="dm_disclaimer">📌 Nota importante\nQueste informazioni sono solo di riferimento e non sostituiscono un parere medico professionale.\nIl piano concreto va definito con il tuo medico curante.</string>
+    <string name="dm_card_diet">Gestione dell\'alimentazione</string>
+    <string name="dm_card_lifestyle">Stile di vita</string>
+    <string name="dm_card_medical">Farmaci e cure mediche</string>
+    <string name="dm_card_psych">Benessere psicologico</string>
+    <string name="dm_card_assessment">Autovalutazione · Confronto sintomi</string>
+    <string name="dm_diet_core_principle">**Principio chiave:** adattarsi con flessibilità alla **fase acuta** o alla **fase di remissione**, per « alleggerire » o « riparare » l\'intestino.</string>
+    <string name="dm_diet_acute_title">🔴 Riacutizzazione acuta · Ridurre fortemente il carico</string>
+    <string name="dm_diet_acute_b1_lead">Senza residui, liquido/semiliquido morbido</string>
+    <string name="dm_diet_acute_b1">Acqua di riso, fecola di loto, crema all\'uovo al vapore, pasta ben cotta, brodo chiaro sgrassato.</string>
+    <string name="dm_diet_acute_b2_lead">Scopo</string>
+    <string name="dm_diet_acute_b2">Ridurre volume e frequenza delle feci per far riposare l\'intestino.</string>
+    <string name="dm_diet_remission_title">🟢 Remissione · Riparazione graduale</string>
+    <string name="dm_diet_remission_b1_lead">Ricco di nutrienti, digeribile, a basso residuo</string>
+    <string name="dm_diet_remission_b1">Pesce al vapore, crema all\'uovo, tofu morbido, carne magra finemente tritata.</string>
+    <string name="dm_diet_remission_b2">Apportare proteine di qualità per riparare la mucosa intestinale.</string>
+    <string name="dm_diet_issues_title">⚠️ « Alimenti problema » da tenere d\'occhio</string>
+    <string name="dm_diet_fiber_lead">Ricchi di fibre</string>
+    <string name="dm_diet_fiber">(da evitare in riacutizzazione): frutta secca, semi, mais, popcorn, verdure crude.</string>
+    <string name="dm_diet_dairy_lead">Latticini</string>
+    <string name="dm_diet_dairy">Alcuni pazienti non li tollerano; puoi sospenderli e osservare.</string>
+    <string name="dm_diet_drinks_lead">Bevande stimolanti</string>
+    <string name="dm_diet_drinks">Alcol, caffeina, bevande gassate.</string>
+    <string name="dm_diet_greasy_lead">Grasso, piccante</string>
+    <string name="dm_diet_greasy">Fritti, grigliate, peperoncino.</string>
+    <string name="dm_diet_tips_title">💡 Consigli pratici</string>
+    <string name="dm_diet_cooking_lead">Cambia la cottura</string>
+    <string name="dm_diet_cooking">Cuoci verdure e frutta al vapore, bollite, al forno o frullate, ben cotte.</string>
+    <string name="dm_diet_soluble_fiber_lead">Fibre solubili</string>
+    <string name="dm_diet_soluble_fiber">(se tollerate): avena, patata dolce sbucciata, banana, carota ben cotta.</string>
+    <string name="dm_diet_small_meals_lead">Piccoli pasti frequenti</string>
+    <string name="dm_diet_small_meals">Cinque-sei piccoli pasti al giorno riducono il carico di ogni pasto.</string>
+    <string name="dm_diet_diary_lead">Diario alimentare</string>
+    <string name="dm_diet_diary">Registra cibi e reazioni per evitare con precisione gli « alimenti problema ».</string>
+    <string name="dm_lifestyle_sleep_title">😴 Sonno regolare</string>
+    <string name="dm_lifestyle_sleep">Garantisci **7~8 ore** di sonno di qualità ogni notte ed evita il superlavoro per stabilizzare il sistema immunitario.</string>
+    <string name="dm_lifestyle_exercise_title">🚶 Attività fisica moderata</string>
+    <string name="dm_lifestyle_exercise_acute_lead">Fase acuta</string>
+    <string name="dm_lifestyle_exercise_acute">Il riposo è la priorità; evita l\'esercizio.</string>
+    <string name="dm_lifestyle_exercise_remission_lead">Remissione</string>
+    <string name="dm_lifestyle_exercise_remission">Attività aerobica dolce (camminata, jogging, yoga, tai chi, nuoto). Frequenza: **3~5 volte a settimana**, 20~60 minuti, senza eccessiva stanchezza dopo.</string>
+    <string name="dm_lifestyle_stress_title">🧘 Gestione dello stress</string>
+    <string name="dm_lifestyle_stress">Lo stress psicologico può peggiorare i sintomi; affrontalo con **meditazione, respirazione profonda, confronto con i familiari o gruppi di auto-aiuto**.</string>
+    <string name="dm_med_meds_title">💊 Assumere correttamente i farmaci</string>
+    <string name="dm_med_meds">**Segui rigorosamente le prescrizioni** — non sospendere, ridurre o cambiare mai i farmaci da solo. I farmaci comuni includono aminosalicilati, immunomodulatori e biologici. Adatta inoltre il trattamento alla sede dell\'infiammazione: ad esempio, se l\'infiammazione è nel retto, i suppositori possono essere più efficaci.</string>
+    <string name="dm_med_pain_title">🚫 Antidolorifici con cautela</string>
+    <string name="dm_med_pain">Evita i **farmaci antinfiammatori non steroidei (FANS)** (es. ibuprofene, naprossene) — possono scatenare una riacutizzazione.</string>
+    <string name="dm_med_nutrition_title">🧪 Integrazione di nutrienti</string>
+    <string name="dm_med_nutrition">La diarrea prolungata può causare perdite nutrizionali; sotto controllo medico, integra **ferro, calcio e vitamina D**.</string>
+    <string name="dm_med_checkup_title">📅 Controlli regolari</string>
+    <string name="dm_med_checkup">Se la malattia dura da **8~10 anni** o più, si raccomanda una **colonscopia ogni 1~2 anni** per monitorare la malattia e lo screening del rischio oncologico.</string>
+    <string name="dm_med_vaccine_title">💉 Vaccinazioni</string>
+    <string name="dm_med_vaccine">Dopo aver consultato il medico, vaccinati in tempo contro **l\'influenza** e **lo pneumococco** (la malattia o i farmaci possono influire sul sistema immunitario).</string>
+    <string name="dm_psych_p1">Riconoscere che la colite ulcerosa è una malattia cronica e imparare a conviverci è molto importante. Un atteggiamento positivo e una corretta conoscenza della malattia sono di per sé un potente « farmaco ».</string>
+    <string name="dm_psych_tip">**🌱 Suggerimento:** se ti senti ansioso o depresso, non esitare a chiedere tempestivamente l\'aiuto di un **professionista della salute mentale**.</string>
+    <string name="dm_psych_p2">Condividere le emozioni con familiari, amici o altri pazienti e partecipare a gruppi di sostegno aiuta ad alleggerire il carico psicologico.</string>
+    <string name="dm_assess_intro">Usa il confronto dei sintomi tipici e il punteggio semplice per stimare la fase attuale. ⚠️ Questo strumento non sostituisce una diagnosi professionale — in caso di dubbi, consulta subito un medico.</string>
+    <string name="dm_assess_active_title">🔄 Segni frequenti in riacutizzazione (fase attiva)</string>
+    <string name="dm_assess_diarrhea_lead">Diarrea</string>
+    <string name="dm_assess_diarrhea">Frequenza delle evacuazioni nettamente aumentata (oltre 3 volte al giorno), spesso morbide o liquide.</string>
+    <string name="dm_assess_blood_lead">Sangue nelle feci</string>
+    <string name="dm_assess_blood">Sangue o muco nelle feci, in superficie o mescolato, talvolta con coaguli o pus mucoso.</string>
+    <string name="dm_assess_blood_color_lead">Colore del sangue: riferimento</string>
+    <string name="dm_assess_blood_color">Sangue rosso vivo o rosso scuro indica spesso un interessamento del retto o del colon sigmoideo (vicino all\'ano), con sangue eliminato rapidamente e poco ossidato; sangue rosso scuro o nero (catramoso) indica una lesione più alta — colon trasverso, ascendente o anche ileo terminale — dove il sangue resta più a lungo nell\'intestino e si scurisce per ossidazione. Il colore è solo un indizio e non può mai essere l\'unica base per una diagnosi.</string>
+    <string name="dm_assess_pain_lead">Dolore addominale</string>
+    <string name="dm_assess_pain">Crampi al basso ventre o dolore sordo continuo, che può attenuarsi dopo la defecazione.</string>
+    <string name="dm_assess_urgency_lead">Tenesmo</string>
+    <string name="dm_assess_urgency">Stimolo continuo alla defecazione con sensazione di evacuazione incompleta.</string>
+    <string name="dm_assess_systemic_lead">Sintomi sistemici</string>
+    <string name="dm_assess_systemic">Febbre, stanchezza, perdita di peso, inappetenza.</string>
+    <string name="dm_assess_remission_title">🟢 Segni frequenti in remissione</string>
+    <string name="dm_assess_normal_bowel_lead">Evacuazioni normali</string>
+    <string name="dm_assess_normal_bowel">1~2 evacuazioni formate al giorno, senza sangue.</string>
+    <string name="dm_assess_no_pain_lead">Dolore scomparso</string>
+    <string name="dm_assess_no_pain">Nessun fastidio addominale o solo un lieve dolore sordo.</string>
+    <string name="dm_assess_condition_lead">Condizioni generali</string>
+    <string name="dm_assess_condition">Energia recuperata, peso stabile, niente febbre.</string>
+    <string name="dm_assess_mucosa">Guarigione della mucosa o netto miglioramento all\'endoscopia.</string>
+    <string name="dm_assess_score_title">📝 Punteggio di attività semplice (autovalutazione)</string>
+    <string name="dm_assess_score_intro">Sulla base della media degli ultimi 3 giorni, scegli l\'opzione più adatta e tocca il pulsante qui sotto per valutare.</string>
+    <string name="dm_assess_q1">1. Evacuazioni al giorno</string>
+    <string name="dm_assess_q2">2. Sanguinamento</string>
+    <string name="dm_assess_q3">3. Dolore addominale</string>
+    <string name="dm_assess_q4">4. Temperatura (ascellare)</string>
+    <string name="dm_assess_opt_freq_0">&lt;3 volte (0 pti)</string>
+    <string name="dm_assess_opt_freq_1">3~5 volte (1 pt)</string>
+    <string name="dm_assess_opt_freq_2">6~10 volte (2 pti)</string>
+    <string name="dm_assess_opt_freq_3">&gt;10 volte (3 pti)</string>
+    <string name="dm_assess_opt_blood_0">Nessuno (0 pti)</string>
+    <string name="dm_assess_opt_blood_1">Lieve (1 pt)</string>
+    <string name="dm_assess_opt_blood_2">Moderato (2 pti)</string>
+    <string name="dm_assess_opt_blood_3">Abbondante (3 pti)</string>
+    <string name="dm_assess_opt_pain_0">Nessuno (0 pti)</string>
+    <string name="dm_assess_opt_pain_1">Lieve (1 pt)</string>
+    <string name="dm_assess_opt_pain_2">Moderato (2 pti)</string>
+    <string name="dm_assess_opt_pain_3">Grave (3 pti)</string>
+    <string name="dm_assess_opt_temp_0">&lt;37,5 °C (0 pti)</string>
+    <string name="dm_assess_opt_temp_1">37,5~38,5 °C (1 pt)</string>
+    <string name="dm_assess_opt_temp_2">&gt;38,5 °C (2 pti)</string>
+    <string name="dm_assess_score_button">📐 Calcola punteggio</string>
+    <string name="dm_assess_total">Totale: </string>
+    <string name="dm_assess_result_0">Remissione (sintomi ben controllati)</string>
+    <string name="dm_assess_result_1">Attività lieve (consulta il medico)</string>
+    <string name="dm_assess_result_2">Attività moderata (rivolgiti presto al medico)</string>
+    <string name="dm_assess_result_3">Attività grave (rivolgiti subito al medico)</string>
+    <string name="dm_assess_legend">* 0~2 pti: remissione; 3~5 pti: attività lieve; 6~8 pti: attività moderata; ≥9 pti: attività grave.</string>
+
+    <!-- ==================== Aggiornamento (Google Play Core) ==================== -->
+    <string name="update_dialog_title">Nuova versione disponibile</string>
+    <string name="update_dialog_message">La nuova versione include miglioramenti come il supporto multilingua. Dopo l\'aggiornamento, potrai cambiare la lingua dell\'app in « Profilo → Lingua ».</string>
+    <string name="update_now">Aggiorna ora</string>
+    <string name="update_download_title">Aggiornamento in corso</string>
+    <string name="update_download_message">La nuova versione è in download. Tieni aperta l\'app.</string>
+    <string name="update_ready_title">Aggiornamento completato</string>
+    <string name="update_ready_message">La nuova versione è stata scaricata e si attiverà dopo il riavvio dell\'app.</string>
+    <string name="update_restart">Riavvia ora</string>
+    <string name="update_check_failed">Impossibile verificare gli aggiornamenti. Riprova più tardi.</string>
+    <string name="update_up_to_date">Sei aggiornato</string>
+
+</resources>

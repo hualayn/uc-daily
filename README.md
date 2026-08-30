@@ -9,7 +9,7 @@
 ## 界面结构（四个底部 Tab + 中间凸起"+"快捷添加）
 
 **首页**
-- 欢迎卡：头像 + 按时段问候 + 每日轮播的暖心横幅；右上角服药提醒铃铛（提醒时间已到但未记录服药时亮红点，点击回到今天并打开添加服药面板；同时系统发出红色通知提醒）
+- 欢迎卡：头像 + 按时段问候 + 暖心横幅（按日期每天轮播"首页寄语"列表中一条，列表可在"我的 → 首页寄语"逐条修改/添加/删除）；右上角服药提醒铃铛（提醒时间已到但未记录服药时亮红点，点击回到今天并打开添加服药面板；同时系统发出红色通知提醒）
 - 今日卡：日期头（左右箭头换周/换月）+ 日历，默认周视图（左右滑动换周，点击选日，有排便记录的日子按活动度着色），**下滑展开整月视图**（上滑收起；整月视图下左右滑动/箭头换月）
 - 当日统计：饮食次数 / 便便次数 / 服药次数·总次数；点击统计卡可按类别筛选当天记录，再点一次或点"恢复"取消筛选
 - 中间"+"按钮打开添加面板（全局浮层，任何 Tab 都能打开）：🍚 饮食、💩 大便、💊 服药、📝 笔记
@@ -29,9 +29,13 @@
 - 头像（通用 / 男生 / 女生）与昵称（可修改）
 - 菜单：
   - **统计信息**：记录天数 / 饮食条数 / 排便天数 / 服药条数、活动度分布、食物耐受分布
-  - **导出记录**：选日期区间 + 记录类型（饮食/服药/便便/感受），输出 TXT / CSV，保存剪切板或文件
+  - **导出记录**：选日期区间 + 记录类型（饮食/服药/便便/感受），输出 TXT / CSV（CSV 附带全部食物耐受），保存剪切板或文件
+  - **恢复记录**：选择「导出记录」生成的 CSV 文件即可恢复日常记录与食物耐受（同日期同内容的记录自动跳过，每日感受按日期覆盖，食物耐受按名称更新或新增）
   - **服药设置**：设置每天服药提醒次数与提醒时间（驱动首页铃铛 + 系统通知）
+  - **首页寄语**：独立页面管理首页顶部横幅的轮播寄语列表——每条可点选修改，可添加/删除；"恢复默认"还原为内置 8 条；列表删空时首页自动轮播内置默认寄语
   - **主题**：浅色 / 深色 / 跟随系统
+  - **语言**：跟随系统 / 简体中文 / English / 日本語 / 한국어 / Français / Deutsch / Italiano / Español / Português / Русский / العربية，切换后立即生效（详见"多语言"）
+  - **软件更新**：Google Play Core 应用内更新（详见"多语言"）
   - **关于**：应用说明
 
 ## 功能
@@ -47,14 +51,24 @@
 - **全屏查看**：点照片可放大查看（多张可左右滑动）
 - **日期回溯**：首页周历 / 整月视图可点选任意日期，查看 / 补录当天记录
 - **主题**：浅色 / 深色 / 跟随系统（"我的 → 主题"切换）
+- **多语言**：默认跟随系统语言，可在"我的 → 语言"手动切换 12 个选项（跟随系统 / 简体中文 / English / 日本語 / 한국어 / Français / Deutsch / Italiano / Español / Português / Русский / العربية）；应用界面、服药提醒通知与通知渠道文案随所选语言显示；阿拉伯语自动启用 RTL 布局（详见"多语言"一节）
+- **应用内更新**：集成 Google Play Core（app-update 2.x）Flexible 应用内更新——启动时静默检查新版本，"我的 → 软件更新"可手动检查；发现新版本 → "立即更新" → 后台下载 → "立即重启"生效（详见"多语言"一节）
 
 ## 技术栈
 
 - **Kotlin** 2.2.10 / **AGP** 9.3.0 / **Gradle** 9.5.0
 - **Jetpack Compose** + Material3（底部 NavigationBar 四 Tab + 中央快捷添加；记录面板为全局浮层，任何 Tab 都能打开）
-- **Room** 2.7.1（本地 SQLite，数据库版本 8，手写 1→8 迁移）
+- **Room** 2.7.1（本地 SQLite，全新数据库 schema，版本 1）
 - **Coil** 2.7.0（图片加载）
 - **MVVM** 架构（ViewModel + StateFlow）
+- **Google Play Core**（`com.google.android.play:app-update:2.1.0`）：应用内 Flexible 更新（多语言版本更新下发）
+
+## 多语言
+
+- **文案资源**：全部界面文案集中在 `app/src/main/res/values*/strings.xml`（默认简体中文 + 10 个语言目录：`values-en` / `values-ja` / `values-ko` / `values-fr` / `values-de` / `values-it` / `values-es` / `values-pt` / `values-ru` / `values-ar`）；代码中通过 `stringResource(R.string.x)` / `context.getString(...)` 读取，枚举/列表类文案（餐次、耐受状态、布里斯托便级、便血、腹痛部位、活动度、主题、字体档位、星期等）以 `@StringRes` 资源 id 形式定义
+- **语言切换**：`AppLocale`（`app/src/main/java/com/ucdaily/AppLocale.kt`）负责语言选项与持久化（SharedPreferences `app_prefs / app_language`，默认"跟随系统"）；`UcDailyApp` 与 `MainActivity` 在 `attachBaseContext` 中按所选语言包装上下文，切换后 `Activity.recreate()` 即时生效。应用级本地化保证后台（闹钟 / 开机广播 / 服务）发出的服药提醒通知也随语言显示
+- **版本分发（Google Play Core）**：语言资源随 App Bundle（AAB）一起打包，通过 Google Play 的"仅下发与用户相关的语言"能力按设备语言分发，用户无需安装多余语言包；新增语言 / 功能的新版本经 Google Play 推送，应用内通过 Play Core 检查并 Flexible 更新（启动时静默检查 + "我的 → 软件更新"手动检查 → 后台下载 → 重启生效）。注意：应用内更新仅对从 Google Play 安装的版本生效，侧载包检查会静默降级
+- **上架建议**：在 Play Console 中发布 AAB 时勾选"仅向用户提供相关语言"以启用按语言分发；如需阿拉伯语正确从右到左展示，请保留 Manifest 中的 `android:supportsRtl="true"`
 
 ## 系统要求
 
@@ -74,18 +88,22 @@
 ## 项目结构
 
 ```
-app/src/main/java/com/study/checkin/
-├── StudyCheckinApp.kt   # Application：固定简体中文 locale
-├── MainActivity.kt      # 入口：底部 Tab 编排、相机/相册 Activity 启动器、全局面板层
+app/src/main/java/com/ucdaily/
+├── UcDailyApp.kt   # Application：按"我的 → 语言"所选语言应用资源（默认跟随系统）
+├── AppLocale.kt         # 多语言：语言选项、持久化、attachBaseContext 本地化包装
+├── MainActivity.kt      # 入口：底部 Tab 编排、相机/相册 Activity 启动器、全局面板层、应用内更新 UI
 ├── MedReminder.kt       # 服药提醒：系统通知发出/取消 + 系统闹钟安排 + 闹钟/开机广播接收器（后台可用）
+├── play/
+│   └── AppUpdate.kt     # Google Play Core 应用内更新（Flexible）：检查 / 下载 / 重启
 ├── ui/
 │   ├── MealLogViewModel.kt  # ViewModel：状态管理（单一 MealUiState）、草稿、数据操作
 │   ├── HomeScreen.kt        # 首页：欢迎卡（服药铃铛）、日历（周/整月）、当日统计、当天记录
 │   ├── ToleranceScreen.kt   # 耐受 Tab：食物耐受管理（点删 / 拖动排序 / 跨分区改状态）
 │   ├── DailyManagementScreen.kt # 日常管理 Tab：管理手册（手风琴卡片）+ 病情自评分
-│   ├── ProfileScreen.kt     # 我的 Tab：头像/昵称 + 菜单（统计/导出/服药设置/主题/关于）
+│   ├── ProfileScreen.kt     # 我的 Tab：头像/昵称 + 菜单（统计/导出/恢复/服药设置/首页寄语/字体大小/主题/语言/软件更新/关于）
 │   ├── StatsScreen.kt       # 统计页：记录量、活动度分布、食物耐受分布
 │   ├── MedSettingsScreen.kt # 服药设置页：提醒次数与提醒时间
+│   ├── HomeSloganScreen.kt  # 首页寄语页：横幅轮播寄语列表管理（逐条修改/添加/删除/恢复默认）
 │   ├── RecordPanels.kt      # 全局记录面板：饮食/排便/服药/笔记面板、当日记录列表、全屏照片
 │   ├── MealLogScreen.kt     # 共用组件：饮食/排便记录卡片、导出对话框、星期/活动度工具
 │   └── Theme.kt             # 蓝色系主题（浅/深）
@@ -100,17 +118,16 @@ app/src/main/java/com/study/checkin/
     ├── DailyNoteDao.kt    # 每日感受 DAO
     ├── FoodTag.kt         # 食物标签实体 + 耐受枚举（可耐受/尝试/不耐受）+ 排序键
     ├── FoodTagDao.kt      # 食物标签 DAO
-    └── AppDatabase.kt     # 数据库配置（v8，含 1→2→…→8 迁移）
+    └── AppDatabase.kt     # 数据库配置（版本 1，全新 schema，无历史迁移）
 ```
 
 ## 数据存储说明
 
-- 记录存于本地 Room 数据库 `checkin_db`（表 `meal_records` 饮食、`daily_symptoms` 排便、`med_records` 服药、`daily_notes` 感受、`food_tags` 食物标签；饮食 / 排便 / 服药每天可多条，排便含记录时间；感受按 date 唯一）
+- 记录存于本地 Room 数据库 `uc_daily_db`（表 `meal_records` 饮食、`daily_symptoms` 排便、`med_records` 服药、`daily_notes` 感受、`food_tags` 食物标签；饮食 / 排便 / 服药每天可多条，排便含记录时间；感受按 date 唯一）
 - 照片存于应用私有目录（`getExternalFilesDir`），卸载应用时自动清理
 - 相册选取的照片会复制到应用私有目录，保证卸载前一直可查看
-- 偏好（昵称 / 头像 / 主题 / 常用药 / 服药提醒时间）存 SharedPreferences
+- 偏好（昵称 / 头像 / 主题 / 首页寄语 / 常用药 / 服药提醒时间）存 SharedPreferences
 - 服药提醒：通知走系统通知渠道 `med_reminder`（常驻、可着色）；到点触发用系统闹钟（AlarmManager `setAndAllowWhileIdle`，最多 6 个提醒时间各占一个槽位），应用启动 / 修改提醒时间 / 开机完成时重注册
-- 数据库历史迁移：v3 删除旧版"学习打卡"数据表；v4 新增排便记录表；v5 新增服药 / 感受 / 食物标签表并为饮食记录增加标签列；v6 允许一天多条排便记录；v7 排便记录增加记录时间列；v8 食物标签增加拖动排序字段
 
 ## 活动度评分说明
 

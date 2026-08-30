@@ -7,15 +7,16 @@ plugins {
 }
 
 android {
-    namespace = "com.study.checkin"
+    namespace = "com.ucdaily"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.study.checkin"
+        applicationId = "com.ucdaily"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        // 版本号可由 -PVERSION_CODE / -PVERSION_NAME 覆盖（GitHub Actions 按 tag 注入），本地构建用默认值
+        versionCode = (project.findProperty("VERSION_CODE") as? String)?.toIntOrNull() ?: 1
+        versionName = (project.findProperty("VERSION_NAME") as? String) ?: "1.1.0"
     }
 
     buildFeatures {
@@ -25,30 +26,33 @@ android {
     // release 签名：GitHub Actions 把仓库 secret 里的 keystore 解码成文件，
     // 通过 -P 参数传入（RELEASE_KEYSTORE_FILE / RELEASE_KEYSTORE_PASSWORD /
     // RELEASE_KEY_ALIAS / RELEASE_KEY_PASSWORD）；
-    // 本地构建（无密钥）时 release 自动退回 debug 签名，仍可安装
-    // val releaseSigningProps = listOf(
-    //     (project.findProperty("RELEASE_KEYSTORE_FILE") as? String),
-    //     (project.findProperty("RELEASE_KEYSTORE_PASSWORD") as? String),
-    //     (project.findProperty("RELEASE_KEY_ALIAS") as? String),
-    //     (project.findProperty("RELEASE_KEY_PASSWORD") as? String)
-    // ).map { it?.takeIf { s -> s.isNotBlank() } }
-    // val hasReleaseSigning = releaseSigningProps.none { it == null }
+    // 本地构建（无密钥）时 release 自动退回 debug 签名，仍可安装。
+    // 本地要出正式签名包时：
+    // ./gradlew assembleRelease -PRELEASE_KEYSTORE_FILE=<jks 路径> \
+    //   -PRELEASE_KEYSTORE_PASSWORD=<库密码> -PRELEASE_KEY_ALIAS=<别名> -PRELEASE_KEY_PASSWORD=<密钥密码>
+    val releaseSigningProps = listOf(
+        (project.findProperty("RELEASE_KEYSTORE_FILE") as? String),
+        (project.findProperty("RELEASE_KEYSTORE_PASSWORD") as? String),
+        (project.findProperty("RELEASE_KEY_ALIAS") as? String),
+        (project.findProperty("RELEASE_KEY_PASSWORD") as? String)
+    ).map { it?.takeIf { s -> s.isNotBlank() } }
+    val hasReleaseSigning = releaseSigningProps.none { it == null }
 
-    // if (hasReleaseSigning) {
-    //     signingConfigs {
-    //         create("release") {
-    //             storeFile = file(releaseSigningProps[0]!!)
-    //             storePassword = releaseSigningProps[1]!!
-    //             keyAlias = releaseSigningProps[2]!!
-    //             keyPassword = releaseSigningProps[3]!!
-    //         }
-    //     }
-    // }
-    // val releaseSigningConfig = if (hasReleaseSigning) {
-    //     signingConfigs.getByName("release")
-    // } else {
-    //     signingConfigs.getByName("debug")
-    // }
+    if (hasReleaseSigning) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(releaseSigningProps[0]!!)
+                storePassword = releaseSigningProps[1]!!
+                keyAlias = releaseSigningProps[2]!!
+                keyPassword = releaseSigningProps[3]!!
+            }
+        }
+    }
+    val releaseSigningConfig = if (hasReleaseSigning) {
+        signingConfigs.getByName("release")
+    } else {
+        signingConfigs.getByName("debug")
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -59,15 +63,6 @@ android {
         jvmTarget = "17"
     }
 
-    signingConfigs {     
-        create("release") {
-            storeFile = file("/home/ll/app-key-store.jks")
-            storePassword = "111111"
-            keyAlias = "key0"
-            keyPassword = "111111"
-        }        
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -76,8 +71,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // signingConfig = releaseSigningConfig
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = releaseSigningConfig
         }
         debug {
             isMinifyEnabled = false
@@ -99,6 +93,9 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
 
+    // Fragment（ActivityResult API 的 lint 校验要求 fragment >= 1.3.0）
+    implementation("androidx.fragment:fragment-ktx:1.8.2")
+
     // Room
     val roomVersion = "2.7.1"
     implementation("androidx.room:room-runtime:$roomVersion")
@@ -113,4 +110,8 @@ dependencies {
 
     // Material 扩展图标（含男生/女生头像图标 Man / Woman）
     implementation("androidx.compose.material:material-icons-extended")
+
+    // Google Play Core：应用内更新（多国语言版本随 AAB 通过 Play 分发，
+    // 应用内 Flexible 更新；"我的 → 软件更新"手动检查）
+    implementation("com.google.android.play:app-update:2.1.0")
 }

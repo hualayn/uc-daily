@@ -17,5 +17,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "StudyCheckin"
+rootProject.name = "uc-daily"
 include(":app")

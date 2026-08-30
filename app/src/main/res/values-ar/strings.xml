@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================== التطبيق ==================== -->
+    <string name="app_name">يوميات UC</string>
+
+    <!-- ==================== عام ==================== -->
+    <string name="common_cancel">إلغاء</string>
+    <string name="common_save">حفظ</string>
+    <string name="common_ok">موافق</string>
+    <string name="common_delete">حذف</string>
+    <string name="common_edit">تعديل</string>
+    <string name="common_back">رجوع</string>
+    <string name="common_close">إغلاق</string>
+    <string name="common_later">لاحقًا</string>
+    <string name="common_restore">استعادة</string>
+    <string name="common_got_it">حسنًا</string>
+    <string name="common_add">إضافة</string>
+    <string name="common_yes">نعم</string>
+    <string name="common_no">لا</string>
+    <string name="common_points">نقطة</string>
+    <string name="common_items_count">%1$d عناصر</string>
+    <string name="common_times_count">%1$d مرات</string>
+    <string name="common_days_count">%1$d أيام</string>
+
+    <!-- ==================== تنسيقات التاريخ (نمط DateTimeFormatter) ==================== -->
+    <string name="date_pattern_md">d MMM</string>
+    <string name="date_pattern_md_week">d MMM, EEE</string>
+
+    <!-- ==================== التنقل السفلي / الإضافة السريعة ==================== -->
+    <string name="tab_home">الرئيسية</string>
+    <string name="tab_tolerance">التحمّل</string>
+    <string name="tab_daily_management">الرعاية اليومية</string>
+    <string name="tab_profile">حسابي</string>
+    <string name="quick_add_title">إضافة سجل</string>
+
+    <string name="type_meal">طعام</string>
+    <string name="type_bowel">براز</string>
+    <string name="type_med">دواء</string>
+    <string name="type_note">حالة</string>
+    <string name="type_tolerance">تحمل</string>
+
+    <string name="meal_breakfast">فطور</string>
+    <string name="meal_lunch">غداء</string>
+    <string name="meal_dinner">عشاء</string>
+    <string name="meal_snack">وجبة خفيفة</string>
+
+    <string name="tolerance_ok">متسامح معه</string>
+    <string name="tolerance_try">تجربة</string>
+    <string name="tolerance_bad">غير متسامح</string>
+
+    <string name="bristol_1">كتل صلبة منفصلة</string>
+    <string name="bristol_2">شكل نقانق لكنه متكتّل</string>
+    <string name="bristol_3">نقانق به تشققات</string>
+    <string name="bristol_4">نقانق أملس</string>
+    <string name="bristol_5">كتل طرية</string>
+    <string name="bristol_6">عجيني</string>
+    <string name="bristol_7">مائي</string>
+
+    <string name="blood_none">لا يوجد</string>
+    <string name="blood_little">طفيف</string>
+    <string name="blood_clear">واضح</string>
+    <string name="blood_clots">جلطات</string>
+
+    <string name="pain_loc_none">لا يوجد</string>
+    <string name="pain_loc_right_lower">الربع السفلي الأيمن</string>
+    <string name="pain_loc_left_lower">الربع السفلي الأيسر</string>
+    <string name="pain_loc_periumbilical">حول السرة</string>
+    <string name="pain_loc_whole">البطن بالكامل</string>
+
+    <string name="activity_remission">هدأة</string>
+    <string name="activity_mild">نشاط خفيف</string>
+    <string name="activity_moderate">نشاط متوسط</string>
+    <string name="activity_severe">نشاط شديد</string>
+
+    <string name="week_mon">الاثنين</string>
+    <string name="week_tue">الثلاثاء</string>
+    <string name="week_wed">الأربعاء</string>
+    <string name="week_thu">الخميس</string>
+    <string name="week_fri">الجمعة</string>
+    <string name="week_sat">السبت</string>
+    <string name="week_sun">الأحد</string>
+
+    <!-- ==================== النشاط الرئيسي ==================== -->
+    <string name="camera_permission_required">يلزم إذن الكاميرا لالتقاط الصور</string>
+    <string name="camera_file_create_failed">تعذّر إنشاء ملف الكاميرا</string>
+    <string name="camera_app_not_found">لم يتم العثور على تطبيق كاميرا. يُرجى التحقق من إعدادات الكاميرا.</string>
+    <string name="camera_file_create_failed_detail">تعذّر إنشاء ملف الكاميرا: %1$s</string>
+    <string name="exit_dialog_title">الخروج من التطبيق</string>
+    <string name="exit_dialog_message">هل تريد حقًا إغلاق التطبيق؟</string>
+    <string name="exit_dialog_confirm">خروج</string>
+
+    <!-- ==================== تذكير الدواء (إشعار النظام) ==================== -->
+    <string name="med_reminder_channel">تذكير الدواء</string>
+    <string name="med_reminder_channel_desc">يذكّرك عندما لا يصل عدد الجرعات الفعلي اليوم إلى عدد الجرعات التي حان موعدها</string>
+    <string name="med_reminder_channel_silent">تذكير الدواء (تحديث صامت)</string>
+    <string name="med_reminder_channel_silent_desc">تحديث صامت لشارة الجرعات الفائتة، بدون صوت</string>
+    <string name="med_reminder_notification_title">تذكير الدواء</string>
+    <string name="med_reminder_missed">لديك %1$d جرعة فائتة. يُرجى تناول دوائك في أقرب وقت!</string>
+
+    <!-- ==================== الرئيسية ==================== -->
+    <string name="greeting_morning">صباح الخير</string>
+    <string name="greeting_noon">مساء الخير</string>
+    <string name="greeting_afternoon">مساء الخير</string>
+    <string name="greeting_evening">مساء الخير</string>
+    <string name="greeting_night">ساعة متأخرة</string>
+    <string name="home_avatar_content_desc">الصورة الرمزية (اضغط لفتح حسابي)</string>
+    <string name="home_prev_month">الشهر السابق</string>
+    <string name="home_prev_week">الأسبوع السابق</string>
+    <string name="home_next_month">الشهر التالي</string>
+    <string name="home_next_week">الأسبوع التالي</string>
+    <string name="home_month_header">%1$d/%2$d</string>
+    <string name="home_date_header">%2$d/%1$d</string>
+    <string name="home_year_week_header">%1$d، الأسبوع %2$d</string>
+    <string name="home_med_no_due_time">لم يحن موعد أي جرعة اليوم بعد. تذكّر تناول دوائك في موعده.</string>
+    <string name="home_med_all_done">تم تسجيل جميع الجرعات التي حان موعدها (%1$d/%2$d).</string>
+    <string name="home_med_go">تناول الدواء</string>
+
+    <string name="day_records_title">سجلات اليوم</string>
+    <string name="day_records_empty_filtered">لا توجد سجلات «%1$s» لهذا اليوم</string>
+    <string name="day_records_empty">لا توجد سجلات لهذا اليوم بعد</string>
+    <string name="day_records_empty_hint">كُل جيدًا، تناول دواءك في موعده، ودوّن سطرًا لنفسك</string>
+
+    <string name="record_edit">تعديل السجل</string>
+    <string name="record_delete">حذف السجل</string>
+    <string name="record_meal_photo">صورة الوجبة</string>
+    <string name="record_delete_meal_message">حذف سجل «%1$s» هذا؟ لن تُحذف الصور من جهازك.</string>
+    <string name="symptom_edit">تعديل سجل البراز</string>
+    <string name="symptom_delete">حذف سجل البراز</string>
+    <string name="symptom_delete_message">حذف سجل البراز هذا؟</string>
+    <string name="med_edit">تعديل سجل الدواء</string>
+    <string name="med_delete">حذف سجل الدواء</string>
+    <string name="med_delete_message">حذف السجل «%1$s»؟</string>
+    <string name="note_edit">تعديل الحالة</string>
+    <string name="note_delete">حذف الحالة</string>
+    <string name="note_delete_message">حذف حالة هذا اليوم؟</string>
+    <string name="summary_bowel">براز: %1$d مرات</string>
+    <string name="summary_blood">دم·%1$s</string>
+    <string name="summary_pain">ألم %1$d نقاط%2$s</string>
+    <string name="bristol_label">بريستول %1$d %2$s</string>
+    <string name="flag_blood">دم%1$s</string>
+    <string name="flag_pain">ألم%1$dنقاط%2$s</string>
+    <string name="symptom_night_diarrhea">إسهال ليلي</string>
+    <string name="symptom_mucus">مخاط</string>
+    <string name="symptom_urgency">إلحاح</string>
+    <string name="activity_badge">%1$s %2$d نقاط</string>
+
+    <!-- ==================== لوحات السجل (إضافة/تعديل) ==================== -->
+    <string name="panel_today">اليوم</string>
+    <string name="panel_editing_on">جارٍ تعديل سجل %1$s</string>
+    <string name="panel_record_to">التسجيل في: </string>
+    <string name="panel_editing_label">جارٍ التعديل: </string>
+    <string name="panel_backfill">(بأثر رجعي)</string>
+    <string name="panel_time">الوقت</string>
+    <string name="panel_meal_type">نوع الوجبة</string>
+    <string name="panel_photos">الصور (يمكن إضافة عدة صور)</string>
+    <string name="panel_pending_photo">صورة غير محفوظة</string>
+    <string name="panel_remove_photo">إزالة الصورة</string>
+    <string name="panel_take_photo">📷 الكاميرا</string>
+    <string name="panel_from_album">🖼️ المعرض</string>
+    <string name="panel_add_food_tag">إضافة طعام</string>
+    <string name="panel_food_tags">الأطعمة (اختيار متعدد)</string>
+    <string name="panel_note">ملاحظة</string>
+    <string name="panel_meal_note_hint">طريقة الطهي؟ كيف شعرت بعدها؟</string>
+    <string name="panel_save_changes">حفظ التغييرات</string>
+    <string name="panel_save_record">حفظ السجل</string>
+    <string name="panel_edit_meal">تعديل الوجبة</string>
+    <string name="panel_add_meal">إضافة وجبة</string>
+    <string name="panel_edit_med">تعديل الدواء</string>
+    <string name="panel_add_med">إضافة دواء</string>
+    <string name="panel_common_meds">الأدوية الشائعة</string>
+    <string name="panel_med_name">اسم الدواء</string>
+    <string name="panel_med_name_hint">مثال: ميسالازين</string>
+    <string name="panel_med_dose">الجرعة</string>
+    <string name="panel_med_dose_hint">مثال: قرص واحد / 500 ملغ</string>
+    <string name="panel_note_title">حالة اليوم</string>
+    <string name="panel_note_hint">كيف تشعر اليوم؟\nبراز، نوم، مزاج، انزعاج…</string>
+    <string name="panel_save_note">حفظ الحالة</string>
+    <string name="panel_edit_bowel">تعديل البراز</string>
+    <string name="panel_bowel_title">سجل البراز</string>
+    <string name="panel_bowel_count">عدد مرات التبرز (نهارًا)</string>
+    <string name="panel_bristol_title">نوع البراز (مقياس بريستول 1~7)</string>
+    <string name="panel_blood">دم</string>
+    <string name="panel_other_symptoms">أعراض أخرى</string>
+    <string name="panel_mucus">مخاط</string>
+    <string name="panel_urgency">إلحاح</string>
+    <string name="panel_pain">ألم البطن (0~10 نقاط)</string>
+    <string name="panel_no_pain">بدون ألم</string>
+    <string name="panel_other_discomfort">انزعاج آخر</string>
+    <string name="panel_other_discomfort_hint">انتفاخ، تعب، حُمّى، إلخ.</string>
+    <string name="panel_activity_hint">النشاط المرجعي (درجة مبسطة، للمراقبة الذاتية فقط)</string>
+    <string name="panel_tap_to_adjust">اضغط للتعديل</string>
+    <string name="panel_select_time">اختيار الوقت</string>
+
+    <!-- ==================== صفحة التحمل ==================== -->
+    <string name="tolerance_title">تحمّل الأطعمة</string>
+    <string name="tolerance_subtitle">سجّل الأطعمة التي يمكنك تناولها والتي تحتاج إلى حذر؛ وأضف وسومًا عند تسجيل الوجبات لسهولة المراجعة</string>
+    <string name="tolerance_note_title">عن التحمل</string>
+    <string name="tolerance_note">يختلف تحمّل الطعام باختلاف حالة الجسم والمرض: فقد تتحمل طعامًا في فترة استقرار المرض، ولا تتحمله أثناء النوبة. احكم حسب وضعك الفعلي. جرّب دائمًا كمية صغيرة؛ فإذا لم تظهر مشكلة بعد يومين أو ثلاثة، فالأرجح أنه متحمّل. ومع ذلك، حافظ على حذر في غذائك ولا تفرط.</string>
+    <string name="tolerance_note_collapse">طي</string>
+    <string name="tolerance_note_expand">توسيع</string>
+    <string name="tolerance_empty_title">لا توجد أطعمة بعد</string>
+    <string name="tolerance_empty_hint">أضف الأطعمة في صفحة «إضافة وجبة» (مثل: الحليب والبيض)</string>
+    <string name="tolerance_drag_hint">تلميح: اسحب الوسم لتغيير فئته</string>
+    <string name="tolerance_types_count">%1$d أنواع</string>
+    <string name="tolerance_empty_section">لا يوجد</string>
+    <string name="tolerance_add_placeholder">أضف طعامًا، مثل: الحليب</string>
+
+    <!-- ==================== عبارات الرئيسية ==================== -->
+    <string name="slogan_title">عبارات الرئيسية</string>
+    <string name="slogan_desc">يعرض شريط أعلى الرئيسية هذه العبارات بالترتيب كل يوم. اضغط على عنصر لتعديله، وعلى أيقونة سلة المهملات لحذفه.</string>
+    <string name="slogan_empty">القائمة فارغة؛ ستعرض الرئيسية العبارات الافتراضية المدمجة.</string>
+    <string name="slogan_reset">استعادة العبارات الافتراضية</string>
+    <string name="slogan_add">إضافة عبارة</string>
+    <string name="slogan_edit">تعديل العبارة</string>
+    <string name="slogan_field">نص الشريط (%1$d/%2$d)</string>
+    <string name="slogan_reset_message">سيتم استعادة القائمة إلى %1$d عبارة افتراضية مدمجة، واستبدال المحتوى المخصص الحالي.</string>
+    <string name="default_slogan_1">كُل جيدًا كل يوم!</string>
+    <string name="default_slogan_2">سجّل كل يوم، واطمئن أكثر</string>
+    <string name="default_slogan_3">وجبات صغيرة متكررة، لطيفة على الأمعاء</string>
+    <string name="default_slogan_4">الأعراض تتقلب — وأنت أقوى</string>
+    <string name="default_slogan_5">اعتني بنفسك جيدًا اليوم أيضًا</string>
+    <string name="default_slogan_6">كُل خفيفًا، لتشعر أمعاؤك بالخفة</string>
+    <string name="default_slogan_7">كُل في موعده، وسجّل في موعده</string>
+    <string name="default_slogan_8">تذكّر اليوم — جسدك يتذكر كل شيء</string>
+
+    <!-- ==================== حسابي ==================== -->
+    <string name="profile_subtitle">يوميات UC · البيانات محفوظة على هذا الجهاز فقط</string>
+    <string name="profile_tap_avatar">اضغط لتغيير الصورة الرمزية</string>
+    <string name="profile_default_nickname">المدوّن</string>
+    <string name="profile_edit_nickname_title">تعديل الاسم المستعار</string>
+    <string name="profile_edit_avatar_title">تغيير الصورة الرمزية</string>
+    <string name="profile_avatar_boy">صورة رمزية للرجال</string>
+    <string name="profile_avatar_girl">صورة رمزية للنساء</string>
+    <string name="profile_menu_stats">الإحصائيات</string>
+    <string name="profile_menu_settings">الإعدادات</string>
+    <string name="profile_menu_stats_trailing">إحصائيات مفصلة</string>
+    <string name="profile_menu_export">تصدير السجلات</string>
+    <string name="profile_menu_export_trailing">الحافظة/ملف</string>
+    <string name="profile_menu_restore">استعادة السجلات</string>
+    <string name="profile_menu_restore_trailing">استيراد من CSV</string>
+    <string name="export_csv_restore_hint">يمكن استعادة السجلات اليومية وتحمل الأطعمة</string>
+    <string name="restore_result_title">اكتملت الاستعادة</string>
+    <string name="restore_result_summary">تمت الاستعادة: %1$d وجبات، %2$d أدوية، %3$d تسجيلات إخراج، %4$d ملاحظات، %5$d أطعمة</string>
+    <string name="restore_result_skipped">تم تخطي %1$d مكرر</string>
+    <string name="restore_result_failed">تعذر تحليل %1$d صفوف</string>
+    <string name="restore_error_invalid">تعذر التعرف على الملف. اختر ملف CSV مُصدَّر عبر «تصدير السجلات → ملف → CSV» (يُنصح بالتصدير والاستعادة بنفس اللغة).</string>
+    <string name="profile_menu_med_settings">إعدادات الدواء</string>
+    <string name="profile_menu_med_settings_trailing">%1$d مرات/يوم</string>
+    <string name="profile_menu_slogans">عبارات الرئيسية</string>
+    <string name="profile_menu_slogans_default_trailing">العبارات الافتراضية</string>
+    <string name="profile_menu_font">حجم الخط</string>
+    <string name="profile_menu_theme">السمة</string>
+    <string name="profile_menu_language">اللغة</string>
+    <string name="profile_menu_update">تحديث التطبيق</string>
+    <string name="profile_menu_about">حول</string>
+    <string name="profile_menu_about_trailing">v1.0</string>
+    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_font_desc">اضبط حجم النص في صفحات الرئيسية والتحمل والرعاية اليومية</string>
+    <string name="profile_font_sample">نص</string>
+    <string name="profile_about_title">حول يوميات UC</string>
+    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_desc">مذكرة يومية مصممة لمرضى التهاب القولون التقرحي (UC):\n· صور الوجبات + وسوم تحمّل الأطعمة\n· سجل الأدوية وضبط مواعيد الجرعات\n· سجل البراز (مقياس بريستول) وتقييم ذاتي للنشاط\n· الحالة اليومية والمراجعة عبر التقويم\n· دليل الرعاية اليومية: إرشادات مرجعية مبنية على الأدلة (الغذاء / نمط الحياة / الأدوية والرعاية الطبية / الصحة النفسية) — للاطلاع الشخصي فقط</string>
+    <string name="profile_about_disclaimer">النشاط هو UCDAI مبسّط (0~8 نقاط) للمراقبة الذاتية فقط. تُحفظ البيانات والصور في مجلد التطبيق على جهازك فقط ولا يتم رفعها أبدًا.</string>
+
+    <string name="language_system">تبعية لغة النظام</string>
+
+    <string name="theme_system">تبعية النظام</string>
+    <string name="theme_light">فاتح</string>
+    <string name="theme_dark">داكن</string>
+    <string name="font_size_small">صغير</string>
+    <string name="font_size_standard">قياسي</string>
+    <string name="font_size_large">كبير</string>
+    <string name="font_size_extra_large">كبير جدًا</string>
+
+    <!-- ==================== إعدادات الدواء ==================== -->
+    <string name="med_settings_title">إعدادات الدواء</string>
+    <string name="med_settings_daily_count">الجرعات يوميًا</string>
+    <string name="med_settings_times_hint">حتى 6 مرات، لكل جرعة موعد تذكير</string>
+    <string name="med_settings_decrease_one">تقليل واحدة</string>
+    <string name="med_settings_increase_one">زيادة واحدة</string>
+    <string name="med_settings_nth">الجرعة رقم %1$d</string>
+    <string name="med_settings_change_time">تغيير الوقت</string>
+    <string name="med_settings_note">عند إضافة دواء أو تسجيله بأثر رجعي، يُستخدم الوقت الحالي افتراضيًا.</string>
+    <string name="med_settings_picker_title">موعد الجرعة رقم %1$d</string>
+
+    <!-- ==================== التصدير ==================== -->
+    <string name="export_saved">تم الحفظ: %1$s</string>
+    <string name="export_save_failed">فشل الحفظ: %1$s</string>
+    <string name="export_clipboard">الحافظة</string>
+    <string name="export_file">ملف</string>
+    <string name="export_no_records">لا توجد سجلات من النوع المحدد في النطاق المختار</string>
+    <string name="export_copied">تم النسخ إلى الحافظة</string>
+    <string name="export_select_type">اختر نوع السجلات</string>
+    <string name="export_button">تصدير</string>
+    <string name="export_start_date">تاريخ البداية</string>
+    <string name="export_end_date">تاريخ النهاية</string>
+    <string name="export_select_date">اختر تاريخًا</string>
+    <string name="export_date_headline">%3$d/%2$d/%1$d</string>
+    <string name="export_file_name">تصدير_%1$s_%2$s</string>
+    <string name="export_txt_title">تصدير السجلات</string>
+    <string name="export_txt_range">النطاق: %1$s ~ %2$s</string>
+    <string name="export_txt_types">الأنواع: %1$s</string>
+    <string name="export_txt_day_header">====== %1$s %2$s ======</string>
+    <string name="export_txt_meal">[طعام] %1$s %2$s</string>
+    <string name="export_txt_med">[دواء] %1$s %2$s</string>
+    <string name="export_txt_bowel">[براز]</string>
+    <string name="export_txt_note">[حالة]</string>
+    <string name="export_txt_count">العدد</string>
+    <string name="export_txt_night">(يشمل الليل)</string>
+    <string name="export_txt_bristol">| بريستول</string>
+    <string name="export_txt_not_recorded">غير مسجل</string>
+    <string name="export_txt_blood">| دم</string>
+    <string name="export_txt_mucus">| مخاط</string>
+    <string name="export_txt_pain">| ألم</string>
+    <string name="export_txt_urgency">| إلحاح</string>
+    <string name="export_txt_other">| أخرى: </string>
+    <string name="export_csv_header">التاريخ,النوع,الوقت,المحتوى,ملاحظة</string>
+    <string name="export_csv_bristol">بريستول</string>
+    <string name="export_csv_blood">دم</string>
+    <string name="export_csv_mucus">مخاط</string>
+    <string name="export_csv_pain">ألم</string>
+    <string name="export_csv_urgency">إلحاح</string>
+
+    <!-- ==================== الإحصائيات ==================== -->
+    <string name="stats_title">الإحصائيات</string>
+    <string name="stats_days_label">أيام التتبع</string>
+    <string name="stats_days_value">اليوم %1$d</string>
+    <string name="stats_streak_label">السلسلة الحالية</string>
+    <string name="stats_streak_value">%1$d أيام</string>
+    <string name="stats_first_record">أول سجل %1$s</string>
+    <string name="stats_empty">لا توجد سجلات بعد</string>
+    <string name="stats_meal_records">سجلات الطعام</string>
+    <string name="stats_bowel_records">سجلات البراز</string>
+    <string name="stats_bowel_summary">%1$d أيام · %2$d مرات</string>
+    <string name="stats_med_records">سجلات الأدوية</string>
+    <string name="stats_note_records">سجلات الحالة</string>
+    <string name="stats_bowel_detail">تفاصيل البراز</string>
+    <string name="stats_avg_pain">متوسط الألم %1$s نقاط (0~10)</string>
+    <string name="stats_tolerance_title">التحمل</string>
+    <string name="stats_tolerance_value">%1$s %2$d</string>
+    <string name="stats_disclaimer">هذه إحصائيات محلية للمراقبة الذاتية فقط ولا تشكّل نصيحة طبية.</string>
+
+    <!-- ==================== قائمة السجلات ==================== -->
+    <string name="list_title_meal">سجلات الطعام</string>
+    <string name="list_title_bowel">سجلات البراز</string>
+    <string name="list_title_med">سجلات الأدوية</string>
+    <string name="list_title_note">سجلات الحالة</string>
+    <string name="list_empty_meal">لا توجد سجلات طعام بعد</string>
+    <string name="list_empty_bowel">لا توجد سجلات براز بعد</string>
+    <string name="list_empty_med">لا توجد سجلات أدوية بعد</string>
+    <string name="list_empty_note">لا توجد سجلات حالة بعد</string>
+    <string name="list_level_year">سنة</string>
+    <string name="list_level_month">شهر</string>
+    <string name="list_level_day">يوم</string>
+    <string name="list_year_header">%1$d</string>
+    <string name="list_total_count">إجمالي %1$d عنصرًا</string>
+    <string name="list_month_header">%1$d</string>
+    <string name="list_day_header">%2$d/%1$d %3$s</string>
+
+    <!-- ==================== دليل الرعاية اليومية ==================== -->
+    <string name="dm_title">دليل الرعاية اليومية</string>
+    <string name="dm_subtitle">نصائح مبنية على الأدلة · تكيّف بمرونة مع مرحلة المرض\nضع خطة فردية مع طبيبك</string>
+    <string name="dm_disclaimer">📌 ملاحظة مهمة\nهذه المعلومات للاطلاع فقط ولا تغني عن الاستشارة الطبية المتخصصة.\nيجب دائمًا وضع الخطة المحددة مع طبيبك المعالج.</string>
+    <string name="dm_card_diet">إدارة الغذاء</string>
+    <string name="dm_card_lifestyle">نمط الحياة</string>
+    <string name="dm_card_medical">الأدوية والرعاية الطبية</string>
+    <string name="dm_card_psych">الصحة النفسية</string>
+    <string name="dm_card_assessment">التقييم الذاتي · مقارنة الأعراض</string>
+    <string name="dm_diet_core_principle">**المبدأ الأساسي:** تكيّف بمرونة مع **النوبة الحادة** أو **مرحلة الهدأة**، إما «بتخفيف العبء» عن الأمعاء أو «بإصلاحها».</string>
+    <string name="dm_diet_acute_title">🔴 النوبة الحادة · خفّف العبء بشدة</string>
+    <string name="dm_diet_acute_b1_lead">خالٍ من البقايا، سائل/نصف سائل طري</string>
+    <string name="dm_diet_acute_b1">ماء الأرز، نشا اللوتس، الكاسترد المطهو على البخار، نودلز مطهو جيدًا، مرق صافٍ منزوع الدهن.</string>
+    <string name="dm_diet_acute_b2_lead">الهدف</string>
+    <string name="dm_diet_acute_b2">تقليل حجم البراز وعدد مرات التبرز لراحة الأمعاء.</string>
+    <string name="dm_diet_remission_title">🟢 الهدأة · إصلاح تدريجي</string>
+    <string name="dm_diet_remission_b1_lead">غني بالعناصر، سهل الهضم، قليل البقايا</string>
+    <string name="dm_diet_remission_b1">سمك مطهو على البخار، كاسترد البيض، توفو طري، لحم خالٍ من الدهن مفروم ناعمًا.</string>
+    <string name="dm_diet_remission_b2">أضف البروتين عالي الجودة لإصلاح الغشاء المخاطي للأمعاء.</string>
+    <string name="dm_diet_issues_title">⚠️ «الأطعمة المسببة للمشاكل» التي يجب الانتباه إليها</string>
+    <string name="dm_diet_fiber_lead">عالية الألياف</string>
+    <string name="dm_diet_fiber">(تجنبها أثناء النوبة): المكسرات، البذور، الذرة، الفشار، الخضروات النيئة.</string>
+    <string name="dm_diet_dairy_lead">منتجات الألبان</string>
+    <string name="dm_diet_dairy">بعض المرضى لا يتحملونها؛ يمكن التوقف مؤقتًا والمراقبة.</string>
+    <string name="dm_diet_drinks_lead">المشروبات المنبهة</string>
+    <string name="dm_diet_drinks">الكحول والكافيين والمشروبات الغازية.</string>
+    <string name="dm_diet_greasy_lead">الدهني والحار</string>
+    <string name="dm_diet_greasy">المقليات والمشويات والفلفل الحار.</string>
+    <string name="dm_diet_tips_title">💡 نصائح عملية</string>
+    <string name="dm_diet_cooking_lead">غيّر طريقة الطهي</string>
+    <string name="dm_diet_cooking">اطبخ الخضروات والفواكه بالبخار أو الغلي أو الشواء أو الخلط، حتى تنضج تمامًا.</string>
+    <string name="dm_diet_soluble_fiber_lead">الألياف القابلة للذوبان</string>
+    <string name="dm_diet_soluble_fiber">(عند تحملها): الشوفان، البطاطا الحلوة المقشرة، الموز، الجزر المطهو جيدًا.</string>
+    <string name="dm_diet_small_meals_lead">وجبات صغيرة متكررة</string>
+    <string name="dm_diet_small_meals">خمس إلى ست وجبات صغيرة يوميًا تقلل عبء كل وجبة.</string>
+    <string name="dm_diet_diary_lead">مذكرات الطعام</string>
+    <string name="dm_diet_diary">سجّل الأطعمة وردود الفعل لتجنب «الأطعمة المسببة للمشاكل» بدقة.</string>
+    <string name="dm_lifestyle_sleep_title">😴 نوم منتظم</string>
+    <string name="dm_lifestyle_sleep">احرص على **7~8 ساعات** من النوم الجيد كل ليلة وتجنب الإرهاق لاستقرار جهاز المناعة.</string>
+    <string name="dm_lifestyle_exercise_title">🚶 نشاط بدني معتدل</string>
+    <string name="dm_lifestyle_exercise_acute_lead">النوبة الحادة</string>
+    <string name="dm_lifestyle_exercise_acute">الراحة أولًا؛ تجنب التمارين.</string>
+    <string name="dm_lifestyle_exercise_remission_lead">الهدأة</string>
+    <string name="dm_lifestyle_exercise_remission">تمارين هوائية خفيفة (المشي، الركض الخفيف، اليوجا، التاي تشي، السباحة). التكرار: **3~5 مرات أسبوعيًا**، من 20~60 دقيقة، دون إرهاق مفرط بعدها.</string>
+    <string name="dm_lifestyle_stress_title">🧘 إدارة التوتر</string>
+    <string name="dm_lifestyle_stress">يمكن أن يؤدي الضغط النفسي إلى تفاقم الأعراض؛ خفّفه عبر **التأمل، التنفس العميق، التواصل مع الأهل والأصدقاء، أو مجموعات دعم المرضى**.</string>
+    <string name="dm_med_meds_title">💊 الالتزام بالدواء</string>
+    <string name="dm_med_meds">**اتبع تعليمات الطبيب بدقة** — لا توقف أو تخفض أو تغيّر الدواء من تلقاء نفسك أبدًا. تشمل الأدوية الشائعة مشتقات حمض أمينوساليسيليك ومعدِّلات المناعة والأدوية البيولوجية. وعالج أيضًا حسب موقع الالتهاب: فمثلًا إذا كان الالتهاب في المستقيم، فقد تكون التحاميل أكثر فعالية.</string>
+    <string name="dm_med_pain_title">🚫 استخدم مسكنات الألم بحذر</string>
+    <string name="dm_med_pain">تجنب **مضادات الالتهاب غير الستيرويدية (NSAID)** (مثل الإيبوبروفين والنابروكسين)؛ فقد تحفّز نوبة المرض.</string>
+    <string name="dm_med_nutrition_title">🧪 تعويض العناصر الغذائية</string>
+    <string name="dm_med_nutrition">قد يؤدي الإسهال المزمن إلى فقدان العناصر الغذائية؛ بإشراف الطبيب، عوّض **الحديد والكالسيوم وفيتامين د**.</string>
+    <string name="dm_med_checkup_title">📅 المتابعة المنتظمة</string>
+    <string name="dm_med_checkup">لمن تجاوزت مدة المرض لديه **8~10 سنوات**، يُنصح بإجراء **تنظير القولون كل 1~2 سنة** لمراقبة الحالة وفحص خطر السرطان.</string>
+    <string name="dm_med_vaccine_title">💉 التطعيم</string>
+    <string name="dm_med_vaccine">بعد استشارة الطبيب، احصل في موعده على **لقاح الإنفلونزا** و**لقاح المكورات الرئوية** (لأن المرض أو أدويته قد تؤثر على جهاز المناعة).</string>
+    <string name="dm_psych_p1">إدراك أن التهاب القولون التقرحي مرض مزمن وتعلّم التعايش معه أمر مهم جدًا. والعقلية الإيجابية والفهم العلمي للمرض هما بحد ذاتهما «دواء» قوي.</string>
+    <string name="dm_psych_tip">**🌱 اقتراح:** إذا شعرت بالقلق أو الاكتئاب، فلا تتردد في طلب المساعدة من **أخصائي صحة نفسية** في الوقت المناسب.</string>
+    <string name="dm_psych_p2">مشاركة المشاعر مع العائلة أو الأصدقاء أو مرضى آخرين، والانضمام إلى مجموعات الدعم، يخفف العبء النفسي.</string>
+    <string name="dm_assess_intro">استخدم مقارنة الأعراض النمطية والدرجة البسيطة لتقدير مرحلتك الحالية تقريبًا. ⚠️ هذه الأداة لا تغني عن التشخيص المتخصص — وعند الشك، راجع الطبيب في الوقت المناسب.</string>
+    <string name="dm_assess_active_title">🔄 الأعراض الشائعة أثناء النوبة (المرحلة النشطة)</string>
+    <string name="dm_assess_diarrhea_lead">إسهال</string>
+    <string name="dm_assess_diarrhea">زيادة ملحوظة في عدد مرات التبرز (أكثر من 3 مرات يوميًا)، غالبًا براز رخو أو مائي.</string>
+    <string name="dm_assess_blood_lead">براز دموي</string>
+    <string name="dm_assess_blood">دم أو مخاط في البراز، على السطح أو مختلطًا به، وأحيانًا مع جلطات أو صديد مخاطي.</string>
+    <string name="dm_assess_blood_color_lead">لون الدم: مرجع</string>
+    <string name="dm_assess_blood_color">الدم الأحمر الفاتح أو الداكن يشير غالبًا إلى إصابة المستقيم أو القولون السيني (القريب من فتحة الشرج)، حيث يُطرح الدم سريعًا فيتأكسد قليلًا؛ أما البراز الأحمر الداكن أو الأسود (القاري) فيشير إلى آفة أعلى — القولون المستعرض أو الصاعد أو حتى نهاية الدقاق — حيث يبقى الدم في الأمعاء مدة أطول ويتأكسد فيغمق لونه. اللون مجرد دليل مساعد ولا يجوز أبدًا الاعتماد عليه وحده للتشخيص.</string>
+    <string name="dm_assess_pain_lead">ألم البطن</string>
+    <string name="dm_assess_pain">مغص في أسفل البطن أو ألم خفيف مستمر، قد يخف بعد التبرز.</string>
+    <string name="dm_assess_urgency_lead">زحير</string>
+    <string name="dm_assess_urgency">رغبة دائمة في التبرز مع شعور بعدم الإفراغ الكامل.</string>
+    <string name="dm_assess_systemic_lead">أعراض عامة</string>
+    <string name="dm_assess_systemic">حُمّى، تعب، فقدان الوزن، فقدان الشهية.</string>
+    <string name="dm_assess_remission_title">🟢 الأعراض الشائعة في الهدأة</string>
+    <string name="dm_assess_normal_bowel_lead">تبرز طبيعي</string>
+    <string name="dm_assess_normal_bowel">من 1~2 مرات تبرز متماسك يوميًا، بدون دم.</string>
+    <string name="dm_assess_no_pain_lead">اختفاء الألم</string>
+    <string name="dm_assess_no_pain">لا انزعاج في البطن أو ألم خفيف فقط.</string>
+    <string name="dm_assess_condition_lead">الحالة العامة</string>
+    <string name="dm_assess_condition">استعادة النشاط، ثبات الوزن، بدون حُمّى.</string>
+    <string name="dm_assess_mucosa">شفاء الغشاء المخاطي أو تحسن ملحوظ بالمنظار.</string>
+    <string name="dm_assess_score_title">📝 درجة النشاط البسيطة (مرجع للتقييم الذاتي)</string>
+    <string name="dm_assess_score_intro">بناءً على متوسط آخر 3 أيام، اختر الخيار الأقرب ثم اضغط الزر أدناه للتقييم.</string>
+    <string name="dm_assess_q1">1. عدد مرات التبرز يوميًا</string>
+    <string name="dm_assess_q2">2. النزيف</string>
+    <string name="dm_assess_q3">3. ألم البطن</string>
+    <string name="dm_assess_q4">4. درجة الحرارة (تحت الإبط)</string>
+    <string name="dm_assess_opt_freq_0">&lt;3 مرات (0 نقطة)</string>
+    <string name="dm_assess_opt_freq_1">3~5 مرات (1 نقطة)</string>
+    <string name="dm_assess_opt_freq_2">6~10 مرات (2 نقطة)</string>
+    <string name="dm_assess_opt_freq_3">&gt;10 مرات (3 نقاط)</string>
+    <string name="dm_assess_opt_blood_0">لا يوجد (0 نقطة)</string>
+    <string name="dm_assess_opt_blood_1">طفيف (1 نقطة)</string>
+    <string name="dm_assess_opt_blood_2">متوسط (2 نقطة)</string>
+    <string name="dm_assess_opt_blood_3">غزير (3 نقاط)</string>
+    <string name="dm_assess_opt_pain_0">لا يوجد (0 نقطة)</string>
+    <string name="dm_assess_opt_pain_1">خفيف (1 نقطة)</string>
+    <string name="dm_assess_opt_pain_2">متوسط (2 نقطة)</string>
+    <string name="dm_assess_opt_pain_3">شديد (3 نقاط)</string>
+    <string name="dm_assess_opt_temp_0">&lt;37.5 درجة (0 نقطة)</string>
+    <string name="dm_assess_opt_temp_1">37.5~38.5 درجة (1 نقطة)</string>
+    <string name="dm_assess_opt_temp_2">&gt;38.5 درجة (2 نقطة)</string>
+    <string name="dm_assess_score_button">📐 حساب الدرجة</string>
+    <string name="dm_assess_total">الإجمالي: </string>
+    <string name="dm_assess_result_0">هدأة (التحكم الجيد بالأعراض)</string>
+    <string name="dm_assess_result_1">نشاط خفيف (يُنصح باستشارة الطبيب)</string>
+    <string name="dm_assess_result_2">نشاط متوسط (مراجعة الطبيب في الوقت المناسب)</string>
+    <string name="dm_assess_result_3">نشاط شديد (المراجعة الفورية)</string>
+    <string name="dm_assess_legend">* 0~2 نقطة: هدأة؛ 3~5 نقاط: نشاط خفيف؛ 6~8 نقاط: نشاط متوسط؛ ≥9 نقاط: نشاط شديد.</string>
+
+    <!-- ==================== تحديث التطبيق (Google Play Core) ==================== -->
+    <string name="update_dialog_title">يتوفر إصدار جديد</string>
+    <string name="update_dialog_message">يتضمن الإصدار الجديد تحسينات مثل دعم اللغات المتعددة. بعد التحديث، يمكنك تبديل لغة التطبيق من «حسابي → اللغة».</string>
+    <string name="update_now">تحديث الآن</string>
+    <string name="update_download_title">جارٍ التحديث</string>
+    <string name="update_download_message">الإصدار الجديد قيد التنزيل. يُرجى إبقاء التطبيق مفتوحًا.</string>
+    <string name="update_ready_title">اكتمل التحديث</string>
+    <string name="update_ready_message">تم تنزيل الإصدار الجديد وسيسري بعد إعادة تشغيل التطبيق.</string>
+    <string name="update_restart">إعادة التشغيل الآن</string>
+    <string name="update_check_failed">تعذّر التحقق من التحديثات. حاول مرة أخرى لاحقًا.</string>
+    <string name="update_up_to_date">أنت على أحدث إصدار</string>
+
+</resources>

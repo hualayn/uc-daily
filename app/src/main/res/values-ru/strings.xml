@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================== Приложение ==================== -->
+    <string name="app_name">Дневник ЯК</string>
+
+    <!-- ==================== Общее ==================== -->
+    <string name="common_cancel">Отмена</string>
+    <string name="common_save">Сохранить</string>
+    <string name="common_ok">ОК</string>
+    <string name="common_delete">Удалить</string>
+    <string name="common_edit">Изменить</string>
+    <string name="common_back">Назад</string>
+    <string name="common_close">Закрыть</string>
+    <string name="common_later">Позже</string>
+    <string name="common_restore">Восстановить</string>
+    <string name="common_got_it">Понятно</string>
+    <string name="common_add">Добавить</string>
+    <string name="common_yes">Да</string>
+    <string name="common_no">Нет</string>
+    <string name="common_points">б.</string>
+    <string name="common_items_count">записей: %1$d</string>
+    <string name="common_times_count">раз: %1$d</string>
+    <string name="common_days_count">дней: %1$d</string>
+
+    <!-- ==================== Шаблоны дат (шаблон DateTimeFormatter) ==================== -->
+    <string name="date_pattern_md">d MMM</string>
+    <string name="date_pattern_md_week">d MMM, EEE</string>
+
+    <!-- ==================== Нижняя навигация / быстрое добавление ==================== -->
+    <string name="tab_home">Главная</string>
+    <string name="tab_tolerance">Переносимость</string>
+    <string name="tab_daily_management">Уход</string>
+    <string name="tab_profile">Профиль</string>
+    <string name="quick_add_title">Добавить запись</string>
+
+    <string name="type_meal">Питание</string>
+    <string name="type_bowel">Стул</string>
+    <string name="type_med">Лекарство</string>
+    <string name="type_note">Самочувствие</string>
+    <string name="type_tolerance">Переносимость</string>
+
+    <string name="meal_breakfast">Завтрак</string>
+    <string name="meal_lunch">Обед</string>
+    <string name="meal_dinner">Ужин</string>
+    <string name="meal_snack">Перекус</string>
+
+    <string name="tolerance_ok">Переносится</string>
+    <string name="tolerance_try">Попробовать</string>
+    <string name="tolerance_bad">Не переносится</string>
+
+    <string name="bristol_1">Отдельные твердые комки</string>
+    <string name="bristol_2">Колбасовидный, но комковатый</string>
+    <string name="bristol_3">Колбасовидный с трещинами</string>
+    <string name="bristol_4">Гладкая «колбаска»</string>
+    <string name="bristol_5">Мягкие комки</string>
+    <string name="bristol_6">Кашицеобразный</string>
+    <string name="bristol_7">Водянистый</string>
+
+    <string name="blood_none">Нет</string>
+    <string name="blood_little">Незначительная</string>
+    <string name="blood_clear">Явная</string>
+    <string name="blood_clots">Сгустки</string>
+
+    <string name="pain_loc_none">Нет</string>
+    <string name="pain_loc_right_lower">Правая подвздошная область</string>
+    <string name="pain_loc_left_lower">Левая подвздошная область</string>
+    <string name="pain_loc_periumbilical">Околопупочная область</string>
+    <string name="pain_loc_whole">Весь живот</string>
+
+    <string name="activity_remission">Ремиссия</string>
+    <string name="activity_mild">Легкая активность</string>
+    <string name="activity_moderate">Умеренная активность</string>
+    <string name="activity_severe">Высокая активность</string>
+
+    <string name="week_mon">понедельник</string>
+    <string name="week_tue">вторник</string>
+    <string name="week_wed">среда</string>
+    <string name="week_thu">четверг</string>
+    <string name="week_fri">пятница</string>
+    <string name="week_sat">суббота</string>
+    <string name="week_sun">воскресенье</string>
+
+    <!-- ==================== MainActivity ==================== -->
+    <string name="camera_permission_required">Для фотосъемки необходимо разрешение на доступ к камере</string>
+    <string name="camera_file_create_failed">Не удалось создать файл камеры</string>
+    <string name="camera_app_not_found">Приложение камеры не найдено. Проверьте настройки камеры.</string>
+    <string name="camera_file_create_failed_detail">Не удалось создать файл камеры: %1$s</string>
+    <string name="exit_dialog_title">Выход из приложения</string>
+    <string name="exit_dialog_message">Закрыть приложение?</string>
+    <string name="exit_dialog_confirm">Выйти</string>
+
+    <!-- ==================== Напоминание о лекарствах (системное уведомление) ==================== -->
+    <string name="med_reminder_channel">Напоминание о лекарствах</string>
+    <string name="med_reminder_channel_desc">Напоминает, когда фактическое число приемов за сегодня меньше числа приемов, уже подошедших по времени</string>
+    <string name="med_reminder_channel_silent">Напоминание о лекарствах (тихое обновление)</string>
+    <string name="med_reminder_channel_silent_desc">Тихое обновление значка пропущенных приемов, без звука</string>
+    <string name="med_reminder_notification_title">Напоминание о лекарствах</string>
+    <string name="med_reminder_missed">Пропущено приемов: %1$d. Примите лекарство как можно скорее!</string>
+
+    <!-- ==================== Главная ==================== -->
+    <string name="greeting_morning">Доброе утро</string>
+    <string name="greeting_noon">Добрый день</string>
+    <string name="greeting_afternoon">Добрый день</string>
+    <string name="greeting_evening">Добрый вечер</string>
+    <string name="greeting_night">Поздняя ночь</string>
+    <string name="home_avatar_content_desc">Аватар (нажмите, чтобы открыть Профиль)</string>
+    <string name="home_prev_month">Предыдущий месяц</string>
+    <string name="home_prev_week">Предыдущая неделя</string>
+    <string name="home_next_month">Следующий месяц</string>
+    <string name="home_next_week">Следующая неделя</string>
+    <string name="home_month_header">%1$d/%2$d</string>
+    <string name="home_date_header">%2$d.%1$d</string>
+    <string name="home_year_week_header">%1$d, неделя %2$d</string>
+    <string name="home_med_no_due_time">Сегодня время приема еще не наступило. Не забудьте вовремя принять лекарство.</string>
+    <string name="home_med_all_done">Все подошедшие приемы записаны (%1$d/%2$d).</string>
+    <string name="home_med_go">Принять лекарство</string>
+
+    <string name="day_records_title">Записи за день</string>
+    <string name="day_records_empty_filtered">Нет записей «%1$s» за этот день</string>
+    <string name="day_records_empty">За этот день записей пока нет</string>
+    <string name="day_records_empty_hint">Хорошо питайтесь, вовремя принимайте лекарства и запишите что-нибудь для себя</string>
+
+    <string name="record_edit">Изменить запись</string>
+    <string name="record_delete">Удалить запись</string>
+    <string name="record_meal_photo">Фото приема пищи</string>
+    <string name="record_delete_meal_message">Удалить эту запись «%1$s»? Фотографии не будут удалены с устройства.</string>
+    <string name="symptom_edit">Изменить запись о стуле</string>
+    <string name="symptom_delete">Удалить запись о стуле</string>
+    <string name="symptom_delete_message">Удалить эту запись о стуле?</string>
+    <string name="med_edit">Изменить запись о лекарстве</string>
+    <string name="med_delete">Удалить запись о лекарстве</string>
+    <string name="med_delete_message">Удалить запись «%1$s»?</string>
+    <string name="note_edit">Изменить самочувствие</string>
+    <string name="note_delete">Удалить самочувствие</string>
+    <string name="note_delete_message">Удалить запись о самочувствии за этот день?</string>
+    <string name="summary_bowel">Стул: %1$d раз</string>
+    <string name="summary_blood">Кровь·%1$s</string>
+    <string name="summary_pain">Боль %1$d б.%2$s</string>
+    <string name="bristol_label">Бристоль %1$d %2$s</string>
+    <string name="flag_blood">Кровь%1$s</string>
+    <string name="flag_pain">Боль%1$dб.%2$s</string>
+    <string name="symptom_night_diarrhea">Ночная диарея</string>
+    <string name="symptom_mucus">Слизь</string>
+    <string name="symptom_urgency">Позывы</string>
+    <string name="activity_badge">%1$s %2$d б.</string>
+
+    <!-- ==================== Панели записей (добавление/редактирование) ==================== -->
+    <string name="panel_today">Сегодня</string>
+    <string name="panel_editing_on">Редактирование записи за %1$s</string>
+    <string name="panel_record_to">Запись за: </string>
+    <string name="panel_editing_label">Редактирование: </string>
+    <string name="panel_backfill">(задним числом)</string>
+    <string name="panel_time">Время</string>
+    <string name="panel_meal_type">Прием пищи</string>
+    <string name="panel_photos">Фотографии (можно несколько)</string>
+    <string name="panel_pending_photo">Фото не сохранено</string>
+    <string name="panel_remove_photo">Убрать фото</string>
+    <string name="panel_take_photo">📷 Камера</string>
+    <string name="panel_from_album">🖼️ Галерея</string>
+    <string name="panel_add_food_tag">Добавить продукт</string>
+    <string name="panel_food_tags">Продукты (можно несколько)</string>
+    <string name="panel_note">Примечание</string>
+    <string name="panel_meal_note_hint">Способ приготовления? Как вы себя чувствовали после?</string>
+    <string name="panel_save_changes">Сохранить изменения</string>
+    <string name="panel_save_record">Сохранить запись</string>
+    <string name="panel_edit_meal">Изменить прием пищи</string>
+    <string name="panel_add_meal">Добавить прием пищи</string>
+    <string name="panel_edit_med">Изменить лекарство</string>
+    <string name="panel_add_med">Добавить лекарство</string>
+    <string name="panel_common_meds">Частые лекарства</string>
+    <string name="panel_med_name">Название лекарства</string>
+    <string name="panel_med_name_hint">напр.: месалазин</string>
+    <string name="panel_med_dose">Доза</string>
+    <string name="panel_med_dose_hint">напр.: 1 таблетка / 500 мг</string>
+    <string name="panel_note_title">Самочувствие сегодня</string>
+    <string name="panel_note_hint">Как вы себя чувствуете сегодня?\nСтул, сон, настроение, недомогание…</string>
+    <string name="panel_save_note">Сохранить самочувствие</string>
+    <string name="panel_edit_bowel">Изменить запись о стуле</string>
+    <string name="panel_bowel_title">Запись о стуле</string>
+    <string name="panel_bowel_count">Число дефекаций (днем)</string>
+    <string name="panel_bristol_title">Характер стула (Бристольская шкала 1~7)</string>
+    <string name="panel_blood">Кровь</string>
+    <string name="panel_other_symptoms">Другие симптомы</string>
+    <string name="panel_mucus">Слизь</string>
+    <string name="panel_urgency">Позывы</string>
+    <string name="panel_pain">Боль в животе (0~10 б.)</string>
+    <string name="panel_no_pain">Без боли</string>
+    <string name="panel_other_discomfort">Другое недомогание</string>
+    <string name="panel_other_discomfort_hint">Вздутие, слабость, жар и т. д.</string>
+    <string name="panel_activity_hint">Справочная активность (упрощенный балл, для самоконтроля)</string>
+    <string name="panel_tap_to_adjust">Нажмите, чтобы изменить</string>
+    <string name="panel_select_time">Выбор времени</string>
+
+    <!-- ==================== Страница переносимости ==================== -->
+    <string name="tolerance_title">Переносимость продуктов</string>
+    <string name="tolerance_subtitle">Отмечайте, какие продукты можно есть, а какие требуют осторожности; ставьте метки при записи питания для удобного просмотра</string>
+    <string name="tolerance_note_title">О переносимости</string>
+    <string name="tolerance_note">Переносимость продуктов зависит от состояния организма и болезни: продукт может переноситься в стабильный период, но не во время обострения. Оценивайте по фактической ситуации. Всегда пробуйте небольшими порциями; если через два-три дня проблем нет, вероятно, продукт переносится. Но даже в этом случае соблюдайте осторожность и не злоупотребляйте.</string>
+    <string name="tolerance_note_collapse">Свернуть</string>
+    <string name="tolerance_note_expand">Развернуть</string>
+    <string name="tolerance_empty_title">Продуктов пока нет</string>
+    <string name="tolerance_empty_hint">Добавляйте продукты на странице «Добавить прием пищи» (напр., молоко, яйца)</string>
+    <string name="tolerance_drag_hint">Подсказка: перетащите метку, чтобы изменить категорию</string>
+    <string name="tolerance_types_count">видов: %1$d</string>
+    <string name="tolerance_empty_section">Нет</string>
+    <string name="tolerance_add_placeholder">Добавить продукт, напр.: молоко</string>
+
+    <!-- ==================== Девизы главной ==================== -->
+    <string name="slogan_title">Девизы главной</string>
+    <string name="slogan_desc">Баннер на главной показывает эти девизы по очереди каждый день. Нажмите на пункт, чтобы изменить его, на иконку корзины — чтобы удалить.</string>
+    <string name="slogan_empty">Список пуст; главная будет показывать встроенные девизы по умолчанию.</string>
+    <string name="slogan_reset">Восстановить девизы по умолчанию</string>
+    <string name="slogan_add">Добавить девиз</string>
+    <string name="slogan_edit">Изменить девиз</string>
+    <string name="slogan_field">Текст баннера (%1$d/%2$d)</string>
+    <string name="slogan_reset_message">Список будет восстановлен до %1$d встроенных девизов по умолчанию; ваш текущий контент будет заменен.</string>
+    <string name="default_slogan_1">Питайтесь хорошо — каждый день!</string>
+    <string name="default_slogan_2">Записывайте каждый день — и тревог станет меньше</string>
+    <string name="default_slogan_3">Частые небольшие приемы пищи берегут кишечник</string>
+    <string name="default_slogan_4">Симптомы колеблются — вы сильнее</string>
+    <string name="default_slogan_5">Позаботьтесь о себе и сегодня</string>
+    <string name="default_slogan_6">Ешьте легче — и кишечнику легче</string>
+    <string name="default_slogan_7">Ешьте вовремя, записывайте вовремя</string>
+    <string name="default_slogan_8">Помните о сегодняшнем дне — тело помнит все</string>
+
+    <!-- ==================== Профиль ==================== -->
+    <string name="profile_subtitle">Дневник ЯК · Данные хранятся только на этом устройстве</string>
+    <string name="profile_tap_avatar">Нажмите, чтобы сменить аватар</string>
+    <string name="profile_default_nickname">Летописец</string>
+    <string name="profile_edit_nickname_title">Изменить имя</string>
+    <string name="profile_edit_avatar_title">Сменить аватар</string>
+    <string name="profile_avatar_boy">Мужской аватар</string>
+    <string name="profile_avatar_girl">Женский аватар</string>
+    <string name="profile_menu_stats">Статистика</string>
+    <string name="profile_menu_settings">Настройки</string>
+    <string name="profile_menu_stats_trailing">Подробная статистика</string>
+    <string name="profile_menu_export">Экспорт записей</string>
+    <string name="profile_menu_export_trailing">Буфер обмена/Файл</string>
+    <string name="profile_menu_restore">Восстановить записи</string>
+    <string name="profile_menu_restore_trailing">Импорт из CSV</string>
+    <string name="export_csv_restore_hint">Восстанавливает ежедневные записи и переносимость продуктов</string>
+    <string name="restore_result_title">Восстановление завершено</string>
+    <string name="restore_result_summary">Восстановлено: %1$d приёмов пищи, %2$d лекарств, %3$d записей стула, %4$d заметок, %5$d продуктов</string>
+    <string name="restore_result_skipped">Пропущено дубликатов: %1$d</string>
+    <string name="restore_result_failed">Не удалось разобрать строк: %1$d</string>
+    <string name="restore_error_invalid">Файл не распознан. Выберите CSV, экспортированный через «Экспорт записей → Файл → CSV» (экспортируйте и восстанавливайте на одном языке).</string>
+    <string name="profile_menu_med_settings">Настройки лекарств</string>
+    <string name="profile_menu_med_settings_trailing">%1$d раз/день</string>
+    <string name="profile_menu_slogans">Девизы главной</string>
+    <string name="profile_menu_slogans_default_trailing">Девизы по умолчанию</string>
+    <string name="profile_menu_font">Размер шрифта</string>
+    <string name="profile_menu_theme">Тема</string>
+    <string name="profile_menu_language">Язык</string>
+    <string name="profile_menu_update">Обновление</string>
+    <string name="profile_menu_about">О приложении</string>
+    <string name="profile_menu_about_trailing">v1.0</string>
+    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_font_desc">Изменяет размер текста на страницах Главная, Переносимость и Уход</string>
+    <string name="profile_font_sample">Текст</string>
+    <string name="profile_about_title">О приложении «Дневник ЯК»</string>
+    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_desc">Ежедневный дневник для людей с язвенным колитом (ЯК):\n· Фото приемов пищи + метки переносимости продуктов\n· Записи о лекарствах и настройка времени приема\n· Записи о стуле (Бристольская шкала) и самооценка активности\n· Ежедневное самочувствие и просмотр в календаре\n· Справочник по ежедневному уходу: основанные на доказательствах рекомендации (питание / образ жизни / лекарства и медицинская помощь / психологическое благополучие) — только для личной справки</string>
+    <string name="profile_about_disclaimer">Активность — упрощенный UCDAI (0~8 б.), только для самоконтроля. Данные и фото хранятся только в папке приложения на вашем устройстве и никогда не загружаются.</string>
+
+    <string name="language_system">По системе</string>
+
+    <string name="theme_system">Как в системе</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Темная</string>
+    <string name="font_size_small">Мелкий</string>
+    <string name="font_size_standard">Стандартный</string>
+    <string name="font_size_large">Крупный</string>
+    <string name="font_size_extra_large">Очень крупный</string>
+
+    <!-- ==================== Настройки лекарств ==================== -->
+    <string name="med_settings_title">Настройки лекарств</string>
+    <string name="med_settings_daily_count">Приемов в день</string>
+    <string name="med_settings_times_hint">До 6 раз, каждому приему — свое время</string>
+    <string name="med_settings_decrease_one">Уменьшить на один</string>
+    <string name="med_settings_increase_one">Увеличить на один</string>
+    <string name="med_settings_nth">Прием №%1$d</string>
+    <string name="med_settings_change_time">Изменить время</string>
+    <string name="med_settings_note">При добавлении или записи задним числом по умолчанию используется текущее время.</string>
+    <string name="med_settings_picker_title">Время приема №%1$d</string>
+
+    <!-- ==================== Экспорт ==================== -->
+    <string name="export_saved">Сохранено: %1$s</string>
+    <string name="export_save_failed">Не удалось сохранить: %1$s</string>
+    <string name="export_clipboard">Буфер обмена</string>
+    <string name="export_file">Файл</string>
+    <string name="export_no_records">Нет записей выбранного типа за выбранный период</string>
+    <string name="export_copied">Скопировано в буфер обмена</string>
+    <string name="export_select_type">Выберите тип записей</string>
+    <string name="export_button">Экспортировать</string>
+    <string name="export_start_date">Дата начала</string>
+    <string name="export_end_date">Дата окончания</string>
+    <string name="export_select_date">Выберите дату</string>
+    <string name="export_date_headline">%3$d.%2$d.%1$d</string>
+    <string name="export_file_name">zapisi_%1$s_%2$s</string>
+    <string name="export_txt_title">Экспорт записей</string>
+    <string name="export_txt_range">Период: %1$s ~ %2$s</string>
+    <string name="export_txt_types">Типы: %1$s</string>
+    <string name="export_txt_day_header">====== %1$s %2$s ======</string>
+    <string name="export_txt_meal">[Питание] %1$s %2$s</string>
+    <string name="export_txt_med">[Лекарство] %1$s %2$s</string>
+    <string name="export_txt_bowel">[Стул]</string>
+    <string name="export_txt_note">[Самочувствие]</string>
+    <string name="export_txt_count">Число</string>
+    <string name="export_txt_night">(вкл. ночь)</string>
+    <string name="export_txt_bristol">| Бристоль</string>
+    <string name="export_txt_not_recorded">Не записано</string>
+    <string name="export_txt_blood">| Кровь</string>
+    <string name="export_txt_mucus">| Слизь</string>
+    <string name="export_txt_pain">| Боль</string>
+    <string name="export_txt_urgency">| Позывы</string>
+    <string name="export_txt_other">| Другое: </string>
+    <string name="export_csv_header">дата,тип,время,содержимое,заметка</string>
+    <string name="export_csv_bristol">Бристоль</string>
+    <string name="export_csv_blood">Кровь</string>
+    <string name="export_csv_mucus">Слизь</string>
+    <string name="export_csv_pain">Боль</string>
+    <string name="export_csv_urgency">Позывы</string>
+
+    <!-- ==================== Статистика ==================== -->
+    <string name="stats_title">Статистика</string>
+    <string name="stats_days_label">Дней ведения</string>
+    <string name="stats_days_value">День %1$d</string>
+    <string name="stats_streak_label">Текущая серия</string>
+    <string name="stats_streak_value">дней: %1$d</string>
+    <string name="stats_first_record">Первая запись %1$s</string>
+    <string name="stats_empty">Записей пока нет</string>
+    <string name="stats_meal_records">Записи о питании</string>
+    <string name="stats_bowel_records">Записи о стуле</string>
+    <string name="stats_bowel_summary">дней: %1$d · раз: %2$d</string>
+    <string name="stats_med_records">Записи о лекарствах</string>
+    <string name="stats_note_records">Записи о самочувствии</string>
+    <string name="stats_bowel_detail">Детали стула</string>
+    <string name="stats_avg_pain">Средняя боль %1$s б. (0~10)</string>
+    <string name="stats_tolerance_title">Переносимость</string>
+    <string name="stats_tolerance_value">%1$s %2$d</string>
+    <string name="stats_disclaimer">Это локальная статистика для самоконтроля и не является медицинской рекомендацией.</string>
+
+    <!-- ==================== Список записей ==================== -->
+    <string name="list_title_meal">Записи о питании</string>
+    <string name="list_title_bowel">Записи о стуле</string>
+    <string name="list_title_med">Записи о лекарствах</string>
+    <string name="list_title_note">Записи о самочувствии</string>
+    <string name="list_empty_meal">Записей о питании пока нет</string>
+    <string name="list_empty_bowel">Записей о стуле пока нет</string>
+    <string name="list_empty_med">Записей о лекарствах пока нет</string>
+    <string name="list_empty_note">Записей о самочувствии пока нет</string>
+    <string name="list_level_year">Год</string>
+    <string name="list_level_month">Месяц</string>
+    <string name="list_level_day">День</string>
+    <string name="list_year_header">%1$d</string>
+    <string name="list_total_count">Всего записей: %1$d</string>
+    <string name="list_month_header">%1$d</string>
+    <string name="list_day_header">%2$d.%1$d %3$s</string>
+
+    <!-- ==================== Справочник по ежедневному уходу ==================== -->
+    <string name="dm_title">Справочник по ежедневному уходу</string>
+    <string name="dm_subtitle">Рекомендации, основанные на доказательствах · Гибко корректируйте в зависимости от фазы болезни\nСоставьте индивидуальный план вместе с врачом</string>
+    <string name="dm_disclaimer">📌 Важное примечание\nЭта информация носит справочный характер и не заменяет профессиональную медицинскую консультацию.\nКонкретный план обязательно составляйте с лечащим врачом.</string>
+    <string name="dm_card_diet">Питание</string>
+    <string name="dm_card_lifestyle">Образ жизни</string>
+    <string name="dm_card_medical">Лекарства и медицинская помощь</string>
+    <string name="dm_card_psych">Психологическое благополучие</string>
+    <string name="dm_card_assessment">Самооценка состояния · Сравнение симптомов</string>
+    <string name="dm_diet_core_principle">**Главный принцип:** гибко действуйте в зависимости от **острой фазы** или **фазы ремиссии**, «разгружая» или «восстанавливая» кишечник.</string>
+    <string name="dm_diet_acute_title">🔴 Острое обострение · Строго снизить нагрузку</string>
+    <string name="dm_diet_acute_b1_lead">Без клетчатки, мягкая жидкая/полужидкая пища</string>
+    <string name="dm_diet_acute_b1">Рисовый отвар, крахмал лотоса, паровой омлет, хорошо разваренные лапша, обезжиренный прозрачный бульон.</string>
+    <string name="dm_diet_acute_b2_lead">Цель</string>
+    <string name="dm_diet_acute_b2">Уменьшить объем и частоту стула, дать кишечнику отдохнуть.</string>
+    <string name="dm_diet_remission_title">🟢 Ремиссия · Постепенное восстановление</string>
+    <string name="dm_diet_remission_b1_lead">Высокопитательная, легкоусвояемая, низкошлаковая</string>
+    <string name="dm_diet_remission_b1">Рыба на пару, паровой омлет, нежный тофу, мелко рубленное постное мясо.</string>
+    <string name="dm_diet_remission_b2">Восполняйте качественный белок для восстановления слизистой кишечника.</string>
+    <string name="dm_diet_issues_title">⚠️ «Проблемные продукты», на которые стоит обратить внимание</string>
+    <string name="dm_diet_fiber_lead">Богатые клетчаткой</string>
+    <string name="dm_diet_fiber">(избегать при обострении): орехи, семена, кукуруза, попкорн, сырые овощи.</string>
+    <string name="dm_diet_dairy_lead">Молочные продукты</string>
+    <string name="dm_diet_dairy">Некоторые пациенты их не переносят; можно сделать паузу и понаблюдать.</string>
+    <string name="dm_diet_drinks_lead">Возбуждающие напитки</string>
+    <string name="dm_diet_drinks">Алкоголь, кофеин, газированные напитки.</string>
+    <string name="dm_diet_greasy_lead">Жирное, острое</string>
+    <string name="dm_diet_greasy">Жареное, гриль, перец чили.</string>
+    <string name="dm_diet_tips_title">💡 Практические советы</string>
+    <string name="dm_diet_cooking_lead">Измените способ приготовления</string>
+    <string name="dm_diet_cooking">Овощи и фрукты готовьте на пару, варите, запекайте или пюрируйте — хорошо проваривайте.</string>
+    <string name="dm_diet_soluble_fiber_lead">Растворимая клетчатка</string>
+    <string name="dm_diet_soluble_fiber">(при переносимости): овсянка, очищенный батат, банан, хорошо проваренная морковь.</string>
+    <string name="dm_diet_small_meals_lead">Часто и небольшими порциями</string>
+    <string name="dm_diet_small_meals">Пять-шесть небольших приемов пищи в день снижают нагрузку за один раз.</string>
+    <string name="dm_diet_diary_lead">Дневник питания</string>
+    <string name="dm_diet_diary">Записывайте продукты и реакции, чтобы точно избегать «проблемных продуктов».</string>
+    <string name="dm_lifestyle_sleep_title">😴 Регулярный сон</string>
+    <string name="dm_lifestyle_sleep">Обеспечьте **7~8 часов** качественного сна каждую ночь и избегайте переутомления — это стабилизирует иммунную систему.</string>
+    <string name="dm_lifestyle_exercise_title">🚶 Умеренная активность</string>
+    <string name="dm_lifestyle_exercise_acute_lead">Острая фаза</string>
+    <string name="dm_lifestyle_exercise_acute">Отдых — приоритет; упражнения исключить.</string>
+    <string name="dm_lifestyle_exercise_remission_lead">Ремиссия</string>
+    <string name="dm_lifestyle_exercise_remission">Легкая аэробика (ходьба, бег трусцой, йога, тайцзи, плавание). Частота: **3~5 раз в неделю**, по 20~60 минут, без чрезмерной усталости после.</string>
+    <string name="dm_lifestyle_stress_title">🧘 Управление стрессом</string>
+    <string name="dm_lifestyle_stress">Психологический стресс может усиливать симптомы; снимайте его с помощью **медитации, глубокого дыхания, общения с близкими или групп взаимопомощи**.</string>
+    <string name="dm_med_meds_title">💊 Правильный прием лекарств</string>
+    <string name="dm_med_meds">**Строго следуйте назначениям врача** — не отменяйте, не снижайте и не меняйте лекарства самостоятельно. Обычно применяются аминосалицилаты, иммуномодуляторы и биологические препараты. Также лечите с учетом локализации воспаления: например, при воспалении в прямой кишке более эффективны суппозитории.</string>
+    <string name="dm_med_pain_title">🚫 Обезболивающие — с осторожностью</string>
+    <string name="dm_med_pain">Избегайте **нестероидных противовоспалительных препаратов (НПВП)** (например, ибупрофена, напроксена) — они могут спровоцировать обострение.</string>
+    <string name="dm_med_nutrition_title">🧪 Добавки питательных веществ</string>
+    <string name="dm_med_nutrition">Длительная диарея может приводить к потере питательных веществ; под контролем врача восполняйте **железо, кальций и витамин D**.</string>
+    <string name="dm_med_checkup_title">📅 Регулярное обследование</string>
+    <string name="dm_med_checkup">При длительности заболевания **8~10 лет** и более рекомендуется проходить **колоноскопию каждые 1~2 года** для наблюдения и скрининга онкологического риска.</string>
+    <string name="dm_med_vaccine_title">💉 Вакцинация</string>
+    <string name="dm_med_vaccine">После консультации с врачом своевременно прививайтесь от **гриппа** и **пневмококковой инфекции** (болезнь или лекарства могут влиять на иммунную систему).</string>
+    <string name="dm_psych_p1">Осознать, что язвенный колит — хроническое заболевание, и научиться с ним жить очень важно. Позитивный настрой и научное понимание болезни сами по себе — сильное «лекарство».</string>
+    <string name="dm_psych_tip">**🌱 Рекомендация:** если вы чувствуете тревогу или подавленность, не откладывайте и вовремя обратитесь к **профессиональному психологу**.</string>
+    <string name="dm_psych_p2">Делитесь переживаниями с семьей, друзьями или другими пациентами, участвуйте в группах поддержки — это снижает психологическую нагрузку.</string>
+    <string name="dm_assess_intro">С помощью сравнения типичных симптомов и простого балла вы можете примерно определить текущую фазу. ⚠️ Этот инструмент не заменяет профессиональную диагностику — при сомнениях своевременно обратитесь к врачу.</string>
+    <string name="dm_assess_active_title">🔄 Частые проявления при обострении (активная фаза)</string>
+    <string name="dm_assess_diarrhea_lead">Диарея</string>
+    <string name="dm_assess_diarrhea">Частота стула заметно увеличивается (более 3 раз в день), часто жидкий или водянистый.</string>
+    <string name="dm_assess_blood_lead">Кровь в стуле</string>
+    <string name="dm_assess_blood">В стуле кровь или слизь — на поверхности или в перемешанном виде, иногда со сгустками или слизисто-гнойными выделениями.</string>
+    <string name="dm_assess_blood_color_lead">Цвет крови: справка</string>
+    <string name="dm_assess_blood_color">Ярко-красная или темно-красная кровь чаще указывает на поражение прямой или сигмовидной кишки (близко к анусу), где кровь выводится быстро и мало окисляется; темно-красный или черный (дегтеобразный) стул указывает на более высокое поражение — поперечную, восходящую ободочную кишку или даже терминальный отдел подвздошной кишки, где кровь дольше находится в кишечнике и темнеет от окисления. Цвет — лишь один из ориентиров и ни в коем случае не может быть единственным основанием для диагноза.</string>
+    <string name="dm_assess_pain_lead">Боль в животе</string>
+    <string name="dm_assess_pain">Схваткообразная или постоянная тупая боль в нижней части живота, может уменьшаться после дефекации.</string>
+    <string name="dm_assess_urgency_lead">Тенезмы</string>
+    <string name="dm_assess_urgency">Постоянные позывы к дефекации с ощущением неполного опорожнения.</string>
+    <string name="dm_assess_systemic_lead">Общие симптомы</string>
+    <string name="dm_assess_systemic">Лихорадка, слабость, снижение веса, потеря аппетита.</string>
+    <string name="dm_assess_remission_title">🟢 Частые проявления в ремиссии</string>
+    <string name="dm_assess_normal_bowel_lead">Нормальный стул</string>
+    <string name="dm_assess_normal_bowel">1~2 оформленных стула в день, без крови.</string>
+    <string name="dm_assess_no_pain_lead">Боль исчезла</string>
+    <string name="dm_assess_no_pain">Нет дискомфорта в животе или лишь легкая тупая боль.</string>
+    <string name="dm_assess_condition_lead">Общее состояние</string>
+    <string name="dm_assess_condition">Энергия восстановлена, вес стабилен, нет лихорадки.</string>
+    <string name="dm_assess_mucosa">Заживление слизистой или заметное улучшение при эндоскопии.</string>
+    <string name="dm_assess_score_title">📝 Простой балл активности (для самооценки)</string>
+    <string name="dm_assess_score_intro">Исходя из среднего за последние 3 дня, выберите наиболее подходящий вариант и нажмите кнопку ниже для оценки.</string>
+    <string name="dm_assess_q1">1. Дефекаций в день</string>
+    <string name="dm_assess_q2">2. Кровотечение</string>
+    <string name="dm_assess_q3">3. Боль в животе</string>
+    <string name="dm_assess_q4">4. Температура тела (подмышечная)</string>
+    <string name="dm_assess_opt_freq_0">&lt;3 раз (0 б.)</string>
+    <string name="dm_assess_opt_freq_1">3~5 раз (1 б.)</string>
+    <string name="dm_assess_opt_freq_2">6~10 раз (2 б.)</string>
+    <string name="dm_assess_opt_freq_3">&gt;10 раз (3 б.)</string>
+    <string name="dm_assess_opt_blood_0">Нет (0 б.)</string>
+    <string name="dm_assess_opt_blood_1">Незначительное (1 б.)</string>
+    <string name="dm_assess_opt_blood_2">Умеренное (2 б.)</string>
+    <string name="dm_assess_opt_blood_3">Обильное (3 б.)</string>
+    <string name="dm_assess_opt_pain_0">Нет (0 б.)</string>
+    <string name="dm_assess_opt_pain_1">Легкая (1 б.)</string>
+    <string name="dm_assess_opt_pain_2">Умеренная (2 б.)</string>
+    <string name="dm_assess_opt_pain_3">Сильная (3 б.)</string>
+    <string name="dm_assess_opt_temp_0">&lt;37,5 °C (0 б.)</string>
+    <string name="dm_assess_opt_temp_1">37,5~38,5 °C (1 б.)</string>
+    <string name="dm_assess_opt_temp_2">&gt;38,5 °C (2 б.)</string>
+    <string name="dm_assess_score_button">📐 Рассчитать балл</string>
+    <string name="dm_assess_total">Итого: </string>
+    <string name="dm_assess_result_0">Ремиссия (симптомы хорошо контролируются)</string>
+    <string name="dm_assess_result_1">Легкая активность (рекомендуется консультация врача)</string>
+    <string name="dm_assess_result_2">Умеренная активность (нужно своевременно обратиться к врачу)</string>
+    <string name="dm_assess_result_3">Высокая активность (обратитесь к врачу немедленно)</string>
+    <string name="dm_assess_legend">* 0~2 б.: ремиссия; 3~5 б.: легкая активность; 6~8 б.: умеренная активность; ≥9 б.: высокая активность.</string>
+
+    <!-- ==================== Обновление (Google Play Core) ==================== -->
+    <string name="update_dialog_title">Доступна новая версия</string>
+    <string name="update_dialog_message">Новая версия включает улучшения, в том числе многоязычную поддержку. После обновления вы сможете сменить язык приложения в разделе «Профиль → Язык».</string>
+    <string name="update_now">Обновить сейчас</string>
+    <string name="update_download_title">Обновление</string>
+    <string name="update_download_message">Новая версия загружается. Не закрывайте приложение.</string>
+    <string name="update_ready_title">Обновление завершено</string>
+    <string name="update_ready_message">Новая версия загружена и вступит в силу после перезапуска приложения.</string>
+    <string name="update_restart">Перезапустить сейчас</string>
+    <string name="update_check_failed">Не удалось проверить обновления. Повторите попытку позже.</string>
+    <string name="update_up_to_date">У вас актуальная версия</string>
+
+</resources>

@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================== アプリ ==================== -->
+    <string name="app_name">潰結デイリー記録</string>
+
+    <!-- ==================== 共通 ==================== -->
+    <string name="common_cancel">キャンセル</string>
+    <string name="common_save">保存</string>
+    <string name="common_ok">OK</string>
+    <string name="common_delete">削除</string>
+    <string name="common_edit">編集</string>
+    <string name="common_back">戻る</string>
+    <string name="common_close">閉じる</string>
+    <string name="common_later">後で</string>
+    <string name="common_restore">復元</string>
+    <string name="common_got_it">了解</string>
+    <string name="common_add">追加</string>
+    <string name="common_yes">あり</string>
+    <string name="common_no">なし</string>
+    <string name="common_points">点</string>
+    <string name="common_items_count">%1$d 件</string>
+    <string name="common_times_count">%1$d 回</string>
+    <string name="common_days_count">%1$d 日</string>
+
+    <!-- ==================== 日付パターン（DateTimeFormatter のパターン） ==================== -->
+    <string name="date_pattern_md">M月d日</string>
+    <string name="date_pattern_md_week">M月d日 E</string>
+
+    <!-- ==================== 下部ナビ / クイック追加 ==================== -->
+    <string name="tab_home">ホーム</string>
+    <string name="tab_tolerance">耐性</string>
+    <string name="tab_daily_management">日常管理</string>
+    <string name="tab_profile">マイページ</string>
+    <string name="quick_add_title">記録を追加</string>
+
+    <string name="type_meal">食事</string>
+    <string name="type_bowel">排便</string>
+    <string name="type_med">服薬</string>
+    <string name="type_note">体調メモ</string>
+    <string name="type_tolerance">耐性</string>
+
+    <string name="meal_breakfast">朝食</string>
+    <string name="meal_lunch">昼食</string>
+    <string name="meal_dinner">夕食</string>
+    <string name="meal_snack">間食</string>
+
+    <string name="tolerance_ok">耐性あり</string>
+    <string name="tolerance_try">試し</string>
+    <string name="tolerance_bad">耐性なし</string>
+
+    <string name="bristol_1">硬い塊状</string>
+    <string name="bristol_2">コロコロしたソーセージ状</string>
+    <string name="bristol_3">表面にひび割れのあるソーセージ状</string>
+    <string name="bristol_4">なめらかなソーセージ状</string>
+    <string name="bristol_5">柔らかい塊</string>
+    <string name="bristol_6">どろどろ状</string>
+    <string name="bristol_7">水様</string>
+
+    <string name="blood_none">なし</string>
+    <string name="blood_little">少量</string>
+    <string name="blood_clear">明らかに多い</string>
+    <string name="blood_clots">凝血塊</string>
+
+    <string name="pain_loc_none">なし</string>
+    <string name="pain_loc_right_lower">右下腹部</string>
+    <string name="pain_loc_left_lower">左下腹部</string>
+    <string name="pain_loc_periumbilical">臍周囲</string>
+    <string name="pain_loc_whole">腹部全体</string>
+
+    <string name="activity_remission">寛解</string>
+    <string name="activity_mild">軽度活動性</string>
+    <string name="activity_moderate">中等度活動性</string>
+    <string name="activity_severe">重度活動性</string>
+
+    <string name="week_mon">月曜日</string>
+    <string name="week_tue">火曜日</string>
+    <string name="week_wed">水曜日</string>
+    <string name="week_thu">木曜日</string>
+    <string name="week_fri">金曜日</string>
+    <string name="week_sat">土曜日</string>
+    <string name="week_sun">日曜日</string>
+
+    <!-- ==================== MainActivity ==================== -->
+    <string name="camera_permission_required">写真を撮るにはカメラの許可が必要です</string>
+    <string name="camera_file_create_failed">カメラのファイルを作成できませんでした</string>
+    <string name="camera_app_not_found">カメラアプリが見つかりません。カメラの設定をご確認ください。</string>
+    <string name="camera_file_create_failed_detail">カメラのファイルを作成できませんでした：%1$s</string>
+    <string name="exit_dialog_title">アプリを終了</string>
+    <string name="exit_dialog_message">アプリを閉じてもよろしいですか？</string>
+    <string name="exit_dialog_confirm">終了</string>
+
+    <!-- ==================== 服薬リマインダー（システム通知） ==================== -->
+    <string name="med_reminder_channel">服薬リマインダー</string>
+    <string name="med_reminder_channel_desc">今日の実際の服薬回数が、時間が来た服薬回数に達していないときにお知らせします</string>
+    <string name="med_reminder_channel_silent">服薬リマインダー（サイレント更新）</string>
+    <string name="med_reminder_channel_silent_desc">未服薬バッジのサイレント更新（通知音なし）</string>
+    <string name="med_reminder_notification_title">服薬リマインダー</string>
+    <string name="med_reminder_missed">未服薬が %1$d 回あります。早めにお薬を飲みましょう！</string>
+
+    <!-- ==================== ホーム ==================== -->
+    <string name="greeting_morning">おはようございます</string>
+    <string name="greeting_noon">こんにちは</string>
+    <string name="greeting_afternoon">こんにちは</string>
+    <string name="greeting_evening">こんばんは</string>
+    <string name="greeting_night">深夜ですね</string>
+    <string name="home_avatar_content_desc">アバター（タップでマイページへ）</string>
+    <string name="home_prev_month">前の月</string>
+    <string name="home_prev_week">前の週</string>
+    <string name="home_next_month">次の月</string>
+    <string name="home_next_week">次の週</string>
+    <string name="home_month_header">%1$d年%2$d月</string>
+    <string name="home_date_header">%1$d月%2$d日</string>
+    <string name="home_year_week_header">%1$d年 第%2$d週</string>
+    <string name="home_med_no_due_time">今日はまだ服薬時間が来ていません。時間どおりに服薬しましょう。</string>
+    <string name="home_med_all_done">時間が来た服薬はすべて記録済みです（%1$d/%2$d 回）。</string>
+    <string name="home_med_go">服薬する</string>
+
+    <string name="day_records_title">当日の記録</string>
+    <string name="day_records_empty_filtered">この日の%1$s記録はありません</string>
+    <string name="day_records_empty">この日の記録はまだありません</string>
+    <string name="day_records_empty_hint">しっかり食べて、時間どおり服薬して、ひとつ記録を残しましょう</string>
+
+    <string name="record_edit">記録を編集</string>
+    <string name="record_delete">記録を削除</string>
+    <string name="record_meal_photo">食事の写真</string>
+    <string name="record_delete_meal_message">この%1$s記録を削除しますか？写真は端末から削除されません。</string>
+    <string name="symptom_edit">排便記録を編集</string>
+    <string name="symptom_delete">排便記録を削除</string>
+    <string name="symptom_delete_message">この排便記録を削除しますか？</string>
+    <string name="med_edit">服薬記録を編集</string>
+    <string name="med_delete">服薬記録を削除</string>
+    <string name="med_delete_message">「%1$s」の記録を削除しますか？</string>
+    <string name="note_edit">メモを編集</string>
+    <string name="note_delete">メモを削除</string>
+    <string name="note_delete_message">この日の体調メモを削除しますか？</string>
+    <string name="summary_bowel">排便 %1$d 回</string>
+    <string name="summary_blood">血便・%1$s</string>
+    <string name="summary_pain">腹痛 %1$d 点%2$s</string>
+    <string name="bristol_label">ブリストル%1$d %2$s</string>
+    <string name="flag_blood">血便%1$s</string>
+    <string name="flag_pain">腹痛%1$d点%2$s</string>
+    <string name="symptom_night_diarrhea">夜間下痢</string>
+    <string name="symptom_mucus">粘液</string>
+    <string name="symptom_urgency">切迫感</string>
+    <string name="activity_badge">%1$s %2$d点</string>
+
+    <!-- ==================== 記録パネル（追加/編集） ==================== -->
+    <string name="panel_today">今日</string>
+    <string name="panel_editing_on">%1$s の記録を編集中</string>
+    <string name="panel_record_to">記録先：</string>
+    <string name="panel_editing_label">編集中：</string>
+    <string name="panel_backfill">（遡って記録）</string>
+    <string name="panel_time">時間</string>
+    <string name="panel_meal_type">食事の種類</string>
+    <string name="panel_photos">写真（複数追加可）</string>
+    <string name="panel_pending_photo">保存前の写真</string>
+    <string name="panel_remove_photo">写真を削除</string>
+    <string name="panel_take_photo">📷 撮影</string>
+    <string name="panel_from_album">🖼️ アルバムから</string>
+    <string name="panel_add_food_tag">食品タグを追加</string>
+    <string name="panel_food_tags">食品タグ（複数選択可）</string>
+    <string name="panel_note">メモ</string>
+    <string name="panel_meal_note_hint">調理方法は？食べた後の体調は？</string>
+    <string name="panel_save_changes">変更を保存</string>
+    <string name="panel_save_record">記録を保存</string>
+    <string name="panel_edit_meal">食事を編集</string>
+    <string name="panel_add_meal">食事を追加</string>
+    <string name="panel_edit_med">服薬を編集</string>
+    <string name="panel_add_med">服薬を追加</string>
+    <string name="panel_common_meds">よく使う薬</string>
+    <string name="panel_med_name">薬の名前</string>
+    <string name="panel_med_name_hint">例：メサラジン</string>
+    <string name="panel_med_dose">用量</string>
+    <string name="panel_med_dose_hint">例：1 錠 / 500mg</string>
+    <string name="panel_note_title">今日の体調</string>
+    <string name="panel_note_hint">今日の調子はどうですか？\n排便、睡眠、気分、不調…</string>
+    <string name="panel_save_note">メモを保存</string>
+    <string name="panel_edit_bowel">排便を編集</string>
+    <string name="panel_bowel_title">排便記録</string>
+    <string name="panel_bowel_count">排便回数（日中）</string>
+    <string name="panel_bristol_title">便の性状（ブリストル分類 1~7）</string>
+    <string name="panel_blood">血便</string>
+    <string name="panel_other_symptoms">その他の症状</string>
+    <string name="panel_mucus">粘液</string>
+    <string name="panel_urgency">切迫感</string>
+    <string name="panel_pain">腹痛（0~10 点）</string>
+    <string name="panel_no_pain">腹痛なし</string>
+    <string name="panel_other_discomfort">その他の不調</string>
+    <string name="panel_other_discomfort_hint">腹部膨満、倦怠感、発熱など</string>
+    <string name="panel_activity_hint">参考活動度（簡易スコア・自己観察用）</string>
+    <string name="panel_tap_to_adjust">タップして変更</string>
+    <string name="panel_select_time">時間を選択</string>
+
+    <!-- ==================== 耐性ページ ==================== -->
+    <string name="tolerance_title">食品耐性</string>
+    <string name="tolerance_subtitle">食べられる食品と注意が必要な食品を記録。食事記録のときにタグ付けして振り返りやすくします</string>
+    <string name="tolerance_note_title">耐性について</string>
+    <string name="tolerance_note">食品耐性は体調や病状によって人それぞれ異なり、病状が安定している時期には耐性があっても、発症時期には耐性がないことがあります。実際の状況に合わせて判断してください。毎回少量ずつ試し、2〜3日経っても問題がなければ耐性があると考えられます。それでも油断せず、控えめな食事を心がけましょう。</string>
+    <string name="tolerance_note_collapse">説明を閉じる</string>
+    <string name="tolerance_note_expand">説明を開く</string>
+    <string name="tolerance_empty_title">食品がまだありません</string>
+    <string name="tolerance_empty_hint">「食事を追加」ページで食品を追加してください（例：牛乳、卵）</string>
+    <string name="tolerance_drag_hint">ヒント：タグをドラッグするとカテゴリを変更できます</string>
+    <string name="tolerance_types_count">%1$d 種類</string>
+    <string name="tolerance_empty_section">まだありません</string>
+    <string name="tolerance_add_placeholder">食品を追加（例：牛乳）</string>
+
+    <!-- ==================== ホームのメッセージ ==================== -->
+    <string name="slogan_title">ホームメッセージ</string>
+    <string name="slogan_desc">ホーム上部のバナーは、以下のメッセージを毎日順番に表示します。項目をタップすると編集、ゴミ箱アイコンで削除できます。</string>
+    <string name="slogan_empty">メッセージ一覧が空です。ホームでは組み込みのデフォルトメッセージを順に表示します。</string>
+    <string name="slogan_reset">デフォルトに戻す</string>
+    <string name="slogan_add">メッセージを追加</string>
+    <string name="slogan_edit">メッセージを編集</string>
+    <string name="slogan_field">バナー文言（%1$d/%2$d）</string>
+    <string name="slogan_reset_message">メッセージ一覧を組み込みのデフォルト %1$d 件に戻します。現在のカスタム内容は置き換えられます。</string>
+    <string name="default_slogan_1">しっかり食べよう！</string>
+    <string name="default_slogan_2">毎日記録して、安心をひとつずつ</string>
+    <string name="default_slogan_3">少しずつ、回数を分けて、胃腸に優しく</string>
+    <string name="default_slogan_4">症状は揺れても、あなたはもっと強い</string>
+    <string name="default_slogan_5">今日も自分を大切に</string>
+    <string name="default_slogan_6">あっさり食べて、腸も軽やかに</string>
+    <string name="default_slogan_7">時間どおりに食べて、時間どおりに記録</string>
+    <string name="default_slogan_8">今日を覚えておいて、体は全部覚えている</string>
+
+    <!-- ==================== マイページ ==================== -->
+    <string name="profile_subtitle">潰結デイリー記録・データは端末内のみに保存</string>
+    <string name="profile_tap_avatar">タップしてアバターを変更</string>
+    <string name="profile_default_nickname">記録者</string>
+    <string name="profile_edit_nickname_title">ニックネームを編集</string>
+    <string name="profile_edit_avatar_title">アバターを変更</string>
+    <string name="profile_avatar_boy">男性アバター</string>
+    <string name="profile_avatar_girl">女性アバター</string>
+    <string name="profile_menu_stats">統計情報</string>
+    <string name="profile_menu_settings">設定</string>
+    <string name="profile_menu_stats_trailing">詳細な統計</string>
+    <string name="profile_menu_export">記録のエクスポート</string>
+    <string name="profile_menu_export_trailing">クリップボード/ファイル</string>
+    <string name="profile_menu_restore">記録を復元</string>
+    <string name="profile_menu_restore_trailing">CSVからインポート</string>
+    <string name="export_csv_restore_hint">日常記録と食物耐性を復元できます</string>
+    <string name="restore_result_title">復元完了</string>
+    <string name="restore_result_summary">復元：食事 %1$d 件、服薬 %2$d 件、排便 %3$d 件、メモ %4$d 件、食品 %5$d 件</string>
+    <string name="restore_result_skipped">重複 %1$d 件をスキップ</string>
+    <string name="restore_result_failed">%1$d 行の解析に失敗</string>
+    <string name="restore_error_invalid">ファイルを認識できません。「記録のエクスポート → ファイル → CSV」でエクスポートした CSV を選択してください（エクスポートと復元は同じ言語で行ってください）。</string>
+    <string name="profile_menu_med_settings">服薬設定</string>
+    <string name="profile_menu_med_settings_trailing">1日 %1$d 回</string>
+    <string name="profile_menu_slogans">ホームメッセージ</string>
+    <string name="profile_menu_slogans_default_trailing">デフォルト</string>
+    <string name="profile_menu_font">文字サイズ</string>
+    <string name="profile_menu_theme">テーマ</string>
+    <string name="profile_menu_language">言語</string>
+    <string name="profile_menu_update">アップデート</string>
+    <string name="profile_menu_about">このアプリについて</string>
+    <string name="profile_menu_about_trailing">v1.0</string>
+    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_font_desc">ホーム・耐性・日常管理ページの文字サイズを調整します</string>
+    <string name="profile_font_sample">文字</string>
+    <string name="profile_about_title">潰結デイリー記録について</string>
+    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_desc">潰瘍性大腸炎（UC）のための日常記録ツール：\n・食事の写真＋食品耐性タグ\n・服薬記録と服薬時間の設定\n・排便記録（ブリストル分類）と活動度の自己評価\n・毎日の体調メモとカレンダーで振り返り\n・潰瘍性大腸炎の日常管理ハンドブック：食事／生活習慣／薬と医療／心理的なケアのエビデンスに基づく参考アドバイス（自己参考用）</string>
+    <string name="profile_about_disclaimer">活動度は簡易版 UCDAI（0~8 点）で、自己観察の参考のみです。データと写真は端末内のアプリ領域にのみ保存され、アップロードされることはありません。</string>
+
+    <string name="language_system">システムに従う</string>
+
+    <string name="theme_system">システムに従う</string>
+    <string name="theme_light">ライト</string>
+    <string name="theme_dark">ダーク</string>
+    <string name="font_size_small">小</string>
+    <string name="font_size_standard">標準</string>
+    <string name="font_size_large">大</string>
+    <string name="font_size_extra_large">特大</string>
+
+    <!-- ==================== 服薬設定 ==================== -->
+    <string name="med_settings_title">服薬設定</string>
+    <string name="med_settings_daily_count">1日の服薬回数</string>
+    <string name="med_settings_times_hint">最大 6 回、服薬時間と対応します</string>
+    <string name="med_settings_decrease_one">1回減らす</string>
+    <string name="med_settings_increase_one">1回増やす</string>
+    <string name="med_settings_nth">第 %1$d 回</string>
+    <string name="med_settings_change_time">時間を変更</string>
+    <string name="med_settings_note">服薬を追加・遡って記録するときは、デフォルトで現在の時間が使われます。</string>
+    <string name="med_settings_picker_title">第 %1$d 回の服薬時間</string>
+
+    <!-- ==================== エクスポート ==================== -->
+    <string name="export_saved">%1$s を保存しました</string>
+    <string name="export_save_failed">保存に失敗しました：%1$s</string>
+    <string name="export_clipboard">クリップボード</string>
+    <string name="export_file">ファイル</string>
+    <string name="export_no_records">選択した期間に対象の種類の記録がありません</string>
+    <string name="export_copied">クリップボードにコピーしました</string>
+    <string name="export_select_type">記録の種類を選択してください</string>
+    <string name="export_button">エクスポート</string>
+    <string name="export_start_date">開始日</string>
+    <string name="export_end_date">終了日</string>
+    <string name="export_select_date">日付を選択してください</string>
+    <string name="export_date_headline">%1$d年%2$d月%3$d日</string>
+    <string name="export_file_name">記録エクスポート_%1$s_%2$s</string>
+    <string name="export_txt_title">記録エクスポート</string>
+    <string name="export_txt_range">範囲：%1$s ~ %2$s</string>
+    <string name="export_txt_types">種類：%1$s</string>
+    <string name="export_txt_day_header">====== %1$s %2$s ======</string>
+    <string name="export_txt_meal">[食事] %1$s %2$s</string>
+    <string name="export_txt_med">[服薬] %1$s %2$s</string>
+    <string name="export_txt_bowel">[排便]</string>
+    <string name="export_txt_note">[体調メモ]</string>
+    <string name="export_txt_count">回数</string>
+    <string name="export_txt_night">（夜間含む）</string>
+    <string name="export_txt_bristol">| ブリストル</string>
+    <string name="export_txt_not_recorded">未記録</string>
+    <string name="export_txt_blood">| 血便</string>
+    <string name="export_txt_mucus">| 粘液</string>
+    <string name="export_txt_pain">| 腹痛</string>
+    <string name="export_txt_urgency">| 切迫感</string>
+    <string name="export_txt_other">| その他：</string>
+    <string name="export_csv_header">日付,種類,時間,内容,メモ</string>
+    <string name="export_csv_bristol">ブリストル</string>
+    <string name="export_csv_blood">血便</string>
+    <string name="export_csv_mucus">粘液</string>
+    <string name="export_csv_pain">腹痛</string>
+    <string name="export_csv_urgency">切迫感</string>
+
+    <!-- ==================== 統計情報 ==================== -->
+    <string name="stats_title">統計情報</string>
+    <string name="stats_days_label">記録継続</string>
+    <string name="stats_days_value">%1$d 日目</string>
+    <string name="stats_streak_label">連続記録</string>
+    <string name="stats_streak_value">%1$d 日</string>
+    <string name="stats_first_record">初回記録 %1$s</string>
+    <string name="stats_empty">まだ記録がありません</string>
+    <string name="stats_meal_records">食事記録</string>
+    <string name="stats_bowel_records">排便記録</string>
+    <string name="stats_bowel_summary">%1$d 日・%2$d 回</string>
+    <string name="stats_med_records">服薬記録</string>
+    <string name="stats_note_records">体調メモ記録</string>
+    <string name="stats_bowel_detail">排便の詳細</string>
+    <string name="stats_avg_pain">平均腹痛 %1$s 点（0~10）</string>
+    <string name="stats_tolerance_title">耐性の状況</string>
+    <string name="stats_tolerance_value">%1$s %2$d</string>
+    <string name="stats_disclaimer">以上は端末内のデータに基づく統計で、自己観察の参考のみであり、医療アドバイスを構成するものではありません。</string>
+
+    <!-- ==================== 記録一覧 ==================== -->
+    <string name="list_title_meal">食事記録の一覧</string>
+    <string name="list_title_bowel">排便記録の一覧</string>
+    <string name="list_title_med">服薬記録の一覧</string>
+    <string name="list_title_note">体調メモの一覧</string>
+    <string name="list_empty_meal">食事記録はまだありません</string>
+    <string name="list_empty_bowel">排便記録はまだありません</string>
+    <string name="list_empty_med">服薬記録はまだありません</string>
+    <string name="list_empty_note">体調メモはまだありません</string>
+    <string name="list_level_year">年</string>
+    <string name="list_level_month">月</string>
+    <string name="list_level_day">日</string>
+    <string name="list_year_header">%1$d年</string>
+    <string name="list_total_count">合計 %1$d 件</string>
+    <string name="list_month_header">%1$d月</string>
+    <string name="list_day_header">%1$d月%2$d日 %3$s</string>
+
+    <!-- ==================== 日常管理ハンドブック ==================== -->
+    <string name="dm_title">日常管理ハンドブック</string>
+    <string name="dm_subtitle">エビデンスに基づくアドバイス・病状の段階に合わせて柔軟に調整\n担当医と一緒に個別のプランを作りましょう</string>
+    <string name="dm_disclaimer">📌 大切なお知らせ\nこの情報は参考用であり、専門的な医療アドバイスの代わりにはなりません。\n具体的なプランは必ず担当医と一緒に決めてください。</string>
+    <string name="dm_card_diet">食事管理</string>
+    <string name="dm_card_lifestyle">生活習慣管理</string>
+    <string name="dm_card_medical">薬と医療管理</string>
+    <string name="dm_card_psych">心のケア</string>
+    <string name="dm_card_assessment">状態の自己評価・症状チェック</string>
+    <string name="dm_diet_core_principle">**基本方針：** **急性期** か **寛解期** かに応じて柔軟に調整し、腸に「負担をかけない」または「修復する」を選びます。</string>
+    <string name="dm_diet_acute_title">🔴 急性発作期・負担を厳しく減らす</string>
+    <string name="dm_diet_acute_b1_lead">残渣なし・やわらかい流動食/半流動食</string>
+    <string name="dm_diet_acute_b1">おかゆの上澄み、蓮根粉、茶碗蒸し、よく煮た麺、油を除いた澄まし汁。</string>
+    <string name="dm_diet_acute_b2_lead">目的</string>
+    <string name="dm_diet_acute_b2">便の量と回数を減らし、腸を休めます。</string>
+    <string name="dm_diet_remission_title">🟢 寛解期・少しずつ修復</string>
+    <string name="dm_diet_remission_b1_lead">高栄養・消化しやすい・低残渣</string>
+    <string name="dm_diet_remission_b1">蒸し魚、茶碗蒸し、やわらかい豆腐、細かく刻んだ赤身肉。</string>
+    <string name="dm_diet_remission_b2">良質なタンパク質を補給し、腸粘膜を修復します。</string>
+    <string name="dm_diet_issues_title">⚠️ 注意したい「問題食品」</string>
+    <string name="dm_diet_fiber_lead">高繊維</string>
+    <string name="dm_diet_fiber">（発作期は避ける）：ナッツ、種子、トウモロコシ、ポップコーン、生野菜。</string>
+    <string name="dm_diet_dairy_lead">乳製品</string>
+    <string name="dm_diet_dairy">一部の患者は耐性がないため、一時中止して様子を見てもよいでしょう。</string>
+    <string name="dm_diet_drinks_lead">刺激のある飲み物</string>
+    <string name="dm_diet_drinks">アルコール、カフェイン、炭酸飲料。</string>
+    <string name="dm_diet_greasy_lead">油っこい・辛いもの</string>
+    <string name="dm_diet_greasy">揚げ物、焼き物、唐辛子。</string>
+    <string name="dm_diet_tips_title">💡 実践的なコツ</string>
+    <string name="dm_diet_cooking_lead">調理方法を変える</string>
+    <string name="dm_diet_cooking">野菜や果物は蒸す・煮る・焼く・撹拌して、よく火を通します。</string>
+    <string name="dm_diet_soluble_fiber_lead">水溶性食物繊維</string>
+    <string name="dm_diet_soluble_fiber">（耐性がある場合）：オーツ麦、皮をむいたさつまいも、バナナ、よく煮たにんじん。</string>
+    <string name="dm_diet_small_meals_lead">少量を何回かに分けて</string>
+    <string name="dm_diet_small_meals">1日5〜6回の小分けの食事で、1回あたりの負担を軽くします。</string>
+    <string name="dm_diet_diary_lead">食事日記</string>
+    <string name="dm_diet_diary">食べたものと反応を記録し、「問題食品」を正確に避けます。</string>
+    <string name="dm_lifestyle_sleep_title">😴 規則正しい生活</string>
+    <string name="dm_lifestyle_sleep">毎晩 **7〜8 時間** の質の高い睡眠を確保し、過労を避けて免疫系を安定させましょう。</string>
+    <string name="dm_lifestyle_exercise_title">🚶 適度な運動</string>
+    <string name="dm_lifestyle_exercise_acute_lead">急性期</string>
+    <string name="dm_lifestyle_exercise_acute">休息を優先し、運動は避けます。</string>
+    <string name="dm_lifestyle_exercise_remission_lead">寛解期</string>
+    <string name="dm_lifestyle_exercise_remission">穏やかな有酸素運動（散歩、ジョギング、ヨガ、太極拳、水泳）。頻度：**週 3〜5 回**、1回 20〜60 分、運動後に過度な疲労を感じない程度に。</string>
+    <string name="dm_lifestyle_stress_title">🧘 ストレス管理</string>
+    <string name="dm_lifestyle_stress">精神的ストレスは症状を悪化させることがあります。**瞑想、深呼吸、家族や友人との交流、患者同士の互助グループ** などで発散しましょう。</string>
+    <string name="dm_med_meds_title">💊 正しく服薬する</string>
+    <string name="dm_med_meds">**医師の指示を厳守**し、自己判断で服薬をやめたり、減らしたり、変えたりしないでください。よく使われる薬にはアミノサリチル酸系、免疫調節薬、生物学的製剤などがあります。また、炎症の部位に応じて適切な薬を使います。例えば炎症が直腸にある場合は、坐剤のほうが効果的なことがあります。</string>
+    <string name="dm_med_pain_title">🚫 痛み止めは慎重に</string>
+    <string name="dm_med_pain">**非ステロイド性抗炎症薬（NSAID）**（イブプロフェン、ナプロキセンなど）は避けてください。発作を誘発する可能性があります。</string>
+    <string name="dm_med_nutrition_title">🧪 栄養素の補給</string>
+    <string name="dm_med_nutrition">長引く下痢は栄養の喪失につながります。医師の指導のもと、**鉄、カルシウム、ビタミン D** を補給しましょう。</string>
+    <string name="dm_med_checkup_title">📅 定期的な再検査</string>
+    <string name="dm_med_checkup">罹患 **8〜10 年** 以上の方は、医師の指示に従い **1〜2 年ごと** に大腸内視鏡検査を受け、病状のモニタリングとがんリスクの検査を推奨します。</string>
+    <string name="dm_med_vaccine_title">💉 予防接種</string>
+    <string name="dm_med_vaccine">医師に相談したうえで、**インフルエンザワクチン** と **肺炎球菌ワクチン** を時期どおりに接種しましょう（病気や薬が免疫系に影響する可能性があるため）。</string>
+    <string name="dm_psych_p1">潰瘍性大腸炎は慢性の病気だと認識し、うまく付き合っていくことを学ぶのはとても大切です。前向きな気持ちと正しい病気の理解そのものが、強力な「薬」になります。</string>
+    <string name="dm_psych_tip">**🌱 提案：** 不安や抑うつを感じたら、ためらわずに **専門のカウンセラー** に早めに相談しましょう。</string>
+    <string name="dm_psych_p2">家族や友人、患者仲間と気持ちを共有し、支援グループに参加することで、心の負担を軽くできます。</string>
+    <string name="dm_assess_intro">代表的な症状のチェックと簡易スコアで、現在の段階をざっくり判断します。⚠️ このツールは専門的な診断の代わりにはなりません。気になる場合は早めに受診してください。</string>
+    <string name="dm_assess_active_title">🔄 発作期（活動期）によく見られる症状</string>
+    <string name="dm_assess_diarrhea_lead">下痢</string>
+    <string name="dm_assess_diarrhea">排便回数が著しく増え（1日 3 回以上）、軟便や水様便になることが多い。</string>
+    <string name="dm_assess_blood_lead">血便</string>
+    <string name="dm_assess_blood">便に血や粘液が混じり、表面に付着したり便と混ざったりする。時には凝血塊や粘液膿性のものも。</string>
+    <string name="dm_assess_blood_color_lead">血便の色の参考</string>
+    <string name="dm_assess_blood_color">鮮やかな赤や暗赤色は直腸やS状結腸（肛門に近い）の病変を示すことが多く、血液の排出が早く酸化が少ないためです。暗赤色や黒色（タール状）の便は横行結腸、上行結腸、さらには回腸末端など高い位置の病変を示すことが多く、血液が腸内に長くとどまり酸化して色が濃くなります。色はあくまで判断の手がかりのひとつであり、確定診断や自己診断の唯一の根拠にはできません。</string>
+    <string name="dm_assess_pain_lead">腹痛</string>
+    <string name="dm_assess_pain">下腹部の疝痛または持続する鈍痛。排便後に軽くなることがある。</string>
+    <string name="dm_assess_urgency_lead">しぶり腹（テネスムス）</string>
+    <string name="dm_assess_urgency">便意が常にあるが、すっきり出し切れない感じ。</string>
+    <string name="dm_assess_systemic_lead">全身症状</string>
+    <string name="dm_assess_systemic">発熱、倦怠感、体重減少、食欲不振。</string>
+    <string name="dm_assess_remission_title">🟢 寛解期によく見られる症状</string>
+    <string name="dm_assess_normal_bowel_lead">排便が正常</string>
+    <string name="dm_assess_normal_bowel">1日1〜2回の有形便で、血便なし。</string>
+    <string name="dm_assess_no_pain_lead">腹痛が消える</string>
+    <string name="dm_assess_no_pain">腹部に違和感がない、または軽い鈍痛のみ。</string>
+    <string name="dm_assess_condition_lead">全身状態</string>
+    <string name="dm_assess_condition">体力が回復し、体重が安定し、発熱なし。</string>
+    <string name="dm_assess_mucosa">内視鏡で粘膜の治癒または明らかな改善が見られる。</string>
+    <string name="dm_assess_score_title">📝 簡易活動性スコア（自己評価の参考）</string>
+    <string name="dm_assess_score_intro">直近3日間の平均に基づいて、最も当てはまる項目を選び、下のボタンをタップして評価してください。</string>
+    <string name="dm_assess_q1">1. 1日の排便回数</string>
+    <string name="dm_assess_q2">2. 血便の状況</string>
+    <string name="dm_assess_q3">3. 腹痛の程度</string>
+    <string name="dm_assess_q4">4. 体温（腋下）</string>
+    <string name="dm_assess_opt_freq_0">＜3回 (0点)</string>
+    <string name="dm_assess_opt_freq_1">3〜5回 (1点)</string>
+    <string name="dm_assess_opt_freq_2">6〜10回 (2点)</string>
+    <string name="dm_assess_opt_freq_3">＞10回 (3点)</string>
+    <string name="dm_assess_opt_blood_0">なし (0点)</string>
+    <string name="dm_assess_opt_blood_1">少量 (1点)</string>
+    <string name="dm_assess_opt_blood_2">中等度 (2点)</string>
+    <string name="dm_assess_opt_blood_3">大量 (3点)</string>
+    <string name="dm_assess_opt_pain_0">なし (0点)</string>
+    <string name="dm_assess_opt_pain_1">軽度 (1点)</string>
+    <string name="dm_assess_opt_pain_2">中等度 (2点)</string>
+    <string name="dm_assess_opt_pain_3">重度 (3点)</string>
+    <string name="dm_assess_opt_temp_0">＜37.5℃ (0点)</string>
+    <string name="dm_assess_opt_temp_1">37.5〜38.5℃ (1点)</string>
+    <string name="dm_assess_opt_temp_2">＞38.5℃ (2点)</string>
+    <string name="dm_assess_score_button">📐 スコアを計算</string>
+    <string name="dm_assess_total">合計：</string>
+    <string name="dm_assess_result_0">寛解期（症状は良好にコントロール）</string>
+    <string name="dm_assess_result_1">軽度活動期（医師に相談を推奨）</string>
+    <string name="dm_assess_result_2">中等度活動期（早めに受診が必要）</string>
+    <string name="dm_assess_result_3">重度活動期（すぐに受診してください）</string>
+    <string name="dm_assess_legend">* 0〜2点：寛解期；3〜5点：軽度活動；6〜8点：中等度活動；9点以上：重度活動。</string>
+
+    <!-- ==================== アップデート（Google Play Core） ==================== -->
+    <string name="update_dialog_title">新しいバージョンがあります</string>
+    <string name="update_dialog_message">新しいバージョンには多言語対応などの改善が含まれます。更新後、「マイページ → 言語」でアプリの言語を切り替えられます。</string>
+    <string name="update_now">今すぐ更新</string>
+    <string name="update_download_title">更新中</string>
+    <string name="update_download_message">新しいバージョンをダウンロード中です。アプリを閉じないでください。</string>
+    <string name="update_ready_title">更新完了</string>
+    <string name="update_ready_message">新しいバージョンのダウンロードが完了しました。アプリを再起動すると反映されます。</string>
+    <string name="update_restart">今すぐ再起動</string>
+    <string name="update_check_failed">更新の確認に失敗しました。後でもう一度お試しください。</string>
+    <string name="update_up_to_date">最新バージョンです</string>
+
+</resources>

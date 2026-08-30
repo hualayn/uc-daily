@@ -27,9 +27,12 @@ An Android app for recording daily life with ulcerative colitis (UC) — log wha
 - Avatar (default / male / female) and nickname (editable)
 - Menu:
   - **Statistics**: record days / meal count / bowel-movement days / medication count, activity-level distribution, food-tolerance distribution
-  - **Export records**: pick a date range + record types (meals / meds / bowel / notes), output as TXT / CSV, save to clipboard or a file
+  - **Export records**: pick a date range + record types (meals / meds / bowel / notes), output as TXT / CSV (CSV also includes all food tolerance), save to clipboard or a file
+  - **Restore records**: pick a CSV produced by "Export records" to restore daily records and food tolerance (identical rows on the same day are skipped automatically; daily notes are overwritten by date; food tags are added or updated by name)
   - **Medication settings**: set the daily reminder count and reminder times (drives the home-screen bell + system notification); includes an "on-time reminder (exact alarm)" permission status card that opens the system grant page when not granted
   - **Theme**: light / dark / follow system
+  - **Language**: follow system / 简体中文 / English / 日本語 / 한국어 / Français / Deutsch / Italiano / Español / Português / Русский / العربية — switches instantly (see "Multilingual")
+  - **App Update**: Google Play Core in-app update (see "Multilingual")
   - **About**: app information
 
 ## Features
@@ -45,14 +48,23 @@ An Android app for recording daily life with ulcerative colitis (UC) — log wha
 - **Fullscreen viewer**: tap a photo to view it enlarged (swipe between multiple photos)
 - **Date backfill**: tap any date in the home week / full-month calendar to view or backfill that day's records
 - **Theme**: light / dark / follow system (switch under "Profile → Theme")
+- **Multilingual**: follows the system language by default; you can manually switch between 12 options under "Profile → Language" (follow system / 简体中文 / English / 日本語 / 한국어 / Français / Deutsch / Italiano / Español / Português / Русский / العربية). The UI, the medication-reminder notification and its channel description follow the selected language; Arabic automatically enables RTL layout. See the "Multilingual" section below.
+- **In-app updates**: integrated Google Play Core (app-update 2.x) Flexible in-app updates — a silent check at startup, plus a manual check under "Profile → App Update"; when a new version is found: "Update now" → background download → "Restart now" to apply. See the "Multilingual" section below.
 
 ## Tech Stack
 
 - **Kotlin** 2.2.10 / **AGP** 9.3.0 / **Gradle** 9.5.0
 - **Jetpack Compose** + Material3 (bottom NavigationBar with four tabs + center quick-add; record panels are global overlays, openable from any tab)
-- **Room** 2.7.1 (local SQLite, database version 8, hand-written 1→8 migrations)
+- **Room** 2.7.1 (local SQLite, fresh database schema, version 1)
 - **Coil** 2.7.0 (image loading)
 - **MVVM** architecture (ViewModel + StateFlow)
+- **Google Play Core** (`com.google.android.play:app-update:2.1.0`): Flexible in-app updates (delivers new versions of the multilingual app)
+
+## Multilingual
+
+- **String resources**: all UI copy lives in `app/src/main/res/values*/strings.xml` (Simplified Chinese by default + 10 locale directories: `values-en` / `values-ja` / `values-ko` / `values-fr` / `values-de` / `values-it` / `values-es` / `values-pt` / `values-ru` / `values-ar`). Code reads them via `stringResource(R.string.x)` / `context.getString(...)`; enum/list labels (meal types, tolerance states, Bristol scale, bleeding, pain location, activity level, theme, font size, weekdays, etc.) are defined as `@StringRes` resource ids.
+- **Language switching**: `AppLocale` (`app/src/main/java/com/ucdaily/AppLocale.kt`) owns the language options and persistence (SharedPreferences `app_prefs / app_language`, default "follow system"); `UcDailyApp` and `MainActivity` wrap the base context with the selected locale in `attachBaseContext`, and `Activity.recreate()` applies the change instantly. The application-level locale ensures even background reminders (alarm / boot receiver / service) use the selected language.
+- **Delivery via Google Play Core**: language resources ship inside the App Bundle (AAB) and Google Play delivers only the languages relevant to each user ("deliver languages relevant to the user" is enabled in Play Console), so users never download extra language packs. New versions (with new languages / features) are pushed through Google Play and can be installed in-app via Play Core (silent check at startup + manual check under "Profile → App Update" → background download → restart to apply). Note: in-app updates only work for builds installed from Google Play; sideloaded builds degrade silently.
 
 ## Requirements
 
@@ -72,8 +84,8 @@ The APK is produced at `app/build/outputs/apk/debug/`.
 ## Project Structure
 
 ```
-app/src/main/java/com/study/checkin/
-├── StudyCheckinApp.kt   # Application: fixes the zh-CN locale
+app/src/main/java/com/ucdaily/
+├── UcDailyApp.kt   # Application: fixes the zh-CN locale
 ├── MainActivity.kt      # Entry: bottom tab layout, camera/gallery activity launchers, global panel layer
 ├── MedReminder.kt       # Med reminders: post/cancel system notification + exact-alarm scheduling + alarm/boot receivers (works in background)
 ├── ui/
@@ -81,7 +93,7 @@ app/src/main/java/com/study/checkin/
 │   ├── HomeScreen.kt        # Home: welcome card (med bell), calendar (week/full-month), daily stats, today's records
 │   ├── ToleranceScreen.kt   # Tolerance tab: food tolerance management (tap to delete / drag to reorder / drag across sections to change state)
 │   ├── DailyManagementScreen.kt # Daily Management tab: management handbook (accordion cards) + self-assessment score
-│   ├── ProfileScreen.kt     # Profile tab: avatar/nickname + menu (stats / export / med settings / theme / about)
+│   ├── ProfileScreen.kt     # Profile tab: avatar/nickname + menu (stats / export / restore / med settings / theme / about)
 │   ├── StatsScreen.kt       # Stats page: record volume, activity-level distribution, food-tolerance distribution
 │   ├── MedSettingsScreen.kt # Med settings page: reminder count, reminder times, exact-alarm permission card
 │   ├── RecordPanels.kt      # Global record panels: meal/bowel/med/note panels, today's record list, fullscreen photos
@@ -98,17 +110,16 @@ app/src/main/java/com/study/checkin/
     ├── DailyNoteDao.kt    # Daily note DAO
     ├── FoodTag.kt         # Food tag entity + tolerance enum (tolerable/try/intolerant) + sort key
     ├── FoodTagDao.kt      # Food tag DAO
-    └── AppDatabase.kt     # Database config (v8, includes 1→2→…→8 migrations)
+    └── AppDatabase.kt     # Database config (v1, fresh schema, no legacy migrations)
 ```
 
 ## Data Storage
 
-- Records are stored in the local Room database `checkin_db` (tables: `meal_records` meals, `daily_symptoms` bowel, `med_records` meds, `daily_notes` notes, `food_tags` food tags; meals / bowel / meds allow multiple entries per day and bowel records carry a time; notes are unique per date)
+- Records are stored in the local Room database `uc_daily_db` (tables: `meal_records` meals, `daily_symptoms` bowel, `med_records` meds, `daily_notes` notes, `food_tags` food tags; meals / bowel / meds allow multiple entries per day and bowel records carry a time; notes are unique per date)
 - Photos are stored in the app-private directory (`getExternalFilesDir`) and are cleaned up automatically on uninstall
 - Photos picked from the gallery are copied into the app-private directory, so they stay viewable until the app is uninstalled
 - Preferences (nickname / avatar / theme / frequent meds / med reminder times) are stored in SharedPreferences
 - Med reminders: the notification uses the system channel `med_reminder` (ongoing, tintable); on-time triggering uses system exact alarms (AlarmManager, one slot per reminder time, up to 6), re-registered on app launch / reminder-time change / boot complete
-- Database migration history: v3 removed the legacy "study check-in" tables; v4 added the bowel record table; v5 added the med / note / food-tag tables and a tag column on meal records; v6 allowed multiple bowel records per day; v7 added a recorded-time column to bowel records; v8 added a drag-order field to food tags
 
 ## About the Activity Score
 

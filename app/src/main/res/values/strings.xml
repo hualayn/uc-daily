@@ -1,4 +1,508 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  主文案文件（简体中文，默认语言）。
+  其他语言在 values-en / values-ja / values-ko / values-fr / values-de /
+  values-it / values-es / values-pt / values-ru / values-ar 中覆盖。
+  注意：
+  - 占位符 %1$s %2$s %1$d %2$d 必须原样保留，顺序可调整但编号需保留；
+  - 含 ** ** 的字符串为加粗标记（代码解析），标记需成对保留；
+  - \n 为换行，需保留。
+-->
 <resources>
+
+    <!-- ==================== 应用 ==================== -->
     <string name="app_name">溃结日常记录</string>
+
+    <!-- ==================== 通用 ==================== -->
+    <string name="common_cancel">取消</string>
+    <string name="common_save">保存</string>
+    <string name="common_ok">确定</string>
+    <string name="common_delete">删除</string>
+    <string name="common_edit">修改</string>
+    <string name="common_back">返回</string>
+    <string name="common_close">关闭</string>
+    <string name="common_later">稍后</string>
+    <string name="common_restore">恢复</string>
+    <string name="common_got_it">知道了</string>
+    <string name="common_add">添加</string>
+    <string name="common_yes">有</string>
+    <string name="common_no">无</string>
+    <string name="common_points">分</string>
+    <string name="common_items_count">%1$d 条</string>
+    <string name="common_times_count">%1$d 次</string>
+    <string name="common_days_count">%1$d 天</string>
+
+    <!-- ==================== 日期格式（DateTimeFormatter 模式，勿翻译成普通句子） ==================== -->
+    <string name="date_pattern_md">M月d日</string>
+    <string name="date_pattern_md_week">M月d日 E</string>
+
+    <!-- ==================== 底部导航 / 快捷添加 ==================== -->
+    <string name="tab_home">首页</string>
+    <string name="tab_tolerance">耐受</string>
+    <string name="tab_daily_management">日常管理</string>
+    <string name="tab_profile">我的</string>
+    <string name="quick_add_title">添加记录</string>
+
+    <!-- 记录类型（导航/快捷菜单/导出/统计通用） -->
+    <string name="type_meal">饮食</string>
+    <string name="type_bowel">便便</string>
+    <string name="type_med">服药</string>
+    <string name="type_note">感受</string>
+    <string name="type_tolerance">耐受</string>
+
+    <!-- 餐次 -->
+    <string name="meal_breakfast">早餐</string>
+    <string name="meal_lunch">午餐</string>
+    <string name="meal_dinner">晚餐</string>
+    <string name="meal_snack">加餐</string>
+
+    <!-- 食物耐受状态 -->
+    <string name="tolerance_ok">可耐受</string>
+    <string name="tolerance_try">尝试</string>
+    <string name="tolerance_bad">不耐受</string>
+
+    <!-- 布里斯托便级 1~7 -->
+    <string name="bristol_1">硬块</string>
+    <string name="bristol_2">块状香肠</string>
+    <string name="bristol_3">带裂纹香肠</string>
+    <string name="bristol_4">光滑香肠</string>
+    <string name="bristol_5">软块</string>
+    <string name="bristol_6">糊状</string>
+    <string name="bristol_7">水样</string>
+
+    <!-- 便血程度 0~3 -->
+    <string name="blood_none">无</string>
+    <string name="blood_little">少量</string>
+    <string name="blood_clear">明显</string>
+    <string name="blood_clots">血块</string>
+
+    <!-- 腹痛部位 0~4 -->
+    <string name="pain_loc_none">无</string>
+    <string name="pain_loc_right_lower">右下腹</string>
+    <string name="pain_loc_left_lower">左下腹</string>
+    <string name="pain_loc_periumbilical">脐周</string>
+    <string name="pain_loc_whole">全腹</string>
+
+    <!-- 病情活动度 -->
+    <string name="activity_remission">缓解</string>
+    <string name="activity_mild">轻度活动</string>
+    <string name="activity_moderate">中度活动</string>
+    <string name="activity_severe">重度活动</string>
+
+    <!-- 星期（周一开头） -->
+    <string name="week_mon">周一</string>
+    <string name="week_tue">周二</string>
+    <string name="week_wed">周三</string>
+    <string name="week_thu">周四</string>
+    <string name="week_fri">周五</string>
+    <string name="week_sat">周六</string>
+    <string name="week_sun">周日</string>
+
+    <!-- ==================== MainActivity ==================== -->
+    <string name="camera_permission_required">需要相机权限才能拍照</string>
+    <string name="camera_file_create_failed">无法创建相机文件</string>
+    <string name="camera_app_not_found">没有找到相机应用，请检查模拟器相机设置</string>
+    <string name="camera_file_create_failed_detail">无法创建相机文件：%1$s</string>
+    <string name="exit_dialog_title">退出程序</string>
+    <string name="exit_dialog_message">确定要关闭程序吗？</string>
+    <string name="exit_dialog_confirm">退出</string>
+
+    <!-- ==================== 服药提醒（系统通知） ==================== -->
+    <string name="med_reminder_channel">服药提醒</string>
+    <string name="med_reminder_channel_desc">今天的实际服药次数未达到已到点的应服药次数时提醒</string>
+    <string name="med_reminder_channel_silent">服药提醒（静默刷新）</string>
+    <string name="med_reminder_channel_silent_desc">未服药桌面角标的静默刷新，无提示音</string>
+    <!-- 通知标题与首页铃铛对话框标题、图标 contentDescription 共用 -->
+    <string name="med_reminder_notification_title">服药提醒</string>
+    <string name="med_reminder_missed">您还有 %1$d 次未服药，请尽快服药！</string>
+
+    <!-- ==================== 首页 ==================== -->
+    <string name="greeting_morning">早上好</string>
+    <string name="greeting_noon">中午好</string>
+    <string name="greeting_afternoon">下午好</string>
+    <string name="greeting_evening">晚上好</string>
+    <string name="greeting_night">夜深了</string>
+    <string name="home_avatar_content_desc">头像（点击进入我的）</string>
+    <string name="home_prev_month">上一月</string>
+    <string name="home_prev_week">上一周</string>
+    <string name="home_next_month">下一月</string>
+    <string name="home_next_week">下一周</string>
+    <string name="home_month_header">%1$d年%2$d月</string>
+    <string name="home_date_header">%1$d月%2$d日</string>
+    <string name="home_year_week_header">%1$d年，第%2$d周</string>
+    <string name="home_med_no_due_time">今天还没有到点的服药时间，记得按时服药。</string>
+    <string name="home_med_all_done">已到点的服药时间都已记录（%1$d/%2$d 次）。</string>
+    <string name="home_med_go">去服药</string>
+
+    <!-- 当天记录 -->
+    <string name="day_records_title">当天记录</string>
+    <string name="day_records_empty_filtered">这一天没有%1$s记录</string>
+    <string name="day_records_empty">这一天还没有记录</string>
+    <string name="day_records_empty_hint">好好吃饭，按时吃药，记一笔给自己</string>
+
+    <!-- 记录卡片 / 摘要 -->
+    <string name="record_edit">编辑记录</string>
+    <string name="record_delete">删除记录</string>
+    <string name="record_meal_photo">饮食照片</string>
+    <string name="record_delete_meal_message">确定删除这条%1$s记录吗？照片不会从设备中删除。</string>
+    <string name="symptom_edit">编辑排便记录</string>
+    <string name="symptom_delete">删除排便记录</string>
+    <string name="symptom_delete_message">确定删除这条排便记录吗？</string>
+    <string name="med_edit">编辑服药记录</string>
+    <string name="med_delete">删除服药记录</string>
+    <string name="med_delete_message">确定删除“%1$s”这条记录吗？</string>
+    <string name="note_edit">编辑感受</string>
+    <string name="note_delete">删除感受</string>
+    <string name="note_delete_message">确定删除这一天的感受记录吗？</string>
+    <string name="summary_bowel">排便 %1$d 次</string>
+    <string name="summary_blood">便血·%1$s</string>
+    <string name="summary_pain">腹痛 %1$d 分%2$s</string>
+    <string name="bristol_label">便级%1$d %2$s</string>
+    <string name="flag_blood">便血%1$s</string>
+    <string name="flag_pain">腹痛%1$d分%2$s</string>
+    <string name="symptom_night_diarrhea">夜间腹泻</string>
+    <string name="symptom_mucus">黏液</string>
+    <string name="symptom_urgency">急迫感</string>
+    <string name="activity_badge">%1$s %2$d分</string>
+
+    <!-- ==================== 记录面板（添加/编辑） ==================== -->
+    <string name="panel_today">今天</string>
+    <string name="panel_editing_on">正在编辑 %1$s 的记录</string>
+    <string name="panel_record_to">记录到：</string>
+    <string name="panel_editing_label">正在编辑：</string>
+    <string name="panel_backfill">（补录）</string>
+    <string name="panel_time">时间</string>
+    <string name="panel_meal_type">餐次</string>
+    <string name="panel_photos">照片（可添加多张）</string>
+    <string name="panel_pending_photo">待保存的照片</string>
+    <string name="panel_remove_photo">移除照片</string>
+    <string name="panel_take_photo">📷 拍照</string>
+    <string name="panel_from_album">🖼️ 从相册</string>
+    <string name="panel_add_food_tag">添加食物标签</string>
+    <string name="panel_food_tags">食物标签（可多选）</string>
+    <string name="panel_note">备注</string>
+    <string name="panel_meal_note_hint">烹饪方式？吃完感觉如何？</string>
+    <string name="panel_save_changes">保存修改</string>
+    <string name="panel_save_record">保存记录</string>
+    <string name="panel_edit_meal">编辑饮食</string>
+    <string name="panel_add_meal">添加饮食</string>
+    <string name="panel_edit_med">编辑服药</string>
+    <string name="panel_add_med">添加服药</string>
+    <string name="panel_common_meds">常用药物</string>
+    <string name="panel_med_name">药物名称</string>
+    <string name="panel_med_name_hint">如：美沙拉嗪</string>
+    <string name="panel_med_dose">剂量</string>
+    <string name="panel_med_dose_hint">如：1 片 / 500mg</string>
+    <string name="panel_note_title">今日感受</string>
+    <string name="panel_note_hint">今天感觉怎么样？\n排便、睡眠、心情、不适…</string>
+    <string name="panel_save_note">保存感受</string>
+    <string name="panel_edit_bowel">编辑排便</string>
+    <string name="panel_bowel_title">排便记录</string>
+    <string name="panel_bowel_count">排便次数（白天）</string>
+    <string name="panel_bristol_title">便便性状（布里斯托分级 1~7）</string>
+    <string name="panel_blood">便血</string>
+    <string name="panel_other_symptoms">其他症状</string>
+    <string name="panel_mucus">黏液</string>
+    <string name="panel_urgency">急迫感</string>
+    <string name="panel_pain">腹痛（0~10 分）</string>
+    <string name="panel_no_pain">无腹痛</string>
+    <string name="panel_other_discomfort">其他不适</string>
+    <string name="panel_other_discomfort_hint">腹胀、乏力、发热等</string>
+    <string name="panel_activity_hint">参考活动度（简化评分，仅供自我监测）</string>
+    <string name="panel_tap_to_adjust">点击调整</string>
+    <string name="panel_select_time">选择时间</string>
+
+    <!-- ==================== 耐受页 ==================== -->
+    <string name="tolerance_title">食物耐受</string>
+    <string name="tolerance_subtitle">记录哪些食物能吃、哪些要小心；饮食记录时打标签，方便回溯</string>
+    <string name="tolerance_note_title">耐受说明</string>
+    <string name="tolerance_note">食物耐受程度因个人身体条件和病情影响，各有不同：可能在病情稳定时期耐受，而发病时期不耐受，因此需按实际情况进行判断。注意每次少量尝试，如果两三天后没有问题的话，那应该就是耐受的。但即便如此，还是应该谨慎饮食，不可以放肆。</string>
+    <string name="tolerance_note_collapse">收起说明</string>
+    <string name="tolerance_note_expand">展开说明</string>
+    <string name="tolerance_empty_title">还没有食物</string>
+    <string name="tolerance_empty_hint">在「添加饮食」页面里添加食物（如：牛奶、鸡蛋）</string>
+    <string name="tolerance_drag_hint">提示：拖动标签可以变更类别</string>
+    <string name="tolerance_types_count">%1$d 种</string>
+    <string name="tolerance_empty_section">暂无</string>
+    <string name="tolerance_add_placeholder">添加食物，如：牛奶</string>
+
+    <!-- ==================== 首页寄语 ==================== -->
+    <string name="slogan_title">首页寄语</string>
+    <string name="slogan_desc">首页顶部欢迎卡每天按顺序轮播显示以下寄语。点条目可修改，点垃圾桶图标删除。</string>
+    <string name="slogan_empty">寄语列表为空，首页将轮播内置的默认寄语。</string>
+    <string name="slogan_reset">恢复默认寄语</string>
+    <string name="slogan_add">添加寄语</string>
+    <string name="slogan_edit">修改寄语</string>
+    <string name="slogan_field">横幅文案（%1$d/%2$d）</string>
+    <string name="slogan_reset_message">将把寄语列表恢复为内置的 %1$d 条默认寄语，当前自定义内容会被替换。</string>
+    <!-- 内置默认寄语（顺序固定，代码按下标取用） -->
+    <string name="default_slogan_1">一定要好好吃饭！</string>
+    <string name="default_slogan_2">记录每一天，安心多一点</string>
+    <string name="default_slogan_3">少食多餐，温柔对待肠胃</string>
+    <string name="default_slogan_4">症状会波动，你比它更强大</string>
+    <string name="default_slogan_5">今天也好好照顾自己</string>
+    <string name="default_slogan_6">清淡一点，肠道轻松一点</string>
+    <string name="default_slogan_7">按时吃饭，按时记录</string>
+    <string name="default_slogan_8">记住今天，身体都记得</string>
+
+    <!-- ==================== 我的（Profile） ==================== -->
+    <string name="profile_subtitle">溃结日常记录 · 数据仅保存在本机</string>
+    <string name="profile_tap_avatar">点击修改头像</string>
+    <string name="profile_default_nickname">记录者</string>
+    <string name="profile_edit_nickname_title">修改昵称</string>
+    <string name="profile_edit_avatar_title">修改头像</string>
+    <string name="profile_avatar_boy">男生头像</string>
+    <string name="profile_avatar_girl">女生头像</string>
+    <string name="profile_menu_stats">统计信息</string>
+    <string name="profile_menu_settings">设置</string>
+    <string name="profile_menu_stats_trailing">详细统计</string>
+    <string name="profile_menu_export">导出记录</string>
+    <string name="profile_menu_export_trailing">剪切板/文件</string>
+    <string name="profile_menu_restore">恢复记录</string>
+    <string name="profile_menu_restore_trailing">从 CSV 导入</string>
+    <string name="export_csv_restore_hint">可用于恢复日常记录及食物耐受</string>
+    <string name="restore_result_title">恢复完成</string>
+    <string name="restore_result_summary">已恢复：饮食 %1$d 条、服药 %2$d 条、便便 %3$d 条、感受 %4$d 条、耐受 %5$d 条</string>
+    <string name="restore_result_skipped">跳过重复 %1$d 条</string>
+    <string name="restore_result_failed">解析失败 %1$d 条</string>
+    <string name="restore_error_invalid">无法识别该文件。请选择「导出记录 → 文件 → CSV」导出的文件（导出与恢复建议使用同一语言）。</string>
+    <string name="profile_menu_med_settings">服药设置</string>
+    <string name="profile_menu_med_settings_trailing">%1$d 次/天</string>
+    <string name="profile_menu_slogans">首页寄语</string>
+    <string name="profile_menu_slogans_default_trailing">默认寄语</string>
+    <string name="profile_menu_font">字体大小</string>
+    <string name="profile_menu_theme">主题</string>
+    <string name="profile_menu_language">语言</string>
+    <string name="profile_menu_update">软件更新</string>
+    <string name="profile_menu_about">关于</string>
+    <string name="profile_menu_about_trailing">v1.0</string>
+    <string name="profile_menu_update_trailing">v1.0</string>
+    <string name="profile_font_desc">调整首页记录、耐受页和日常管理页的文字大小</string>
+    <string name="profile_font_sample">文字</string>
+    <string name="profile_about_title">关于溃结日常记录</string>
+    <string name="profile_about_version">UC Daily · v1.0</string>
+    <string name="profile_about_desc">为溃疡性结肠炎（UC）设计的日常记录工具：\n· 饮食拍照 + 食物耐受标签\n· 服药记录与提醒时间设置\n· 便便记录（布里斯托分级）与活动度自评\n· 每日感受与日历回溯\n· 溃结日常管理手册：饮食 / 生活方式 / 药物医疗 / 心理调适的循证参考建议（仅供自我参考）</string>
+    <string name="profile_about_disclaimer">活动度为简化 UCDAI（0~8 分），仅供自我监测参考。数据与照片仅保存在本机应用目录，不会上传。</string>
+
+    <!-- 语言设置 -->
+    <string name="language_system">跟随系统</string>
+
+    <!-- 主题 / 字体档位 -->
+    <string name="theme_system">跟随系统</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+    <string name="font_size_small">小</string>
+    <string name="font_size_standard">标准</string>
+    <string name="font_size_large">大</string>
+    <string name="font_size_extra_large">特大</string>
+
+    <!-- ==================== 服药设置 ==================== -->
+    <string name="med_settings_title">服药设置</string>
+    <string name="med_settings_daily_count">每天服药次数</string>
+    <string name="med_settings_times_hint">最多 6 次，与提醒时间一一对应</string>
+    <string name="med_settings_decrease_one">减少一次</string>
+    <string name="med_settings_increase_one">增加一次</string>
+    <string name="med_settings_nth">第 %1$d 次</string>
+    <string name="med_settings_change_time">修改时间</string>
+    <string name="med_settings_note">添加或补录服药时默认取当前时间。</string>
+    <string name="med_settings_picker_title">第 %1$d 次提醒时间</string>
+
+    <!-- ==================== 导出 ==================== -->
+    <string name="export_saved">已保存 %1$s</string>
+    <string name="export_save_failed">保存失败：%1$s</string>
+    <string name="export_clipboard">剪切板</string>
+    <string name="export_file">文件</string>
+    <string name="export_no_records">所选范围内没有对应类型的记录</string>
+    <string name="export_copied">已复制到剪切板</string>
+    <string name="export_select_type">请选择记录类型</string>
+    <string name="export_button">导出</string>
+    <string name="export_start_date">开始日期</string>
+    <string name="export_end_date">结束日期</string>
+    <string name="export_select_date">请选择日期</string>
+    <string name="export_date_headline">%1$d年%2$d月%3$d日</string>
+    <string name="export_file_name">记录导出_%1$s_%2$s</string>
+    <!-- 导出 TXT 文本（标点保留在代码里，这里只翻译词语） -->
+    <string name="export_txt_title">记录导出</string>
+    <string name="export_txt_range">范围：%1$s ~ %2$s</string>
+    <string name="export_txt_types">类型：%1$s</string>
+    <string name="export_txt_day_header">====== %1$s %2$s ======</string>
+    <string name="export_txt_meal">[饮食] %1$s %2$s</string>
+    <string name="export_txt_med">[服药] %1$s %2$s</string>
+    <string name="export_txt_bowel">[便便]</string>
+    <string name="export_txt_note">[感受]</string>
+    <string name="export_txt_count">次数</string>
+    <string name="export_txt_night">（含夜间）</string>
+    <string name="export_txt_bristol">| 布里斯托</string>
+    <string name="export_txt_not_recorded">未记录</string>
+    <string name="export_txt_blood">| 便血</string>
+    <string name="export_txt_mucus">| 黏液</string>
+    <string name="export_txt_pain">| 腹痛</string>
+    <string name="export_txt_urgency">| 急迫感</string>
+    <string name="export_txt_other">| 其他：</string>
+    <!-- 导出 CSV 表头（逗号分隔，勿改动逗号） -->
+    <string name="export_csv_header">日期,类型,时间,内容,备注</string>
+    <string name="export_csv_bristol">布里斯托</string>
+    <string name="export_csv_blood">便血</string>
+    <string name="export_csv_mucus">黏液</string>
+    <string name="export_csv_pain">腹痛</string>
+    <string name="export_csv_urgency">急迫感</string>
+
+    <!-- ==================== 统计信息 ==================== -->
+    <string name="stats_title">统计信息</string>
+    <string name="stats_days_label">坚持记录</string>
+    <string name="stats_days_value">第 %1$d 天</string>
+    <string name="stats_streak_label">连续记录</string>
+    <string name="stats_streak_value">%1$d 天</string>
+    <string name="stats_first_record">首次记录 %1$s</string>
+    <string name="stats_empty">还没有记录</string>
+    <string name="stats_meal_records">饮食记录</string>
+    <string name="stats_bowel_records">排便记录</string>
+    <string name="stats_bowel_summary">%1$d 天 · %2$d 次</string>
+    <string name="stats_med_records">服药记录</string>
+    <string name="stats_note_records">感受记录</string>
+    <string name="stats_bowel_detail">排便详情</string>
+    <string name="stats_avg_pain">平均腹痛 %1$s 分（0~10）</string>
+    <string name="stats_tolerance_title">耐受情况</string>
+    <string name="stats_tolerance_value">%1$s %2$d</string>
+    <string name="stats_disclaimer">以上为本地数据统计，仅供自我监测参考，不构成医疗建议。</string>
+
+    <!-- ==================== 记录汇总列表 ==================== -->
+    <string name="list_title_meal">饮食记录汇总</string>
+    <string name="list_title_bowel">排便记录汇总</string>
+    <string name="list_title_med">服药记录汇总</string>
+    <string name="list_title_note">感受记录汇总</string>
+    <string name="list_empty_meal">还没有饮食记录</string>
+    <string name="list_empty_bowel">还没有排便记录</string>
+    <string name="list_empty_med">还没有服药记录</string>
+    <string name="list_empty_note">还没有感受记录</string>
+    <string name="list_level_year">年</string>
+    <string name="list_level_month">月</string>
+    <string name="list_level_day">日</string>
+    <string name="list_year_header">%1$d年</string>
+    <string name="list_total_count">共 %1$d 条</string>
+    <string name="list_month_header">%1$d月</string>
+    <string name="list_day_header">%1$d月%2$d日 %3$s</string>
+
+    <!-- ==================== 日常管理手册 ==================== -->
+    <string name="dm_title">日常管理手册</string>
+    <string name="dm_subtitle">基于循证建议 · 根据病情阶段灵活调整\n与你的医生共同制定个体化方案</string>
+    <string name="dm_disclaimer">📌 重要提示\n以上信息仅供参考，不能替代专业医疗建议。\n具体方案请务必与你的主治医生共同制定。</string>
+    <string name="dm_card_diet">饮食管理</string>
+    <string name="dm_card_lifestyle">生活方式管理</string>
+    <string name="dm_card_medical">药物与医疗管理</string>
+    <string name="dm_card_psych">心理调适</string>
+    <string name="dm_card_assessment">病情自评 · 症状对照</string>
+    <string name="dm_diet_core_principle">**核心原则：**根据 **急性期** 或 **缓解期** 灵活调整，给肠道“减负”或“修复”。</string>
+    <string name="dm_diet_acute_title">🔴 急性发作期 · 严格减负</string>
+    <string name="dm_diet_acute_b1_lead">无渣、软烂流质/半流质</string>
+    <string name="dm_diet_acute_b1">米汤、藕粉、蒸蛋羹、烂面条、去油清汤。</string>
+    <string name="dm_diet_acute_b2_lead">目的</string>
+    <string name="dm_diet_acute_b2">减少粪便体积和排便次数，让肠道休息。</string>
+    <string name="dm_diet_remission_title">🟢 缓解期 · 逐步修复</string>
+    <string name="dm_diet_remission_b1_lead">高营养、易消化、低渣</string>
+    <string name="dm_diet_remission_b1">清蒸鱼、鸡蛋羹、嫩豆腐、瘦肉糜。</string>
+    <string name="dm_diet_remission_b2">补充优质蛋白，修复肠黏膜。</string>
+    <string name="dm_diet_issues_title">⚠️ 需要留意的“问题食物”</string>
+    <string name="dm_diet_fiber_lead">高纤维</string>
+    <string name="dm_diet_fiber">（发作期避免）：坚果、种子、玉米、爆米花、生蔬菜。</string>
+    <string name="dm_diet_dairy_lead">乳制品</string>
+    <string name="dm_diet_dairy">部分患者不耐受，可暂停观察。</string>
+    <string name="dm_diet_drinks_lead">刺激性饮品</string>
+    <string name="dm_diet_drinks">酒精、咖啡因、碳酸饮料。</string>
+    <string name="dm_diet_greasy_lead">油腻、辛辣</string>
+    <string name="dm_diet_greasy">油炸、烧烤、辣椒。</string>
+    <string name="dm_diet_tips_title">💡 实用技巧</string>
+    <string name="dm_diet_cooking_lead">改变烹饪</string>
+    <string name="dm_diet_cooking">蔬菜水果蒸、煮、烤、搅拌，做熟做烂。</string>
+    <string name="dm_diet_soluble_fiber_lead">可溶性纤维</string>
+    <string name="dm_diet_soluble_fiber">（耐受时）：燕麦、去皮红薯、香蕉、熟胡萝卜。</string>
+    <string name="dm_diet_small_meals_lead">少食多餐</string>
+    <string name="dm_diet_small_meals">一日五到六顿小餐，减轻单次负担。</string>
+    <string name="dm_diet_diary_lead">饮食日记</string>
+    <string name="dm_diet_diary">记录食物与反应，精准避开“问题食物”。</string>
+    <string name="dm_lifestyle_sleep_title">😴 规律作息</string>
+    <string name="dm_lifestyle_sleep">保证 **每晚 7~8 小时** 高质量睡眠，避免过度劳累，有助于免疫系统稳定。</string>
+    <string name="dm_lifestyle_exercise_title">🚶 适度运动</string>
+    <string name="dm_lifestyle_exercise_acute_lead">急性期</string>
+    <string name="dm_lifestyle_exercise_acute">以休息为主，避免运动。</string>
+    <string name="dm_lifestyle_exercise_remission_lead">缓解期</string>
+    <string name="dm_lifestyle_exercise_remission">温和有氧（散步、慢跑、瑜伽、太极、游泳）。频率：**每周 3~5 次**，每次 20~60 分钟，以运动后不感到过度疲劳为宜。</string>
+    <string name="dm_lifestyle_stress_title">🧘 压力管理</string>
+    <string name="dm_lifestyle_stress">精神压力会加重症状，可通过 **冥想、深呼吸、与亲友交流、病友互助小组** 等方式排解。</string>
+    <string name="dm_med_meds_title">💊 规范用药</string>
+    <string name="dm_med_meds">**严格遵医嘱**，切勿自行停药、减量或换药。常用药物包括氨基水杨酸类、免疫调节剂、生物制剂等。另外，根据炎症发生的部位，对症用药。比如，炎症发生在直肠段，那么使用栓剂能够达到更好的疗效。</string>
+    <string name="dm_med_pain_title">🚫 谨慎使用止痛药</string>
+    <string name="dm_med_pain">避免 **非甾体类抗炎药（NSAID）**（如布洛芬、萘普生），可能诱发疾病发作。</string>
+    <string name="dm_med_nutrition_title">🧪 补充营养素</string>
+    <string name="dm_med_nutrition">长期腹泻可能导致营养流失，可在医生指导下补充 **铁、钙和维生素 D**。</string>
+    <string name="dm_med_checkup_title">📅 定期复查</string>
+    <string name="dm_med_checkup">患病 **8~10 年** 以上者，建议遵医嘱 **每 1~2 年** 接受结肠镜检查，监测病情及筛查癌变风险。</string>
+    <string name="dm_med_vaccine_title">💉 接种疫苗</string>
+    <string name="dm_med_vaccine">咨询医生后，按时接种 **流感疫苗** 和 **肺炎球菌疫苗**（因疾病或药物可能影响免疫系统）。</string>
+    <string name="dm_psych_p1">认识到溃疡性结肠炎是一种慢性病，学会与它共存非常重要。积极的心态和科学的疾病认知，本身就是一种强大的“药物”。</string>
+    <string name="dm_psych_tip">**🌱 建议：** 如果感到焦虑或抑郁，不要犹豫，及时寻求 **专业心理咨询师** 的帮助。</string>
+    <string name="dm_psych_p2">与家人、朋友或病友分享感受，参与支持团体，有助于减轻心理负担。</string>
+    <string name="dm_assess_intro">通过典型症状对照和简易评分，初步判断当前所处阶段。⚠️ 本工具不能替代专业诊断，如有疑虑请及时就医。</string>
+    <string name="dm_assess_active_title">🔄 发作期（活动期）常见表现</string>
+    <string name="dm_assess_diarrhea_lead">腹泻</string>
+    <string name="dm_assess_diarrhea">排便次数显著增多（每日 > 3次），常为稀便或水样便。</string>
+    <string name="dm_assess_blood_lead">便血</string>
+    <string name="dm_assess_blood">粪便中带血或黏液，可附着在粪便表面或与粪便混合，有时伴血块或黏液脓液。</string>
+    <string name="dm_assess_blood_color_lead">血便颜色参考</string>
+    <string name="dm_assess_blood_color">鲜红色或暗红色多提示病变在直肠或乙状结肠（靠近肛门），血液排出快、较少被氧化；暗红色或黑色（柏油样）便多提示病变位置较高，如横结肠、升结肠甚至回肠末端，血液在肠道停留久、被氧化后颜色变深。颜色只是辅助判断的线索之一，绝不能作为确诊或自我诊断的唯一依据。</string>
+    <string name="dm_assess_pain_lead">腹痛</string>
+    <string name="dm_assess_pain">下腹部绞痛或持续性钝痛，排便后可能减轻。</string>
+    <string name="dm_assess_urgency_lead">里急后重</string>
+    <string name="dm_assess_urgency">总有便意，但排便不尽感。</string>
+    <string name="dm_assess_systemic_lead">全身症状</string>
+    <string name="dm_assess_systemic">发热、乏力、体重下降、食欲不振。</string>
+    <string name="dm_assess_remission_title">🟢 缓解期常见表现</string>
+    <string name="dm_assess_normal_bowel_lead">排便正常</string>
+    <string name="dm_assess_normal_bowel">每日 1~2 次成形便，无血便。</string>
+    <string name="dm_assess_no_pain_lead">腹痛消失</string>
+    <string name="dm_assess_no_pain">腹部无不适或仅有轻微隐痛。</string>
+    <string name="dm_assess_condition_lead">全身状态</string>
+    <string name="dm_assess_condition">精力恢复，体重稳定，无发热。</string>
+    <string name="dm_assess_mucosa">内镜下黏膜愈合或显著改善。</string>
+    <string name="dm_assess_score_title">📝 简易活动性评分（自评参考）</string>
+    <string name="dm_assess_score_intro">请根据近3天的平均情况，选择最符合的选项，点击下方按钮评估。</string>
+    <string name="dm_assess_q1">1. 每日排便次数</string>
+    <string name="dm_assess_q2">2. 便血情况</string>
+    <string name="dm_assess_q3">3. 腹痛程度</string>
+    <string name="dm_assess_q4">4. 体温（腋下）</string>
+    <string name="dm_assess_opt_freq_0">＜3次 (0分)</string>
+    <string name="dm_assess_opt_freq_1">3～5次 (1分)</string>
+    <string name="dm_assess_opt_freq_2">6～10次 (2分)</string>
+    <string name="dm_assess_opt_freq_3">＞10次 (3分)</string>
+    <string name="dm_assess_opt_blood_0">无 (0分)</string>
+    <string name="dm_assess_opt_blood_1">少量 (1分)</string>
+    <string name="dm_assess_opt_blood_2">中等 (2分)</string>
+    <string name="dm_assess_opt_blood_3">大量 (3分)</string>
+    <string name="dm_assess_opt_pain_0">无 (0分)</string>
+    <string name="dm_assess_opt_pain_1">轻度 (1分)</string>
+    <string name="dm_assess_opt_pain_2">中度 (2分)</string>
+    <string name="dm_assess_opt_pain_3">重度 (3分)</string>
+    <string name="dm_assess_opt_temp_0">＜37.5℃ (0分)</string>
+    <string name="dm_assess_opt_temp_1">37.5～38.5℃ (1分)</string>
+    <string name="dm_assess_opt_temp_2">＞38.5℃ (2分)</string>
+    <string name="dm_assess_score_button">📐 计算评分</string>
+    <string name="dm_assess_total">总分：</string>
+    <string name="dm_assess_result_0">缓解期 (症状控制良好)</string>
+    <string name="dm_assess_result_1">轻度活动期 (建议咨询医生)</string>
+    <string name="dm_assess_result_2">中度活动期 (需及时就诊)</string>
+    <string name="dm_assess_result_3">重度活动期 (请立即就医)</string>
+    <string name="dm_assess_legend">* 0～2分：缓解期；3～5分：轻度活动；6～8分：中度活动；≥9分：重度活动。</string>
+
+    <!-- ==================== 软件更新（Google Play Core） ==================== -->
+    <string name="update_dialog_title">发现新版本</string>
+    <string name="update_dialog_message">新版本包含多语言支持等改进。更新后即可在“我的 → 语言”中切换应用语言。</string>
+    <string name="update_now">立即更新</string>
+    <string name="update_download_title">正在更新</string>
+    <string name="update_download_message">新版本正在下载中，请勿关闭应用。</string>
+    <string name="update_ready_title">更新完成</string>
+    <string name="update_ready_message">新版本已下载完成，重启应用后即可生效。</string>
+    <string name="update_restart">立即重启</string>
+    <string name="update_check_failed">检查更新失败，请稍后重试</string>
+    <string name="update_up_to_date">当前已是最新版本</string>
+
 </resources>
