@@ -1350,14 +1350,18 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
      */
     fun moveFoodTag(name: String, targetTolerance: FoodTolerance, before: String?) {
         if (before == name) return
+        // 乐观更新：先【同步】更新内存顺序——与拖动松手的 dragInfo 清空同帧生效，
+        // 展示顺序直接落到最终顺序，避免落点后瞬间闪回旧顺序再弹回
+        val current = _uiState.value.foodTags
+        if (current.none { it.name == name }) return
+        val moved = current.first { it.name == name }.copy(tolerance = targetTolerance.ordinal)
+        val rest = current.filter { it.name != name }
+        val insertAt = if (before == null) rest.size
+        else rest.indexOfFirst { it.name == before }.let { if (it == -1) rest.size else it }
+        val ordered = rest.toMutableList().also { it.add(insertAt, moved) }
+        _uiState.value = _uiState.value.copy(foodTags = ordered)
+        // 异步落库
         viewModelScope.launch {
-            val current = foodTagDao.getAll()
-            if (current.none { it.name == name }) return@launch
-            val moved = current.first { it.name == name }.copy(tolerance = targetTolerance.ordinal)
-            val rest = current.filter { it.name != name }
-            val insertAt = if (before == null) rest.size
-            else rest.indexOfFirst { it.name == before }.let { if (it == -1) rest.size else it }
-            val ordered = rest.toMutableList().also { it.add(insertAt, moved) }
             ordered.forEachIndexed { index, tag ->
                 if (tag.name == name) {
                     foodTagDao.updateTag(tag.name, tag.tolerance, index)

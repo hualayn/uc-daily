@@ -1,13 +1,22 @@
 package com.ucdaily.ui
 
+import android.os.Build
+import android.view.HapticFeedbackConstants
+import androidx.compose.animation.core.Animatable
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -18,20 +27,32 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -69,20 +90,29 @@ private data class DragInfo(
     val count: Int,
     val natTopLeft: Offset,
     val grabOffset: Offset,
-    val translation: Offset
+    val translation: Offset,
+    val pointerId: PointerId
 ) {
     /** 当前手指位置（根坐标系，px） */
     val fingerRoot: Offset get() = natTopLeft + grabOffset + translation
 }
 
 /**
+ * 拖动落点预览：标签将落入的分区 + 在该分区内的下标。
+ * 下标相对于"该分区其它标签"（不含被拖标签）按阅读顺序。
+ * 拖动中随手指实时刷新，让用户在松手前就能看到落点位置。
+ */
+private data class DragPreview(val section: FoodTolerance, val index: Int)
+
+/**
  * 耐受页：食物以 tag 样式展示（框色即状态：绿=可耐受 红=不耐受 黄=尝试），
  * 点 tag 右上角出现 X 角标可删除。
- * 长按 tag（按住 400ms）进入拖动：标签跟随手指移动，
- * 同分区内松开 = 调整前后顺序，拖到另一分区松开 = 改变耐受状态。
- * 添加入口在「添加饮食」页面（照片区下方）。
+ * 长按 tag（按住 400ms）进入拖动：
+ *  - 标签以"落点预览槽"（虚线框）形态实时插入手指所在分区，
+ *    右侧标签被挤开滑动（重排动画），所见即所落；
+ *  - 同分区内松开 = 调整前后顺序，拖到另一分区松开 = 改变耐受状态。
+ * 拖动中的手指由根级 pointerInput 统一跟踪（标签节点可在分区间自由重排）。
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ToleranceScreen(
     state: MealUiState,
@@ -94,13 +124,27 @@ fun ToleranceScreen(
     var armedName by remember { mutableStateOf<String?>(null) }
     /** 正在拖动的标签（null = 未拖动） */
     var dragInfo by remember { mutableStateOf<DragInfo?>(null) }
-    /** 各标签的自然位置（根坐标系）——落点计算用 */
-    val chipRects = remember { mutableMapOf<String, Rect>() }
-    /** 各分区的位置（根坐标系）——判断手指悬停在哪一个框 */
+    /** 拖动落点预览（将落入哪个分区 + 哪个位置），拖动中实时刷新 */
+    var dragPreview by remember { mutableStateOf<DragPreview?>(null) }
+    /** 各标签的坐标（页面根坐标系）——落点计算用 */
+    val chipCoords = remember { mutableMapOf<String, LayoutCoordinates>() }
+    /** 各分区的位置（页面根坐标系）——判断手指悬停在哪一个框 */
     val sectionRects = remember { mutableMapOf<FoodTolerance, Rect>() }
+    /** 根容器坐标——把拖动跟踪事件的位置换算到根坐标系 */
+    var rootBoxCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
+
+    /** 根 View——落点槽切换时用平台分段轻震（Compose 1.7 的 HapticFeedbackType 仅暴露 LongPress/TextHandleMove） */
+    val root = LocalView.current
+    /** 分段控件式轻震：API 34+ 用 SEGMENT_TICK，更早用 CLOCK_TICK */
+    val tickHaptic = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        HapticFeedbackConstants.SEGMENT_TICK
+    else
+        HapticFeedbackConstants.CLOCK_TICK
 
     // 手势协程持有稳定的 lambda 引用，始终读取最新的状态与回调
     val curState = rememberUpdatedState(state)
+    val curDragInfo = rememberUpdatedState(dragInfo)
+    val curRootCoords = rememberUpdatedState(rootBoxCoords)
     val curOnDelete = rememberUpdatedState(onDeleteFood)
     val curOnMove = rememberUpdatedState(onMoveFood)
 
@@ -111,47 +155,98 @@ fun ToleranceScreen(
 
     // ---- 拖动开始 / 移动 / 结束 ----
 
-    fun startDrag(name: String, pos: Offset) {
-        val rect = chipRects[name] ?: return
+    /** 按手指根坐标计算落点预览：手指所在分区 + 该分区内"手指之后第一个标签"的下标（阅读顺序） */
+    fun previewAt(finger: Offset): DragPreview? {
+        val dragName = dragInfo?.name ?: return null
+        val target = sectionRects.entries.firstOrNull { it.value.contains(finger) }?.key ?: return null
+        val others = curState.value.foodTags.filter {
+            it.name != dragName && FoodTolerance.fromValue(it.tolerance) == target
+        }
+        val beforeIdx = others.indexOfFirst { t ->
+            val r = chipCoords[t.name]?.let { rectOf(it) } ?: return@indexOfFirst false
+            r.top > finger.y + r.height * 0.5f ||
+                (abs(r.center.y - finger.y) < r.height * 0.5f && r.left > finger.x)
+        }
+        return DragPreview(target, if (beforeIdx == -1) others.size else beforeIdx)
+    }
+
+    fun startDrag(name: String, localPos: Offset, pointerId: PointerId) {
+        if (dragInfo != null) {
+            return
+        }
+        val coords = chipCoords[name] ?: return
+        val rect = rectOf(coords)
         val tag = curState.value.foodTags.firstOrNull { it.name == name } ?: return
         dragInfo = DragInfo(
             name = name,
             tolerance = FoodTolerance.fromValue(tag.tolerance),
             count = curState.value.foodTagCounts[name] ?: 0,
             natTopLeft = rect.topLeft,
-            grabOffset = pos,
-            translation = Offset.Zero
+            grabOffset = localPos,
+            translation = Offset.Zero,
+            pointerId = pointerId
         )
         armedName = null
+        dragPreview = previewAt(rect.topLeft + localPos)
     }
 
-    fun updateDrag(name: String, pos: Offset) {
+    fun updateDrag(finger: Offset) {
         val d = dragInfo ?: return
-        if (d.name != name) return
-        dragInfo = d.copy(translation = pos - d.grabOffset)
+        dragInfo = d.copy(translation = finger - d.natTopLeft - d.grabOffset)
+        val preview = previewAt(finger)
+        if (preview != dragPreview) {
+            dragPreview = preview
+            // 落点槽每换一个位置轻震一下
+            if (preview != null) root.performHapticFeedback(tickHaptic)
+        }
     }
 
-    fun endDrag(name: String, pos: Offset) {
-        val d = dragInfo
+    fun endDrag(finger: Offset) {
+        val d = dragInfo ?: return
+        // 以实时预览为落点（所见即所落）——必须在清空 dragInfo 之前读取
+        val preview = previewAt(finger)
+        if (preview == null) return
         dragInfo = null
-        val rect = chipRects[name] ?: return
-        val finger = rect.topLeft + pos
-        // 手指落在哪个分区，就移入哪个分区（落点不在任何分区内则不动）
-        val target = sectionRects.entries.firstOrNull { it.value.contains(finger) }?.key ?: return
-        // 插入位置：目标分区内按阅读顺序（先上行、再从左到右）排在手指后面的第一个标签
+        dragPreview = null
         val others = curState.value.foodTags.filter {
-            it.name != name && FoodTolerance.fromValue(it.tolerance) == target
+            it.name != d.name && FoodTolerance.fromValue(it.tolerance) == preview.section
         }
-        val beforeIdx = others.indexOfFirst { t ->
-            val r = chipRects[t.name] ?: return@indexOfFirst false
-            r.top > finger.y + r.height * 0.5f ||
-                (abs(r.center.y - finger.y) < r.height * 0.5f && r.left > finger.x)
-        }
-        val before = if (beforeIdx == -1) null else others[beforeIdx].name
-        curOnMove.value(name, target, before)
+        val before = if (preview.index in 0 until others.size) others[preview.index].name else null
+        // 落点与当前位置一致则不写库
+        val all = curState.value.foodTags
+        val current = all.firstOrNull { it.name == d.name } ?: return
+        val curIdx = all.indexOfFirst { it.name == d.name }
+        val rest = all.filter { it.name != d.name }
+        val insertIdx = if (before == null) rest.size
+        else rest.indexOfFirst { it.name == before }.let { if (it == -1) rest.size else it }
+        if (FoodTolerance.fromValue(current.tolerance) == preview.section && insertIdx == curIdx) return
+        curOnMove.value(d.name, preview.section, before)
     }
 
-    Box(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .onGloballyPositioned { rootBoxCoords = it }
+            // 拖动跟踪：长按进入拖动后，该指针的后续事件始终沿"按下时的命中路径"派发
+            // （Compose 只在按下/悬停时做命中测试，移动事件不重新命中），
+            // 根容器在所有 tag 的命中路径上，因此在这里统一跟踪手指。
+            // 这样被拖 tag 的节点可以自由在分区间重排/重建，不会丢失手势。
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val ev = awaitPointerEvent()
+                        val d = curDragInfo.value ?: continue
+                        val c = ev.changes.firstOrNull { it.id == d.pointerId } ?: continue
+                        c.consume()
+                        val finger = curRootCoords.value?.localToRoot(c.position)
+                        if (finger != null) {
+                            if (!c.pressed) endDrag(finger) else updateDrag(finger)
+                        }
+                    }
+                }
+            }
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -180,13 +275,17 @@ fun ToleranceScreen(
             Spacer(modifier = Modifier.height(14.dp))
 
             // 说明 + 三个分区（滚动区）
-            LazyColumn(
+            // 注意：这里用普通 Column + verticalScroll 而不是 LazyColumn——
+            // LazyColumn 的 item 内容在子组合（subcomposition）中，拖动重排时
+            // FlowRow 内 key 节点的 move 无法触发布局重排（实测布局停留在旧顺序），
+            // 普通组合树里重排可以正常生效。
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                item(key = "note") {
                 // 耐受说明卡（琥珀色提示）：默认折叠，点击展开/收起
                 var expanded by remember { mutableStateOf(false) }
                 Card(
@@ -228,10 +327,8 @@ fun ToleranceScreen(
                         }
                     }
                 }
-            }
 
             if (state.foodTags.isEmpty()) {
-                item(key = "empty") {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -253,56 +350,139 @@ fun ToleranceScreen(
                             )
                         }
                     }
-                }
             } else {
                 // 三个分区：可耐受 / 不耐受 / 尝试（状态色分区卡片，区内为对应 tag）
-                val finger = dragInfo?.fingerRoot
+                val drag = dragInfo
+                val preview = dragPreview
                 TOLERANCE_ORDER.forEach { tol ->
-                    item(key = "section_${tol.name}") {
+                        val baseTags = state.foodTags.filter {
+                            FoodTolerance.fromValue(it.tolerance) == tol
+                        }
+                        // 拖动中的展示顺序：被拖 tag 插入落点预览位置（虚线预览槽），
+                        // 其它分区暂时不显示被拖 tag
+                        val displayTags: List<FoodTag> = when {
+                            drag == null -> baseTags
+                            preview != null && preview.section == tol -> {
+                                val others = baseTags.filter { it.name != drag.name }
+                                val dragTag = curState.value.foodTags.firstOrNull { it.name == drag.name }
+                                if (dragTag != null) {
+                                    val list = others.toMutableList()
+                                    list.add(preview.index.coerceIn(0, list.size), dragTag)
+                                    list
+                                } else {
+                                    others
+                                }
+                            }
+                            else -> baseTags.filter { it.name != drag.name }
+                        }
                         ToleranceSection(
                             tolerance = tol,
-                            tags = state.foodTags.filter {
-                                FoodTolerance.fromValue(it.tolerance) == tol
-                            },
+                            tags = displayTags,
                             counts = state.foodTagCounts,
                             armedName = armedName,
-                            dragName = dragInfo?.name,
-                            isDropTarget = finger != null && sectionRects[tol]?.contains(finger) == true,
+                            dragName = drag?.name,
+                            isDropTarget = preview != null && preview.section == tol,
                             onTagTap = { name ->
-                                armedName = if (armedName == name) null else name
+                                // 拖动中不响应轻点（避免点到预览槽标记删除）
+                                if (dragInfo == null) {
+                                    armedName = if (armedName == name) null else name
+                                }
                             },
                             onTagDelete = { name ->
                                 armedName = null
                                 curOnDelete.value(name)
                             },
-                            onChipPositioned = { name, coords -> chipRects[name] = rectOf(coords) },
+                            onChipPositioned = { name, coords -> chipCoords[name] = coords },
                             onSectionPositioned = { coords -> sectionRects[tol] = rectOf(coords) },
-                            onDragStart = { name, pos -> startDrag(name, pos) },
-                            onDrag = { name, pos -> updateDrag(name, pos) },
-                            onDragEnd = { name, pos -> endDrag(name, pos) }
+                            onDragStart = { name, pos, id -> startDrag(name, pos, id) }
                         )
-                    }
                 }
                 // 底部提示（左对齐）
-                item(key = "drag_hint") {
                     Text(
                         modifier = Modifier.padding(top = 2.dp, bottom = 6.dp),
                         text = stringResource(R.string.tolerance_drag_hint),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                }
+            }
             }
         }
     }
 
     // 拖动悬浮层：把正在拖动的 tag 画在所有分区之上（根坐标定位，不参与布局）
-    DragOverlay(dragInfo = dragInfo, chipRects = chipRects)
-}
+    DragOverlay(dragInfo = dragInfo)
 }
 
-/** 耐受分区：状态色边框 + 淡色底的卡片，区内为对应状态的食物 tag；拖动时手指悬停的分区高亮 */
-@OptIn(ExperimentalLayoutApi::class)
+/**
+ * 流式排列（FlowRow 等价）：子项按行从左到右排列，超宽换行。
+ *
+ * 为什么不用 androidx 的 [androidx.compose.foundation.layout.FlowRow]：
+ * 在 Compose 1.7.0 中，FlowRow 是"多内容"布局（multi-content / virtual layouts），
+ * 区内 key 子项重排（拖动换序）时不会触发重新测量/布局——子项停留在旧位置
+ * （同场景下普通 Row 可正常重排，已实测确认）。这里用单内容 [Layout] 自行实现
+ * 相同的换行布局，子项重排能正确传播为重新布局。
+ *
+ * 换行规则：子项自然宽度（受容器宽度约束）从左到右累加，放不下则换行；
+ * 行首/行内水平间距 [hSpacing]，行间垂直间距 [vSpacing]；行左对齐、行内顶对齐。
+ */
+@Composable
+private fun TagFlowRow(
+    modifier: Modifier = Modifier,
+    hSpacing: Dp = 8.dp,
+    vSpacing: Dp = 8.dp,
+    content: @Composable () -> Unit
+) {
+    val hPx = LocalDensity.current.run { hSpacing.toPx().roundToInt() }
+    val vPx = LocalDensity.current.run { vSpacing.toPx().roundToInt() }
+    val policy = MeasurePolicy { measurables, constraints ->
+        val bounded = constraints.hasBoundedWidth
+        val maxWidth = constraints.maxWidth
+        // 每个子项按容器宽度约束测量（自然宽度，不拉伸）
+        val measured = measurables.map { it.measure(constraints) }
+        // 贪心换行
+        val lines = mutableListOf<MutableList<Placeable>>()
+        var line = mutableListOf<Placeable>()
+        var lineWidth = 0
+        for (p in measured) {
+            val needed = if (line.isEmpty()) p.width else lineWidth + hPx + p.width
+            if (line.isNotEmpty() && bounded && needed > maxWidth) {
+                // 当前行放不下 → 换行（p 成为新行首项，不能跳过）
+                lines.add(line)
+                line = mutableListOf()
+                lineWidth = 0
+            }
+            line.add(p)
+            lineWidth = if (line.size == 1) p.width else lineWidth + hPx + p.width
+        }
+        if (line.isNotEmpty()) lines.add(line)
+        // 整体尺寸 = 最宽行 x 总高
+        val naturalWidth = lines.maxOfOrNull { it.sumOf { pl -> pl.width } + (it.size - 1) * hPx } ?: 0
+        val width = if (bounded) naturalWidth.coerceAtMost(maxWidth) else naturalWidth
+        val height = lines.sumOf { it.maxOf { pl -> pl.height } } + (lines.size - 1) * vPx
+        layout(width.coerceAtLeast(constraints.minWidth), height.coerceAtLeast(constraints.minHeight)) {
+            var y = 0
+            for (l in lines) {
+                var x = 0
+                val lineHeight = l.maxOf { pl -> pl.height }
+                for (p in l) {
+                    p.placeRelative(x, y)
+                    x += p.width + hPx
+                }
+                y += lineHeight + vPx
+            }
+        }
+    }
+    Layout(
+        content = { content() },
+        measurePolicy = policy,
+        modifier = modifier
+    )
+}
+
+/**
+ * 耐受分区：状态色边框 + 淡色底的卡片，区内为对应状态的食物 tag；
+ * 拖动中手指悬停的分区高亮，区内 tag 实时重排，为被拖 tag 让出落点位置。
+ */
 @Composable
 private fun ToleranceSection(
     tolerance: FoodTolerance,
@@ -315,15 +495,22 @@ private fun ToleranceSection(
     onTagDelete: (String) -> Unit,
     onChipPositioned: (String, LayoutCoordinates) -> Unit,
     onSectionPositioned: (LayoutCoordinates) -> Unit,
-    onDragStart: (String, Offset) -> Unit,
-    onDrag: (String, Offset) -> Unit,
-    onDragEnd: (String, Offset) -> Unit
+    onDragStart: (String, Offset, PointerId) -> Unit
 ) {
     val color = toleranceColor(tolerance)
+    /**
+     * 本分区卡片的 LayoutCoordinates（实例稳定、位置就地更新）——
+     * tag 重排动画以它为参照系（分区整体移动时 chip 相对位置不变，不误触发动画）。
+     * 存实例而非坐标值：chip 在布局回调里直接读它的最新位置，不经过组合期状态。
+     */
+    val sectionCard = remember { mutableStateOf<LayoutCoordinates?>(null) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .onGloballyPositioned { onSectionPositioned(it) },
+            .onGloballyPositioned { coords ->
+                sectionCard.value = coords
+                onSectionPositioned(coords)
+            },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = color.copy(alpha = if (isDropTarget) 0.14f else 0.06f)
@@ -363,23 +550,24 @@ private fun ToleranceSection(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                TagFlowRow(
+                    hSpacing = 8.dp,
+                    vSpacing = 8.dp
                 ) {
                     tags.forEach { tag ->
-                        FoodTagChip(
-                            tag = tag,
-                            count = counts[tag.name] ?: 0,
-                            armed = armedName == tag.name,
-                            dragging = dragName == tag.name,
-                            onPositioned = { onChipPositioned(tag.name, it) },
-                            onTap = { onTagTap(tag.name) },
-                            onDelete = { onTagDelete(tag.name) },
-                            onDragStart = { onDragStart(tag.name, it) },
-                            onDrag = { onDrag(tag.name, it) },
-                            onDragEnd = { onDragEnd(tag.name, it) }
-                        )
+                        key(tag.name) {
+                            FoodTagChip(
+                                tag = tag,
+                                count = counts[tag.name] ?: 0,
+                                armed = armedName == tag.name,
+                                dragging = dragName == tag.name,
+                                sectionCard = sectionCard,
+                                onPositioned = { onChipPositioned(tag.name, it) },
+                                onTap = { onTagTap(tag.name) },
+                                onDelete = { onTagDelete(tag.name) },
+                                onDragStart = { pos, id -> onDragStart(tag.name, pos, id) }
+                            )
+                        }
                     }
                 }
             }
@@ -388,17 +576,187 @@ private fun ToleranceSection(
 }
 
 /**
- * 食物 tag 手势：轻点 = onTap（标记删除）；
- * 按住 400ms 且未移动超过触摸阈值 = 长按，进入拖动（位置为 tag 本地坐标）；
- * 长按前若手指移动超过阈值则不拦截（让 LazyColumn 滚动）；释放 = onDragEnd。
+ * 食物 tag：框色即状态；点名称右上角出现 X 角标（点 X 删除）；长按拖动换序/跨分区移动。
+ * 拖动中：本节点变为"落点预览槽"（虚线框）出现在预览位置，随其它 tag 一起重排，
+ * 真正的 tag 由根级 [DragOverlay] 悬浮绘制（避免被其他分区卡片遮挡）。
+ */
+@Composable
+private fun FoodTagChip(
+    tag: FoodTag,
+    count: Int,
+    armed: Boolean,
+    dragging: Boolean,
+    /** 本分区卡片的 LayoutCoordinates 持有者（实例稳定、位置就地更新）——重排动画的参照系 */
+    sectionCard: MutableState<LayoutCoordinates?>,
+    onPositioned: (LayoutCoordinates) -> Unit,
+    onTap: () -> Unit,
+    onDelete: () -> Unit,
+    onDragStart: (Offset, PointerId) -> Unit
+) {
+    val color = toleranceColor(FoodTolerance.fromValue(tag.tolerance))
+    val touchSlop = LocalViewConfiguration.current.touchSlop
+    val haptics = LocalHapticFeedback.current
+
+    // 重排动画：chip 在分区内的位置变化时（拖动让位/挤位），
+    // 从当前视觉位置平滑滑到新位置（graphicsLayer 偏移，不触发重新布局）。
+    //
+    // 两个关键设计（均对照 Compose 1.7 源码验证）：
+    // 1) 测量节点与动画节点分离：graphicsLayer 变化时框架会对该节点及其【后代】
+    //    重新派发 onGloballyPositioned（且 localToRoot 含祖先变换）——若在同一节点上
+    //    既动画又测位置，坐标会含动画偏移写回状态，每帧重启动画，形成自反馈震荡。
+    //    因此：本节点只测位置（onGloballyPositioned，无 graphicsLayer），
+    //    动画偏移放在【子】Box 的 graphicsLayer 上（该子节点无 positioned 回调）。
+    // 2) 动画在布局回调内【同步】启动（绘制前就位）：不会出现"先到新位置闪一帧
+    //    再滑回"的跳变；分区整体移动时相对位置不变，不误触发动画。
+    val positionAnim = remember { Animatable(Offset.Zero, Offset.VectorConverter) }
+    val animScope = rememberCoroutineScope()
+    val lastRel = remember { mutableStateOf<Offset?>(null) }
+    var animJob: Job? by remember { mutableStateOf(null) }
+
+    Box(
+        modifier = Modifier
+            .onGloballyPositioned { coords ->
+                val root = coords.localToRoot(Offset.Zero)
+                onPositioned(coords)
+                sectionCard.value?.let { card ->
+                    val rel = root - card.localToRoot(Offset.Zero)
+                    lastRel.value?.let { prev ->
+                        if (prev != rel) {
+                            // 新动画起点 = 当前视觉位置（上次布局位置 + 进行中的偏移）；
+                            // 同步写入（绘制前就位，无跳帧），再启动滑向新位置的弹簧动画
+                            animJob?.cancel()
+                            animJob = animScope.launch {
+                                positionAnim.snapTo(prev + positionAnim.value - rel)
+                                val r = positionAnim.animateTo(
+                                    Offset.Zero,
+                                    spring(dampingRatio = 0.85f, stiffness = Spring.StiffnessMedium)
+                                )
+                            }
+                        }
+                    }
+                    lastRel.value = rel
+                }
+            }
+            .foodTagGesture(
+                key = tag.name,
+                touchSlop = touchSlop,
+                onTap = onTap,
+                onDragStart = { downPos, id ->
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onDragStart(downPos, id)
+                }
+            )
+    ) {
+        Box(
+            modifier = Modifier
+                .graphicsLayer {
+                    translationX = positionAnim.value.x
+                    translationY = positionAnim.value.y
+                }
+        ) {
+            FoodTagChipVisual(
+                name = tag.name,
+                count = count,
+                color = color,
+                placeholder = dragging,
+                modifier = Modifier
+            )
+            // 右上角 X 角标（待删除状态）
+            if (armed) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 2.dp, y = (-4).dp)
+                        .size(16.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.error)
+                        .border(1.dp, MaterialTheme.colorScheme.surface)
+                        .clickable(onClick = onDelete),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = stringResource(R.string.common_delete),
+                        modifier = Modifier.size(10.dp),
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 食物 tag 视觉（药丸 + 名称 + 计数）；列表与拖动悬浮层共用。
+ * placeholder=true 时渲染为"落点预览槽"（淡底 + 虚线框），标示拖动将落入的位置。
+ */
+@Composable
+private fun FoodTagChipVisual(
+    name: String,
+    count: Int,
+    color: Color,
+    modifier: Modifier = Modifier,
+    placeholder: Boolean = false
+) {
+    val shape = RoundedCornerShape(50.dp)
+    Row(
+        modifier = modifier
+            .clip(shape)
+            .then(
+                if (placeholder) {
+                    // 落点预览槽：淡底色 + 虚线边框
+                    Modifier.drawWithContent {
+                        val radius = size.minDimension / 2f
+                        val pill = Path().apply {
+                            addRoundRect(RoundRect(0f, 0f, size.width, size.height, radius, radius))
+                        }
+                        drawPath(pill, color = color.copy(alpha = 0.10f))
+                        drawContent()
+                        drawPath(
+                            path = pill,
+                            color = color.copy(alpha = 0.8f),
+                            style = Stroke(
+                                width = 2.dp.toPx(),
+                                cap = StrokeCap.Round,
+                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 7f), 0f)
+                            )
+                        )
+                    }
+                } else {
+                    Modifier
+                        .border(1.5.dp, color, shape)
+                        .background(MaterialTheme.colorScheme.surface)
+                }
+            )
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = name, style = MaterialTheme.typography.bodyMedium)
+        if (count > 0) {
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "·$count",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+/**
+ * 食物 tag 手势：
+ *  - 轻点 = onTap（标记删除）；
+ *  - 按住 400ms 且未移动超过触摸阈值 = 长按，进入拖动
+ *    （回调 tag 本地坐标下的手指位置 + 该指针的 PointerId）；
+ *  - 长按前若手指移动超过阈值则不拦截（让页面垂直滚动）。
+ * 拖动开始后的手指跟踪由根级 pointerInput 接管（见 [ToleranceScreen]），
+ * 因此本手势在长按确认后即退出，被拖 tag 节点可自由重排。
  */
 private fun Modifier.foodTagGesture(
     key: Any,
     touchSlop: Float,
     onTap: () -> Unit,
-    onDragStart: (Offset) -> Unit,
-    onDrag: (Offset) -> Unit,
-    onDragEnd: (Offset) -> Unit
+    onDragStart: (Offset, PointerId) -> Unit
 ) = pointerInput(key) {
     awaitPointerEventScope {
         while (true) {
@@ -437,7 +795,7 @@ private fun Modifier.foodTagGesture(
                     continue
                 }
                 "scroll" -> {
-                    // 不消费事件：列表滚动由 LazyColumn 处理，只等待手指抬起
+                    // 不消费事件：滚动由 verticalScroll 处理，只等待手指抬起
                     while (true) {
                         val ev = awaitPointerEvent()
                         val c = ev.changes.firstOrNull { it.id == id } ?: break
@@ -446,114 +804,8 @@ private fun Modifier.foodTagGesture(
                     continue
                 }
                 else -> {
-                    onDragStart(lastPos)
-                    while (true) {
-                        val ev = awaitPointerEvent()
-                        val c = ev.changes.firstOrNull { it.id == id } ?: break
-                        if (!c.pressed) {
-                            c.consume()
-                            onDragEnd(c.position)
-                            break
-                        }
-                        c.consume()
-                        onDrag(c.position)
-                    }
+                    onDragStart(lastPos, id)
                 }
-            }
-        }
-    }
-}
-
-/** 食物 tag 视觉（药丸 + 名称 + 计数）；列表与拖动悬浮层共用 */
-@Composable
-private fun FoodTagChipVisual(
-    name: String,
-    count: Int,
-    color: Color,
-    modifier: Modifier = Modifier
-) {
-    val shape = RoundedCornerShape(50.dp)
-    Row(
-        modifier = modifier
-            .clip(shape)
-            .border(1.5.dp, color, shape)
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = name, style = MaterialTheme.typography.bodyMedium)
-        if (count > 0) {
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = "·$count",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-/**
- * 食物 tag：框色即状态；点名称右上角出现 X 角标（点 X 删除）；长按拖动换序/跨分区移动。
- * 拖动中：原位保留半透明占位，真正的 tag 由根级 [DragOverlay] 悬浮绘制（避免被其他分区卡片遮挡）。
- */
-@Composable
-private fun FoodTagChip(
-    tag: FoodTag,
-    count: Int,
-    armed: Boolean,
-    dragging: Boolean,
-    onPositioned: (LayoutCoordinates) -> Unit,
-    onTap: () -> Unit,
-    onDelete: () -> Unit,
-    onDragStart: (Offset) -> Unit,
-    onDrag: (Offset) -> Unit,
-    onDragEnd: (Offset) -> Unit
-) {
-    val color = toleranceColor(FoodTolerance.fromValue(tag.tolerance))
-    val touchSlop = LocalViewConfiguration.current.touchSlop
-    val haptics = LocalHapticFeedback.current
-
-    Box {
-        FoodTagChipVisual(
-            name = tag.name,
-            count = count,
-            color = color,
-            modifier = Modifier
-                // 拖动中：原位半透明占位（真实 tag 在根级悬浮层绘制）
-                .graphicsLayer { if (dragging) alpha = 0.35f }
-                .onGloballyPositioned(onPositioned)
-                .foodTagGesture(
-                    key = tag.name,
-                    touchSlop = touchSlop,
-                    onTap = onTap,
-                    onDragStart = {
-                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onDragStart(it)
-                    },
-                    onDrag = onDrag,
-                    onDragEnd = onDragEnd
-                )
-        )
-        // 右上角 X 角标（待删除状态）
-        if (armed) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(x = 2.dp, y = (-4).dp)
-                    .size(16.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.error)
-                    .border(1.dp, MaterialTheme.colorScheme.surface)
-                    .clickable(onClick = onDelete),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = stringResource(R.string.common_delete),
-                    modifier = Modifier.size(10.dp),
-                    tint = Color.White
-                )
             }
         }
     }
@@ -561,10 +813,10 @@ private fun FoodTagChip(
 
 /**
  * 拖动悬浮层：拖动 tag 时，把它绘制在所有分区之上（跟随手指）。
- * 整层 fillMaxSize 但不带任何指针处理器，不会拦截触摸（原 tag 的手势仍在持有拖动）。
+ * 整层 fillMaxSize 但不带任何指针处理器，不会拦截触摸（手指跟踪由根级 pointerInput 负责）。
  */
 @Composable
-private fun DragOverlay(dragInfo: DragInfo?, chipRects: Map<String, Rect>) {
+private fun DragOverlay(dragInfo: DragInfo?) {
     var overlayCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
     Box(
         modifier = Modifier
