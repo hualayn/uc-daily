@@ -1,0 +1,1221 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>溃结日常记录 · UI 调整示意图</title>
+<style>
+/* ============ 设计令牌 ============ */
+:root{
+  --bg:#F4F7FB;          --surface:#FFFFFF;      --surface2:#EDF1F7;
+  --text:#1B2437;        --text2:#66748C;        --ring:#D9E1EC;
+  --primary:#2563EB;     --primary-deep:#1D4ED8; --primary-soft:#E4EDFF; --primary-text:#1E40AF;
+  --green:#16A34A;       --green-soft:#E3F5EA;   --green-text:#15803D;
+  --amber:#D97706;       --amber-soft:#FCEFDC;   --amber-text:#B45309;
+  --red:#DC2626;         --red-soft:#FDE9E9;     --red-text:#B91C1C;
+  --blue-soft:#E4EDFF;   --blue-text:#1D4ED8;
+  --purple:#7C3AED;      --purple-soft:#F0EAFE;  --purple-text:#6D28D9;
+  --grad-hero:linear-gradient(135deg,#4C8DFF 0%,#2563EB 55%,#1E4FD8 100%);
+  --grad-btn:linear-gradient(135deg,#3B82F6,#2563EB);
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 6px 16px rgba(16,24,40,.06);
+  --shadow-lg:0 2px 6px rgba(16,24,40,.08),0 16px 40px rgba(16,24,40,.14);
+}
+html[data-theme="dark"]{
+  --bg:#0E1420;          --surface:#1A2334;      --surface2:#232E44;
+  --text:#E9EEF8;        --text2:#93A2BC;        --ring:#2C3A55;
+  --primary:#5B9BFF;     --primary-deep:#7FB0FF; --primary-soft:#1D2C49; --primary-text:#9CC2FF;
+  --green:#34D399;       --green-soft:#132B21;   --green-text:#5EE0A8;
+  --amber:#FBBF24;       --amber-soft:#2E2410;   --amber-text:#FCD34D;
+  --red:#F87171;         --red-soft:#301518;     --red-text:#FCA5A5;
+  --blue-soft:#1D2C49;   --blue-text:#8AB6FF;
+  --purple:#A78BFA;      --purple-soft:#241A36;  --purple-text:#C4B0FB;
+  --grad-hero:linear-gradient(135deg,#2C55C4 0%,#1B3A99 55%,#142C74 100%);
+  --grad-btn:linear-gradient(135deg,#3B82F6,#2563EB);
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 16px rgba(0,0,0,.4);
+  --shadow-lg:0 2px 6px rgba(0,0,0,.45),0 16px 40px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:linear-gradient(180deg,#E9EEF6,#F7F9FC);color:var(--text);padding:28px 24px 60px}
+html[data-theme="dark"] body{background:linear-gradient(180deg,#0A0F19,#101828)}
+
+/* ============ 页头 ============ */
+.page-head{max-width:1560px;margin:0 auto 22px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.page-head h1{font-size:24px;letter-spacing:.5px}
+.page-head h1 span{background:var(--grad-btn);-webkit-background-clip:text;background-clip:text;color:transparent}
+.page-head p{color:var(--text2);font-size:13px;margin-top:6px}
+#themeToggle{border:1px solid var(--ring);background:var(--surface);color:var(--text);border-radius:999px;
+  padding:9px 16px;font-size:13px;cursor:pointer;box-shadow:var(--shadow)}
+#themeToggle:hover{border-color:var(--primary)}
+
+/* ============ 设计规范区 ============ */
+.spec{max-width:1560px;margin:0 auto 30px;background:var(--surface);border:1px solid var(--ring);
+  border-radius:20px;padding:22px 24px;box-shadow:var(--shadow)}
+.spec h2,.screens h2{font-size:17px;margin-bottom:14px}
+.spec-grid{display:grid;grid-template-columns:1.15fr 1fr 1.25fr;gap:22px}
+.spec h3{font-size:12px;color:var(--text2);font-weight:600;margin-bottom:10px;letter-spacing:1px}
+.swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sw{border-radius:10px;padding:8px 6px;font-size:10.5px;line-height:1.5;border:1px solid var(--ring)}
+.sw b{display:block;font-size:11px}
+.chips-demo,.comps{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chips-demo .c,.comps .c{border-radius:999px;padding:6px 12px;font-size:12px;border:1px solid var(--ring);background:var(--surface2)}
+ul.changes{list-style:none;font-size:12.5px;line-height:2;color:var(--text)}
+ul.changes li::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--grad-btn);margin-right:8px;vertical-align:2px}
+
+/* ============ 屏幕画廊 ============ */
+.screens{max-width:1560px;margin:0 auto}
+.screens h2{margin-bottom:14px}
+.fig-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:26px}
+figure.fig{text-align:center}
+figcaption{font-size:14px;font-weight:700;margin-top:12px}
+figure .note{font-size:12px;color:var(--text2);margin:5px auto 0;max-width:320px;line-height:1.6;text-align:left}
+
+/* ============ 手机框 ============ */
+.phone{width:330px;height:700px;margin:0 auto;border-radius:40px;padding:9px;position:relative;
+  background:#10151F;box-shadow:var(--shadow-lg)}
+html[data-theme="dark"] .phone{background:#05080F}
+.screen{position:relative;width:100%;height:100%;border-radius:32px;overflow:hidden;background:var(--bg)}
+.statusbar{height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:11px;font-weight:600;color:var(--text)}
+.statusbar .r{display:flex;gap:4px;align-items:center;font-size:10px}
+.content{position:absolute;top:30px;left:0;right:0;bottom:0;overflow:hidden;display:flex;flex-direction:column}
+.pad{padding:10px 14px 14px;overflow-y:auto;scrollbar-width:none}
+.pad::-webkit-scrollbar{display:none}
+
+/* 顶部栏（二级页） */
+.topbar{display:flex;align-items:center;gap:2px;padding:4px 6px 8px 2px}
+.topbar .bk{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:var(--text);background:var(--surface);box-shadow:var(--shadow)}
+.topbar b{font-size:17px;margin-left:4px}
+.topbar .count{margin-left:auto;font-size:11px;color:var(--text2);background:var(--surface);border-radius:999px;padding:3px 10px;box-shadow:var(--shadow)}
+
+/* ============ 通用组件 ============ */
+.card{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);padding:12px}
+.row{display:flex;align-items:center}
+.sp{flex:1}
+.mut{color:var(--text2)}
+.small{font-size:11px}
+.tiny{font-size:10px}
+.bold{font-weight:700}
+.grad{background:var(--grad-btn)}
+.iconbtn{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.18);color:#fff;font-size:15px;position:relative;backdrop-filter:blur(4px)}
+.iconbtn.ghost{background:transparent;color:var(--text2)}
+.badge{background:var(--primary-soft);color:var(--primary-text);border-radius:999px;font-size:10px;
+  font-weight:700;padding:2px 8px}
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:46px;border-radius:14px;
+  font-size:15px;font-weight:700;border:none;cursor:pointer}
+.btn.pri{background:var(--grad-btn);color:#fff;box-shadow:0 6px 14px rgba(37,99,235,.35)}
+.btn.out{background:var(--surface);color:var(--text);border:1px solid var(--ring);box-shadow:var(--shadow)}
+.btn.txt{background:transparent;color:var(--primary);height:auto;padding:8px}
+.chip{border-radius:999px;padding:5px 12px;font-size:12px;border:1px solid var(--ring);background:var(--surface);color:var(--text2)}
+.chip.sel{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:700}
+.field{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:10px 12px;
+  font-size:12.5px;color:var(--text2);min-height:38px}
+.field.tall{min-height:84px;line-height:1.7}
+.seclab{font-size:12px;font-weight:600;color:var(--text2);margin:14px 0 8px}
+
+/* ============ 底部导航 ============ */
+.nav{margin-top:auto;background:var(--surface);border-radius:24px 24px 0 0;box-shadow:0 -4px 16px rgba(16,24,40,.08);
+  display:flex;padding:8px 10px calc(10px);position:relative}
+.nav .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--text2);padding:4px 0}
+.nav .ni .ico{font-size:16px;line-height:1}
+.nav .ni.on{color:var(--primary);font-weight:700}
+.nav .ni.on .pill{background:var(--primary-soft);color:var(--primary-text);border-radius:999px;padding:1px 10px;font-size:10px}
+.fab{position:absolute;left:50%;top:-24px;transform:translateX(-50%);width:54px;height:54px;border-radius:50%;
+  background:var(--grad-btn);color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 18px rgba(37,99,235,.45);border:4px solid var(--bg)}
+
+/* ============ 首页 Hero ============ */
+.hero{background:var(--grad-hero);border-radius:20px;padding:14px;display:flex;align-items:center;gap:12px;color:#fff;
+  box-shadow:0 8px 20px rgba(37,99,235,.3)}
+.hero .av{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;
+  justify-content:center;font-size:22px;flex:none;border:2px solid rgba(255,255,255,.45)}
+.hero h3{font-size:16px}
+.hero p{font-size:11.5px;opacity:.85;margin-top:3px;line-height:1.5}
+.hero .acts{display:flex;gap:8px}
+.hero .dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#FF5A5A;border:1.5px solid #fff}
+
+/* 日历 */
+.cal-head{display:flex;align-items:center;justify-content:space-between;padding:2px 2px 8px}
+.cal-head .arr{width:26px;height:26px;border-radius:50%;background:var(--primary-soft);color:var(--primary-text);
+  display:flex;align-items:center;justify-content:center;font-size:13px}
+.cal-head .mid{text-align:center}
+.cal-head .mid b{font-size:15px}
+.cal-head .mid b i{font-style:normal;color:var(--primary);margin-left:6px;font-size:13px}
+.cal-head .mid p{font-size:10px;color:var(--text2);margin-top:1px}
+.wk{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:10px;color:var(--text2);margin-bottom:4px}
+.wk span.on{color:var(--primary);font-weight:800}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px 0;text-align:center}
+.day{display:flex;flex-direction:column;align-items:center;gap:3px;padding:3px 0}
+.day .d{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text)}
+.day .d.sel{background:var(--grad-btn);color:#fff;font-weight:800;box-shadow:0 4px 10px rgba(37,99,235,.4)}
+.day .d.today{border:1.5px solid var(--primary);color:var(--primary);font-weight:700}
+.day .d.dim{opacity:.32}
+.day .pt{width:5px;height:5px;border-radius:50%;background:transparent}
+.pt.g{background:var(--green)}.pt.a{background:var(--amber)}.pt.o{background:#F97316}.pt.r{background:var(--red)}
+.cal-hint{text-align:center;font-size:9.5px;color:var(--text2);padding:6px 0 0}
+
+/* 统计卡 */
+.stats{display:flex;gap:8px;margin-top:10px}
+.stat{flex:1;border-radius:14px;padding:9px 4px;text-align:center;border:1.5px solid transparent}
+.stat .e{width:24px;height:24px;margin:0 auto 3px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.stat b{display:block;font-size:15px}
+.stat span{font-size:10px;color:var(--text2)}
+.stat.meal{background:var(--green-soft)}.stat.meal b{color:var(--green-text)}.stat.meal .e{background:var(--green);color:#fff}
+.stat.bowel{background:var(--amber-soft)}.stat.bowel b{color:var(--amber-text)}.stat.bowel .e{background:var(--amber);color:#fff}
+.stat.med{background:var(--blue-soft)}.stat.med b{color:var(--blue-text)}.stat.med .e{background:var(--primary);color:#fff}
+.stat.on{border-color:currentColor}
+.stat.meal.on{border-color:var(--green)}
+
+/* 记录卡（左侧色条） */
+.sec-head{display:flex;align-items:center;gap:8px;margin:14px 2px 8px}
+.sec-head b{font-size:14px}
+.rec{position:relative;background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:10px 12px 10px 16px;margin-bottom:8px;overflow:hidden}
+.rec::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:4px}
+.rec.meal::before{background:var(--green)}.rec.bowel::before{background:var(--amber)}.rec.med::before{background:var(--primary)}.rec.note::before{background:var(--purple)}
+.rec.sel{outline:2px solid var(--primary);outline-offset:-1px}
+.rec-head{display:flex;align-items:center;gap:6px;font-size:11px}
+.rec-head .t{color:var(--text2);margin-left:2px}
+.rec-head .ico{width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.rec.meal .ico{background:var(--green-soft)}.rec.bowel .ico{background:var(--amber-soft)}.rec.med .ico{background:var(--blue-soft)}.rec.note .ico{background:var(--purple-soft)}
+.rec-head .ops{margin-left:auto;display:flex;gap:2px}
+.rec-head .op{width:24px;height:24px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text2)}
+.rec p{font-size:12.5px;margin-top:6px;line-height:1.55}
+.rec .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.tag{font-size:10.5px;border-radius:8px;padding:2.5px 8px;border:1px solid}
+.tag.g{color:var(--green-text);border-color:var(--green);background:var(--green-soft)}
+.tag.a{color:var(--amber-text);border-color:var(--amber);background:var(--amber-soft)}
+.tag.r{color:var(--red-text);border-color:var(--red);background:var(--red-soft)}
+.tag.n{color:var(--text2);border-color:var(--ring);background:var(--surface2)}
+.photos{display:flex;gap:6px;margin-top:8px}
+.photo{width:74px;height:52px;border-radius:10px;background:linear-gradient(135deg,#D7E2F0,#B9CCE0);
+  display:flex;align-items:center;justify-content:center;font-size:20px;position:relative}
+html[data-theme="dark"] .photo{background:linear-gradient(135deg,#2A3A55,#1E2C45)}
+.photo .n{position:absolute;right:4px;bottom:4px;background:rgba(0,0,0,.5);color:#fff;font-size:9px;border-radius:8px;padding:0 5px}
+.act-badge{font-size:10px;font-weight:700;border-radius:8px;padding:2.5px 8px}
+.act-badge.a{color:var(--amber-text);background:var(--amber-soft)}
+.act-badge.g{color:var(--green-text);background:var(--green-soft)}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text2);font-size:12px;gap:6px;padding:30px 0}
+.empty .e{font-size:30px}
+
+/* 快捷添加浮层 */
+.overlay{position:absolute;inset:0;background:rgba(10,16,30,.55);display:flex;align-items:center;justify-content:center;z-index:5}
+.qa{width:82%;background:var(--surface);border-radius:24px;padding:18px 16px 16px;box-shadow:var(--shadow-lg)}
+.qa h3{font-size:15px;text-align:center;margin-bottom:14px}
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qa-t{border-radius:16px;padding:14px 6px;text-align:center;font-size:12px;font-weight:600}
+.qa-t .e{font-size:24px;display:block;margin-bottom:6px}
+.qa-t.meal{background:var(--green-soft);color:var(--green-text)}
+.qa-t.bowel{background:var(--amber-soft);color:var(--amber-text)}
+.qa-t.med{background:var(--blue-soft);color:var(--blue-text)}
+.qa-t.note{background:var(--purple-soft);color:var(--purple-text)}
+
+/* 耐受页 */
+.hdr{padding:6px 2px 10px}
+.hdr h2{font-size:18px;display:flex;align-items:center;gap:6px}
+.hdr p{font-size:11.5px;color:var(--text2);margin-top:4px;line-height:1.6}
+.hdr .div{height:1px;background:var(--ring);margin-top:12px}
+.note-card{border:1px solid var(--amber);background:var(--amber-soft);border-radius:14px;padding:10px 12px;
+  display:flex;align-items:center;gap:8px;font-size:12px;color:var(--amber-text);font-weight:600;margin-bottom:10px}
+.tsec{border-radius:16px;padding:10px 12px;margin-bottom:10px;border:1px solid}
+.tsec.ok{background:var(--green-soft);border-color:var(--green)}
+.tsec.bad{background:var(--red-soft);border-color:var(--red)}
+.tsec.try{background:var(--amber-soft);border-color:var(--amber)}
+.tsec .tsec-h{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;margin-bottom:8px}
+.tsec .tsec-h i{width:8px;height:8px;border-radius:50%}
+.tsec.ok .tsec-h{color:var(--green-text)}.tsec.ok .tsec-h i{background:var(--green)}
+.tsec.bad .tsec-h{color:var(--red-text)}.tsec.bad .tsec-h i{background:var(--red)}
+.tsec.try .tsec-h{color:var(--amber-text)}.tsec.try .tsec-h i{background:var(--amber)}
+.tsec .tsec-h .cnt{font-weight:400;color:var(--text2);font-size:10.5px}
+.tflow{display:flex;flex-wrap:wrap;gap:7px}
+.tchip{position:relative;border-radius:12px;padding:5px 11px;font-size:12px;font-weight:600;background:var(--surface);border:1.5px solid;box-shadow:0 1px 3px rgba(16,24,40,.08)}
+.tchip.g{border-color:var(--green);color:var(--green-text)}
+.tchip.r{border-color:var(--red);color:var(--red-text)}
+.tchip.a{border-color:var(--amber);color:var(--amber-text)}
+.tchip .x{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;
+  font-size:9px;display:flex;align-items:center;justify-content:center;border:2px solid var(--surface)}
+.tchip .cnt{font-size:9.5px;opacity:.6;margin-left:3px}
+.tchip.drag{transform:rotate(3deg) scale(1.06);box-shadow:var(--shadow-lg)}
+.slot{border:1.5px dashed var(--amber);border-radius:12px;padding:5px 11px;font-size:12px;color:var(--amber-text);opacity:.8}
+.drag-hint{font-size:10.5px;color:var(--text2);text-align:left;padding:2px 4px 8px}
+
+/* 手风琴 */
+.acc{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);border:1px solid var(--ring);margin-bottom:10px;overflow:hidden}
+.acc.open{border-color:var(--primary);box-shadow:0 8px 20px rgba(37,99,235,.12)}
+.acc-h{display:flex;align-items:center;gap:10px;padding:13px 14px}
+.acc-h .e{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--primary-soft);flex:none}
+.acc-h b{font-size:13.5px;flex:1}
+.acc-h .chev{color:var(--text2);font-size:13px;transition:transform .2s}
+.acc.open .chev{transform:rotate(180deg);color:var(--primary)}
+.acc-b{padding:0 14px 14px;border-top:1px solid var(--ring);margin:0 0}
+.acc.open .acc-b{display:block}
+.acc:not(.open) .acc-b{display:none}
+.h4{font-size:12px;font-weight:700;color:var(--primary-text);margin:12px 0 6px}
+.bl{display:flex;gap:8px;font-size:12px;line-height:1.7;color:var(--text)}
+.bl::before{content:"•";color:var(--primary);font-weight:800}
+.body-p{font-size:12px;line-height:1.75;margin-bottom:8px}
+.hlbox{background:var(--primary-soft);border-left:4px solid var(--primary);border-radius:0 12px 12px 0;
+  padding:10px 12px;font-size:12px;line-height:1.7;margin:10px 0}
+.foot-note{text-align:center;font-size:10.5px;color:var(--text2);line-height:1.7;padding:10px 8px 4px}
+.div-line{height:1px;background:var(--ring);margin:2px 0 12px}
+.uc-pill{background:var(--primary-soft);color:var(--primary-text);font-size:10px;font-weight:800;border-radius:999px;padding:2px 9px}
+
+/* 我的页 */
+.me-hero{background:var(--grad-hero);border-radius:20px;padding:20px 16px 16px;color:#fff;display:flex;align-items:center;gap:13px;
+  box-shadow:0 8px 20px rgba(37,99,235,.3)}
+.me-hero .av{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.22);border:2.5px solid rgba(255,255,255,.5);
+  display:flex;align-items:center;justify-content:center;font-size:28px;flex:none}
+.me-hero h3{font-size:17px;display:flex;align-items:center;gap:7px}
+.me-hero h3 .pen{font-size:12px;opacity:.85}
+.me-hero p{font-size:11px;opacity:.85;margin-top:4px}
+.menu{margin-top:12px}
+.mrow{display:flex;align-items:center;gap:11px;padding:11px 8px}
+.mrow+.mrow{border-top:1px solid var(--surface2)}
+.mrow .mi{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none}
+.mi.g{background:var(--green-soft)}.mi.a{background:var(--amber-soft)}.mi.b{background:var(--blue-soft)}.mi.p{background:var(--purple-soft)}.mi.n{background:var(--surface2)}
+.mrow .mt{flex:1;font-size:13px}
+.mrow .mt p{font-size:10px;color:var(--text2);margin-top:1px}
+.mrow .mv{font-size:11px;color:var(--text2)}
+.mrow .chev{color:var(--ring);font-size:14px}
+
+/* 统计页 */
+.ov{background:var(--grad-hero);border-radius:20px;padding:16px;color:#fff;display:flex;box-shadow:0 8px 20px rgba(37,99,235,.3)}
+.ov .half{flex:1;text-align:center}
+.ov b{font-size:26px;display:block}
+.ov span{font-size:11px;opacity:.85}
+.ov .sep{width:1px;background:rgba(255,255,255,.25);margin:4px 0}
+.ov-sub{font-size:10.5px;opacity:.8;text-align:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.2)}
+.t2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.t2 .t{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:12px;position:relative}
+.t2 .t .e{font-size:15px}
+.t2 .t b{display:block;font-size:18px;margin-top:5px}
+.t2 .t span{font-size:10.5px;color:var(--text2)}
+.t2 .t .go{position:absolute;right:10px;top:12px;color:var(--ring);font-size:12px}
+.barrow{display:flex;align-items:center;gap:8px;padding:3.5px 0;font-size:11px;color:var(--text2)}
+.barrow .lbl{width:64px;flex:none}
+.barrow .tr{flex:1;height:8px;border-radius:6px;background:var(--surface2);overflow:hidden}
+.barrow .tr i{display:block;height:100%;border-radius:6px;background:var(--grad-btn)}
+.barrow .v{width:18px;text-align:right;color:var(--text);font-weight:600}
+.symchips{display:flex;gap:6px;margin-top:10px}
+.symchips .s{flex:1;background:var(--surface2);border-radius:10px;text-align:center;padding:7px 2px}
+.symchips .s b{display:block;font-size:12px}
+.symchips .s span{font-size:9.5px;color:var(--text2)}
+.actrow{display:flex;margin-top:12px}
+.actrow .a{flex:1;text-align:center}
+.actrow .a i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.actrow .a span{display:block;font-size:9.5px;color:var(--text2);margin-top:3px}
+.actrow .a b{font-size:12px}
+
+/* 记录汇总列表 */
+.lvl{display:flex;gap:8px;margin-bottom:10px}
+.yr-h{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;padding:8px 4px}
+.yr-h .chev{margin-left:auto;font-size:12px;color:var(--text2)}
+.mo-h{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;padding:7px 4px;color:var(--text2)}
+.mo-h .chev{margin-left:auto;font-size:12px}
+.dh{font-size:11px;font-weight:700;color:var(--text2);padding:8px 4px 5px;border-top:1px dashed var(--ring)}
+.lr{display:flex;align-items:center;gap:9px;background:var(--surface);border-radius:13px;box-shadow:var(--shadow);padding:9px 11px;margin-bottom:7px;position:relative;padding-left:15px}
+.lr::before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:4px;border-radius:4px;background:var(--green)}
+.lr .tm{font-size:10.5px;color:var(--text2);width:36px;flex:none}
+.lr .mt2{flex:1;font-size:12px}
+.lr .mt2 p{font-size:10px;color:var(--text2);margin-top:1px}
+
+/* 服药设置 */
+.medcard{background:var(--grad-hero);border-radius:18px;padding:14px;color:#fff;display:flex;align-items:center;box-shadow:0 8px 18px rgba(37,99,235,.3)}
+.medcard .tx{flex:1}
+.medcard b{font-size:14px}
+.medcard p{font-size:10.5px;opacity:.85;margin-top:3px}
+.stepper{display:flex;align-items:center;gap:12px}
+.stepper .sb{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.22);color:#fff;font-size:17px;display:flex;align-items:center;justify-content:center;border:none}
+.stepper b{font-size:17px;min-width:44px;text-align:center}
+.times{margin-top:12px}
+.trow{display:flex;align-items:center;gap:11px;padding:12px 6px}
+.trow+.trow{border-top:1px solid var(--surface2)}
+.trow .mi{background:var(--primary-soft);color:var(--primary-text)}
+.trow b{flex:1;font-size:13px;font-weight:600}
+.trow .tm2{font-size:15px;font-weight:800;color:var(--primary-text)}
+.trow .chev{color:var(--ring)}
+.foot-note.l{text-align:left}
+
+/* 寄语页 */
+.srow{display:flex;align-items:center;gap:9px;padding:10px 6px}
+.srow+.srow{border-top:1px solid var(--surface2)}
+.srow .no{width:20px;height:20px;border-radius:50%;background:var(--surface2);color:var(--text2);font-size:10px;
+  display:flex;align-items:center;justify-content:center;flex:none}
+.srow .tx{flex:1;font-size:12.5px}
+.srow .ops{display:flex;gap:2px}
+.srow .op{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text2);background:var(--surface2)}
+.srow .op.del{color:var(--red)}
+
+/* 底部表单面板（sheet） */
+.sheet{position:absolute;left:0;right:0;bottom:0;top:120px;background:var(--surface);border-radius:26px 26px 0 0;
+  box-shadow:0 -10px 40px rgba(10,16,30,.25);display:flex;flex-direction:column;z-index:4}
+.sheet .grip{width:38px;height:4px;border-radius:4px;background:var(--ring);margin:8px auto 0}
+.sheet-h{display:flex;align-items:center;padding:10px 16px 4px}
+.sheet-h h3{font-size:16px}
+.sheet-h .sub{font-size:10.5px;color:var(--text2);margin-left:8px}
+.sheet-h .x{margin-left:auto;width:28px;height:28px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:12px}
+.sheet-b{flex:1;overflow-y:auto;scrollbar-width:none;padding:0 16px}
+.sheet-b::-webkit-scrollbar{display:none}
+.sheet-f{padding:10px 16px 16px}
+.time-row{display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--ring);border-radius:13px;padding:9px 12px}
+.time-row b{font-size:14px}
+.time-row .sp{flex:1}
+.time-row span{font-size:10px;color:var(--text2)}
+.seg{display:flex;background:var(--surface2);border-radius:13px;padding:3px;gap:3px}
+.seg .s{flex:1;text-align:center;font-size:12px;padding:7px 0;border-radius:10px;color:var(--text2)}
+.seg .s.on{background:var(--surface);color:var(--primary-text);font-weight:800;box-shadow:var(--shadow)}
+.addfood{display:flex;gap:8px}
+.addfood .field{flex:1}
+.addfood .selbox{flex:none;width:92px}
+.pgrid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px}
+.pgrid .ph{width:76px;height:76px;border-radius:14px;background:linear-gradient(135deg,#D7E2F0,#B9CCE0);
+  display:flex;align-items:center;justify-content:center;font-size:26px;position:relative}
+html[data-theme="dark"] .pgrid .ph{background:linear-gradient(135deg,#2A3A55,#1E2C45)}
+.pgrid .ph .x{position:absolute;top:5px;right:5px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center}
+.pgrid .add{border:1.5px dashed var(--ring);color:var(--text2);font-size:22px}
+.two-btns{display:flex;gap:9px}
+.two-btns .btn{height:40px;font-size:13px}
+.slider{display:flex;align-items:center;gap:10px}
+.slider .track{flex:1;height:6px;border-radius:6px;background:var(--surface2);position:relative}
+.slider .track i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--grad-btn);width:30%}
+.slider .track b{position:absolute;left:30%;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 5px rgba(16,24,40,.35);border:2.5px solid var(--primary)}
+.slider .val{font-size:14px;font-weight:800;width:34px;text-align:right}
+.stepper2{display:flex;align-items:center;gap:16px}
+.stepper2 .sb{width:38px;height:38px;border-radius:12px;background:var(--surface2);font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--text)}
+.stepper2 b{flex:1;text-align:center;font-size:19px}
+.dim-bg .ghost{position:absolute;border-radius:16px;background:var(--surface);opacity:.5}
+.act-preview{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.act-preview .hint{font-size:10px;color:var(--text2)}
+
+/* 对话框 */
+.dlg{position:absolute;left:24px;right:24px;top:50%;transform:translateY(-50%);background:var(--surface);
+  border-radius:22px;box-shadow:var(--shadow-lg);padding:18px 16px 14px;z-index:6}
+.di{width:44px;height:44px;border-radius:14px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.btn.danger{background:var(--red-soft);color:var(--red-text)}
+.dlg h4{text-align:center;font-size:15px}
+.dlg p{text-align:center;font-size:12px;color:var(--text2);margin:8px 0 14px;line-height:1.7}
+.dlg .acts{display:flex;gap:10px}
+.dlg .acts .btn{height:40px;font-size:13px}
+.dlg .acts .danger{background:var(--red-soft);color:var(--red-text)}
+.stack{display:flex;flex-direction:column;gap:18px;justify-content:center;height:100%}
+.mini-dlg{background:var(--surface);border-radius:20px;box-shadow:var(--shadow-lg);padding:16px}
+.mini-dlg h4{font-size:14px;text-align:center}
+.mini-dlg p{font-size:11.5px;color:var(--text2);margin:8px 0 12px;text-align:center;line-height:1.6}
+.mini-dlg .acts{display:flex;gap:9px}
+.mini-dlg .acts .btn{height:38px;font-size:12.5px}
+
+/* 导出对话框 */
+.xrow{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+.xdate{background:var(--primary-soft);color:var(--primary-text);font-weight:800;border-radius:10px;padding:8px 12px;font-size:12.5px}
+.xsel{flex:1;text-align:center;font-size:11.5px;padding:7px 0;border-radius:10px;border:1px solid var(--primary);color:var(--primary-text)}
+.xsel.on{background:var(--primary);color:#fff;font-weight:700}
+.xhint{font-size:10px;color:var(--text2);line-height:1.6;margin-top:2px}
+
+/* 照片全屏 */
+.viewer{position:absolute;inset:0;background:#000;z-index:7;color:#fff;display:flex;flex-direction:column}
+.viewer .vh{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;font-size:12px}
+.viewer .vp{flex:1;display:flex;align-items:center;justify-content:center;font-size:80px}
+.viewer .vh .x{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <div>
+    <h1>溃结日常记录 · <span>UI 调整示意图</span></h1>
+    <p>纯 HTML/CSS 设计稿（未改动任何 App 代码）· 17 个界面 · 右上角可切换深色预览 · 建议浏览器直接打开本文件</p>
+  </div>
+  <button id="themeToggle" onclick="const h=document.documentElement;const d=h.dataset.theme==='dark';h.dataset.theme=d?'light':'dark';this.textContent=d?'🌙 深色预览':'☀️ 浅色预览'">🌙 深色预览</button>
+</header>
+
+<!-- ================= 设计规范 ================= -->
+<section class="spec">
+  <h2>① 设计规范（本次调整的核心）</h2>
+  <div class="spec-grid">
+    <div>
+      <h3>颜色令牌</h3>
+      <div class="swatches">
+        <div class="sw" style="background:#2563EB;color:#fff"><b>品牌主色</b>#2563EB<br>按钮 / 选中 / 导航</div>
+        <div class="sw" style="background:linear-gradient(135deg,#4C8DFF,#1E4FD8);color:#fff"><b>Hero 渐变</b>欢迎卡 / 概览卡</div>
+        <div class="sw" style="background:#E3F5EA"><b>饮食 · 绿</b>#16A34A</div>
+        <div class="sw" style="background:#FCEFDC"><b>大便 · 琥珀</b>#D97706</div>
+        <div class="sw" style="background:#E4EDFF"><b>服药 · 蓝</b>#2563EB</div>
+        <div class="sw" style="background:#F0EAFE"><b>感受 · 紫</b>#7C3AED</div>
+        <div class="sw" style="background:#FDE9E9"><b>警示 · 红</b>#DC2626</div>
+        <div class="sw" style="background:#F4F7FB"><b>页面背景</b>#F4F7FB</div>
+      </div>
+    </div>
+    <div>
+      <h3>形状 / 组件</h3>
+      <div class="comps" style="margin-bottom:10px">
+        <span class="c">卡片 18px 圆角 + 柔阴影</span>
+        <span class="c">面板 26px 顶部圆角</span>
+        <span class="c">导航胶囊高亮</span>
+      </div>
+      <div class="comps" style="margin-bottom:10px">
+        <span class="chip">普通 Chip</span>
+        <span class="chip sel">选中 Chip</span>
+        <span class="c" style="background:var(--green-soft);border-color:var(--green);color:var(--green-text)">可耐受</span>
+        <span class="c" style="background:var(--amber-soft);border-color:var(--amber);color:var(--amber-text)">尝试</span>
+        <span class="c" style="background:var(--red-soft);border-color:var(--red);color:var(--red-text)">不耐受</span>
+      </div>
+      <div class="comps">
+        <button class="btn pri" style="width:130px;height:36px;font-size:12px">渐变主按钮</button>
+        <button class="btn out" style="width:130px;height:36px;font-size:12px">次级按钮</button>
+      </div>
+    </div>
+    <div>
+      <h3>主要改动一览</h3>
+      <ul class="changes">
+        <li>首页欢迎卡 → 蓝色渐变 Hero（问候 + 寄语 + 铃铛/设置合并其中）</li>
+        <li>记录卡：灰色类型徽章 → 左侧类型色条 + 彩色图标（饮食绿 / 大便琥珀 / 服药蓝 / 感受紫）</li>
+        <li>添加面板：全屏页 → 圆角底部抽屉（更符合手势直觉）</li>
+        <li>底部导航：图标高亮 → 胶囊 pill 高亮，中间 "+" 保留凸起</li>
+        <li>统计卡：数字卡 → 彩色图标底 + 可按压筛选态</li>
+        <li>全局统一：18px 卡片圆角、柔阴影、渐变主按钮、二级页统一顶部栏</li>
+        <li>深色模式：全套令牌同步切换（右上角按钮预览）</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 屏幕画廊 ================= -->
+<section class="screens">
+  <h2>② 界面示意（共 17 屏）</h2>
+  <div class="fig-grid">
+
+  <!-- ============ 1 首页 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content">
+        <div class="pad">
+          <div class="hero">
+            <div class="av">🧍</div>
+            <div style="flex:1">
+              <h3>下午好，小雨</h3>
+              <p>今天也好好照顾自己 🌿</p>
+            </div>
+            <div class="acts">
+              <div class="iconbtn">🔔<span class="dot"></span></div>
+              <div class="iconbtn">⚙️</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:10px">
+            <div class="cal-head">
+              <div class="arr">‹</div>
+              <div class="mid"><b>6月26日<i>周四</i></b><p>2025 年 · 第 26 周</p></div>
+              <div class="arr">›</div>
+            </div>
+            <div class="wk"><span>一</span><span>二</span><span>三</span><span class="on">四</span><span>五</span><span>六</span><span>日</span></div>
+            <div class="days">
+              <div class="day"><div class="d">23</div><div class="pt g"></div></div>
+              <div class="day"><div class="d">24</div><div class="pt g"></div></div>
+              <div class="day"><div class="d">25</div><div class="pt a"></div></div>
+              <div class="day"><div class="d sel">26</div><div class="pt"></div></div>
+              <div class="day"><div class="d">27</div><div class="pt"></div></div>
+              <div class="day"><div class="d">28</div><div class="pt"></div></div>
+              <div class="day"><div class="d">29</div><div class="pt"></div></div>
+            </div>
+            <div class="cal-hint">⌄ 下滑展开整月</div>
+            <div class="stats">
+              <div class="stat meal on"><div class="e">🍚</div><b>3</b><span>饮食</span></div>
+              <div class="stat med"><div class="e">💊</div><b>2/2</b><span>服药</span></div>
+              <div class="stat bowel"><div class="e">💩</div><b>1</b><span>便便</span></div>
+            </div>
+          </div>
+
+          <div class="sec-head"><b>当天记录</b><span class="badge">4 条</span></div>
+
+          <div class="rec note">
+            <div class="rec-head"><span class="ico">📝</span>今日感受<span class="ops"><span class="op">✎</span><span class="op">🗑</span></span></div>
+            <p>睡眠一般，肚子比昨天舒服，今天少吃了点油。</p>
+          </div>
+          <div class="rec meal">
+            <div class="rec-head"><span class="ico">🍚</span>早餐<span class="t">07:30</span><span class="ops"><span class="op">✎</span><span class="op">🗑</span></span></div>
+            <p>燕麦粥 + 蒸蛋，配半根香蕉</p>
+            <div class="tags"><span class="tag g">燕麦</span><span class="tag g">鸡蛋</span><span class="tag g">香蕉</span></div>
+            <div class="photos"><div class="photo">🥣<span class="n">1/2</span></div><div class="photo">🍌<span class="n"></span></div></div>
+          </div>
+          <div class="rec med">
+            <div class="rec-head"><span class="ico">💊</span>服药<span class="t">08:00</span><span class="ops"><span class="op">✎</span><span class="op">🗑</span></span></div>
+            <div class="tags"><span class="tag n">美沙拉嗪</span><span class="tag n">2g</span></div>
+          </div>
+          <div class="rec bowel">
+            <div class="rec-head"><span class="ico">💩</span>大便<span class="t">12:50</span><span class="act-badge a">轻度 1分</span><span class="ops"><span class="op">✎</span><span class="op">🗑</span></span></div>
+            <p>1 次 · 糊状 · 无便血 · 腹痛 3（左下腹）</p>
+          </div>
+          <div class="rec meal">
+            <div class="rec-head"><span class="ico">🍚</span>午餐<span class="t">13:10</span><span class="ops"><span class="op">✎</span><span class="op">🗑</span></span></div>
+            <p>白粥 + 清炒鸡胸肉</p>
+            <div class="tags"><span class="tag a">鸡胸肉</span></div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni on"><span class="ico">⌂</span><span class="pill">首页</span></div>
+          <div class="ni"><span class="ico">🥗</span><span>耐受</span></div>
+          <div style="flex:1"></div>
+          <div class="ni"><span class="ico">📘</span><span>日常管理</span></div>
+          <div class="ni"><span class="ico">👤</span><span>我的</span></div>
+          <div class="fab">＋</div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>首页（今天 · 周视图）</figcaption>
+    <p class="note">欢迎卡升级为渐变 Hero；记录卡改左侧类型色条 + 彩色图标；统计卡彩色图标底，选中态描边（筛选）；导航改胶囊高亮。</p>
+  </figure>
+
+  <!-- ============ 2 首页 · 整月 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content">
+        <div class="pad">
+          <div class="hero">
+            <div class="av">🧍</div>
+            <div style="flex:1"><h3>下午好，小雨</h3><p>症状会波动，你比它更强大 💪</p></div>
+            <div class="acts"><div class="iconbtn">🔔</div><div class="iconbtn">⚙️</div></div>
+          </div>
+          <div class="card" style="margin-top:10px">
+            <div class="cal-head">
+              <div class="arr">‹</div>
+              <div class="mid"><b style="font-size:17px">2025 年 6 月</b><p>整月视图 · 左右滑动换月</p></div>
+              <div class="arr">›</div>
+            </div>
+            <div class="wk"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+            <div class="days">
+              <div class="day"><div class="d dim">26</div><div class="pt"></div></div>
+              <div class="day"><div class="d dim">27</div><div class="pt"></div></div>
+              <div class="day"><div class="d dim">28</div><div class="pt g"></div></div>
+              <div class="day"><div class="d dim">29</div><div class="pt"></div></div>
+              <div class="day"><div class="d dim">30</div><div class="pt a"></div></div>
+              <div class="day"><div class="d dim">31</div><div class="pt"></div></div>
+              <div class="day"><div class="d">1</div><div class="pt"></div></div>
+              <div class="day"><div class="d">2</div><div class="pt g"></div></div>
+              <div class="day"><div class="d">3</div><div class="pt"></div></div>
+              <div class="day"><div class="d">4</div><div class="pt g"></div></div>
+              <div class="day"><div class="d">5</div><div class="pt"></div></div>
+              <div class="day"><div class="d">6</div><div class="pt o"></div></div>
+              <div class="day"><div class="d">7</div><div class="pt"></div></div>
+              <div class="day"><div class="d">8</div><div class="pt g"></div></div>
+              <div class="day"><div class="d">9</div><div class="pt"></div></div>
+              <div class="day"><div class="d">10</div><div class="pt a"></div></div>
+              <div class="day"><div class="d">11</div><div class="pt"></div></div>
+              <div class="day"><div class="d">12</div><div class="pt g"></div></div>
+              <div class="day"><div class="d">13</div><div class="pt r"></div></div>
+              <div class="day"><div class="d">14</div><div class="pt"></div></div>
+              <div class="day"><div class="d">15</div><div class="pt g"></div></div>
+              <div class="day"><div class="d">16</div><div class="pt"></div></div>
+              <div class="day"><div class="d">17</div><div class="pt a"></div></div>
+              <div class="day"><div class="d">18</div><div class="pt g"></div></div>
+              <div class="day"><div class="d">19</div><div class="pt"></div></div>
+              <div class="day"><div class="d">20</div><div class="pt o"></div></div>
+              <div class="day"><div class="d">21</div><div class="pt"></div></div>
+              <div class="day"><div class="d">22</div><div class="pt g"></div></div>
+              <div class="day"><div class="d">23</div><div class="pt g"></div></div>
+              <div class="day"><div class="d">24</div><div class="pt g"></div></div>
+              <div class="day"><div class="d">25</div><div class="pt a"></div></div>
+              <div class="day"><div class="d sel">26</div><div class="pt"></div></div>
+              <div class="day"><div class="d">27</div><div class="pt"></div></div>
+              <div class="day"><div class="d">28</div><div class="pt"></div></div>
+              <div class="day"><div class="d">29</div><div class="pt"></div></div>
+              <div class="day"><div class="d">30</div><div class="pt"></div></div>
+              <div class="day"><div class="d dim">1</div><div class="pt"></div></div>
+              <div class="day"><div class="d dim">2</div><div class="pt"></div></div>
+              <div class="day"><div class="d dim">3</div><div class="pt"></div></div>
+              <div class="day"><div class="d dim">4</div><div class="pt"></div></div>
+              <div class="day"><div class="d dim">5</div><div class="pt"></div></div>
+              <div class="day"><div class="d dim">6</div><div class="pt"></div></div>
+            </div>
+            <div class="cal-hint">⌃ 上滑收起回周视图</div>
+          </div>
+          <div class="sec-head"><b>6月26日 周四</b><span class="badge">4 条</span></div>
+          <div class="rec meal"><div class="rec-head"><span class="ico">🍚</span>早餐<span class="t">07:30</span></div><p>燕麦粥 + 蒸蛋</p></div>
+          <div class="rec bowel"><div class="rec-head"><span class="ico">💩</span>大便<span class="t">12:50</span><span class="act-badge a">轻度 1分</span></div></div>
+          <div class="rec meal"><div class="rec-head"><span class="ico">🍚</span>午餐<span class="t">13:10</span></div><p>白粥 + 清炒鸡胸肉</p></div>
+        </div>
+        <div class="nav">
+          <div class="ni on"><span class="ico">⌂</span><span class="pill">首页</span></div>
+          <div class="ni"><span class="ico">🥗</span><span>耐受</span></div>
+          <div style="flex:1"></div>
+          <div class="ni"><span class="ico">📘</span><span>日常管理</span></div>
+          <div class="ni"><span class="ico">👤</span><span>我的</span></div>
+          <div class="fab">＋</div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>首页 · 整月视图（下滑展开）</figcaption>
+    <p class="note">月视图同样收进日历卡内；跨月日期淡显；活动度热力点（绿/黄/橙/红）保持原有含义不变。</p>
+  </figure>
+
+  <!-- ============ 3 快捷添加 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content">
+        <div class="pad" style="opacity:.9">
+          <div class="hero"><div class="av">🧍</div><div style="flex:1"><h3>下午好，小雨</h3><p>今天也好好照顾自己 🌿</p></div></div>
+          <div class="card" style="margin-top:10px;height:120px"></div>
+          <div class="card" style="margin-top:10px;height:70px"></div>
+        </div>
+        <div class="nav">
+          <div class="ni on"><span class="ico">⌂</span><span class="pill">首页</span></div>
+          <div class="ni"><span class="ico">🥗</span><span>耐受</span></div>
+          <div style="flex:1"></div>
+          <div class="ni"><span class="ico">📘</span><span>日常管理</span></div>
+          <div class="ni"><span class="ico">👤</span><span>我的</span></div>
+          <div class="fab">＋</div>
+        </div>
+        <div class="overlay">
+          <div class="qa">
+            <h3>记点什么？</h3>
+            <div class="qa-grid">
+              <div class="qa-t meal"><span class="e">🍚</span>饮食</div>
+              <div class="qa-t bowel"><span class="e">💩</span>大便</div>
+              <div class="qa-t med"><span class="e">💊</span>服药</div>
+              <div class="qa-t note"><span class="e">📝</span>笔记</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>快捷添加（中间 ＋ 弹出）</figcaption>
+    <p class="note">四个入口改成 2×2 彩色磁贴（与记录类型色一致），选项卡圆角加大、居中悬浮，点遮罩关闭。</p>
+  </figure>
+
+  <!-- ============ 4 耐受 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content">
+        <div class="pad">
+          <div class="hdr">
+            <h2>🥗 食物耐受</h2>
+            <p>记录哪些食物能吃、哪些要小心；饮食记录时打标签，方便回溯</p>
+            <div class="div"></div>
+          </div>
+          <div class="note-card">ⓘ 什么是耐受分级？<span class="sp"></span>⌄</div>
+          <div class="tsec ok">
+            <div class="tsec-h"><i></i>可耐受 <span class="cnt">5 种 · 点标签可删 · 长按拖动</span></div>
+            <div class="tflow">
+              <span class="tchip g">燕麦<span class="cnt">×12</span></span>
+              <span class="tchip g">鸡蛋<span class="cnt">×8</span></span>
+              <span class="tchip g">米饭<span class="cnt">×15</span></span>
+              <span class="tchip g">香蕉<span class="cnt">×6</span></span>
+              <span class="tchip g">鸡胸肉<span class="cnt">×5</span></span>
+            </div>
+          </div>
+          <div class="tsec bad">
+            <div class="tsec-h"><i></i>不耐受 <span class="cnt">3 种</span></div>
+            <div class="tflow">
+              <span class="tchip r">牛奶<span class="cnt">×8</span></span>
+              <span class="tchip r">辣椒<span class="cnt">×4</span></span>
+              <span class="tchip r">油炸食品<span class="cnt">×3</span></span>
+            </div>
+          </div>
+          <div class="tsec try">
+            <div class="tsec-h"><i></i>尝试中 <span class="cnt">2 种</span></div>
+            <div class="tflow">
+              <span class="tchip a">奶酪<span class="cnt">×2</span></span>
+              <span class="tchip a drag">坚果<span class="cnt">×1</span></span>
+              <span class="slot">落点预览</span>
+            </div>
+          </div>
+          <p class="drag-hint">💡 长按拖动标签：区内换序 / 跨区改变状态（松手前实时预览落点）；点标签出现 ✕ 角标删除。</p>
+        </div>
+        <div class="nav">
+          <div class="ni"><span class="ico">⌂</span><span>首页</span></div>
+          <div class="ni on"><span class="ico">🥗</span><span class="pill">耐受</span></div>
+          <div style="flex:1"></div>
+          <div class="ni"><span class="ico">📘</span><span>日常管理</span></div>
+          <div class="ni"><span class="ico">👤</span><span>我的</span></div>
+          <div class="fab">＋</div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>耐受 Tab</figcaption>
+    <p class="note">三个分区改为状态色底卡（浅底 + 同色描边），标签加引用计数角标（×N），拖动时保留"落点虚线槽"预览（示意中"坚果"为拖动中）。</p>
+  </figure>
+
+  <!-- ============ 5 日常管理 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content">
+        <div class="pad">
+          <div class="hdr">
+            <h2 style="font-size:16px">📘 日常管理手册 <span class="uc-pill">UC</span></h2>
+            <p>基于循证建议 · 根据病情阶段灵活调整，与你的医生共同制定个体化方案</p>
+            <div class="div"></div>
+          </div>
+          <div class="acc open">
+            <div class="acc-h"><span class="e">🍽️</span><b>饮食管理</b><span class="chev">⌄</span></div>
+            <div class="acc-b" style="border-top:none;padding-top:10px">
+              <p class="body-p">没有"绝对禁忌"，只有<b>个体化</b>：发作期更保守，缓解期可逐步尝试新食物。</p>
+              <div class="h4">发作期（活动期）</div>
+              <div class="bl">低渣饮食：选易消化、低纤维食物，如白粥、面条、蒸蛋</div>
+              <div class="bl">保证能量：少食多餐，蛋白质摄入要够（鱼、蛋、瘦肉）</div>
+              <div class="h4">缓解期</div>
+              <div class="bl">逐步加回膳食纤维：蔬菜、水果少量多次尝试</div>
+              <div class="bl">保持饮食日记，找出自己的"问题食物"</div>
+              <div class="hlbox">每次只引入一种新食物，观察 2–3 天再下结论。</div>
+            </div>
+          </div>
+          <div class="acc"><div class="acc-h"><span class="e">💪</span><b>生活方式管理</b><span class="chev">⌄</span></div></div>
+          <div class="acc"><div class="acc-h"><span class="e">💊</span><b>药物与医疗管理</b><span class="chev">⌄</span></div></div>
+          <div class="acc"><div class="acc-h"><span class="e">❤️</span><b>心理调适</b><span class="chev">⌄</span></div></div>
+          <div class="acc"><div class="acc-h"><span class="e">📊</span><b>病情自评</b><span class="badge" style="margin-right:2px">4 题 · 0~11 分</span><span class="chev">⌄</span></div></div>
+          <div class="div-line"></div>
+          <p class="foot-note">以上为循证参考信息，仅供自我参考，<br>不能替代医生诊断。</p>
+        </div>
+        <div class="nav">
+          <div class="ni"><span class="ico">⌂</span><span>首页</span></div>
+          <div class="ni"><span class="ico">🥗</span><span>耐受</span></div>
+          <div style="flex:1"></div>
+          <div class="ni on"><span class="ico">📘</span><span class="pill">日常管理</span></div>
+          <div class="ni"><span class="ico">👤</span><span>我的</span></div>
+          <div class="fab">＋</div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>日常管理 Tab（手风琴展开"饮食管理"）</figcaption>
+    <p class="note">卡片头加彩色 emoji 底图标；展开态主题色描边 + 投影、箭头旋转；重点提示保留左竖条样式；自评卡加"4 题"徽标提示。</p>
+  </figure>
+
+  <!-- ============ 6 我的 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content">
+        <div class="pad">
+          <div class="me-hero">
+            <div class="av">🧍</div>
+            <div style="flex:1">
+              <h3>小雨 <span class="pen">✎</span></h3>
+              <p>溃结日常记录 · 数据仅保存在本机</p>
+            </div>
+          </div>
+          <div class="card menu">
+            <div class="mrow">
+              <div class="mi b">📈</div>
+              <div class="mt">统计信息<p>记录天数 / 活动度 / 耐受分布</p></div>
+              <span class="chev">›</span>
+            </div>
+            <div class="mrow">
+              <div class="mi b">💊</div>
+              <div class="mt">服药设置<p>提醒次数与时间</p></div>
+              <span class="mv">3 次/天</span><span class="chev">›</span>
+            </div>
+            <div class="mrow">
+              <div class="mi g">⬆️</div>
+              <div class="mt">导出记录<p>给医生看 · TXT / CSV</p></div>
+              <span class="chev">›</span>
+            </div>
+            <div class="mrow">
+              <div class="mi g">⬇️</div>
+              <div class="mt">恢复记录<p>从导出的 CSV 文件恢复</p></div>
+              <span class="chev">›</span>
+            </div>
+            <div class="mrow">
+              <div class="mi n">⚙️</div>
+              <div class="mt">设置<p>寄语 / 主题 / 字体 / 语言</p></div>
+              <span class="chev">›</span>
+            </div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="ni"><span class="ico">⌂</span><span>首页</span></div>
+          <div class="ni"><span class="ico">🥗</span><span>耐受</span></div>
+          <div style="flex:1"></div>
+          <div class="ni"><span class="ico">📘</span><span>日常管理</span></div>
+          <div class="ni on"><span class="ico">👤</span><span class="pill">我的</span></div>
+          <div class="fab">＋</div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>我的 Tab</figcaption>
+    <p class="note">头像 + 昵称并入渐变 Hero；菜单行加一行副标题说明，图标底色按功能分组着色，右侧保留当前值（如 3 次/天）。</p>
+  </figure>
+
+  <!-- ============ 7 统计 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content">
+        <div class="pad">
+          <div class="topbar"><span class="bk">‹</span><b>统计信息</b></div>
+          <div class="ov">
+            <div class="half"><b>86</b><span>记录天数</span></div>
+            <div class="sep"></div>
+            <div class="half"><b>6</b><span>连续记录（天）</span></div>
+            <div class="ov-sub">首次记录 2025-04-02</div>
+          </div>
+          <div class="t2">
+            <div class="t"><span class="e">🍚</span><b>42</b><span>饮食记录（条）</span><span class="go">›</span></div>
+            <div class="t"><span class="e">💩</span><b>58 天</b><span>排便 · 共 126 次</span><span class="go">›</span></div>
+            <div class="t"><span class="e">💊</span><b>96</b><span>服药记录（条）</span><span class="go">›</span></div>
+            <div class="t"><span class="e">📝</span><b>30</b><span>感受记录（天）</span><span class="go">›</span></div>
+          </div>
+          <div class="sec-head"><b>排便详情</b></div>
+          <div class="card">
+            <div class="barrow"><span class="lbl">1 硬块</span><span class="tr"><i style="width:14%"></i></span><span class="v">2</span></div>
+            <div class="barrow"><span class="lbl">2 块状</span><span class="tr"><i style="width:36%"></i></span><span class="v">5</span></div>
+            <div class="barrow"><span class="lbl">3 裂纹</span><span class="tr"><i style="width:57%"></i></span><span class="v">8</span></div>
+            <div class="barrow"><span class="lbl">4 光滑</span><span class="tr"><i style="width:71%"></i></span><span class="v">10</span></div>
+            <div class="barrow"><span class="lbl">5 软块</span><span class="tr"><i style="width:100%"></i></span><span class="v">14</span></div>
+            <div class="barrow"><span class="lbl">6 糊状</span><span class="tr"><i style="width:79%"></i></span><span class="v">11</span></div>
+            <div class="barrow"><span class="lbl">7 水样</span><span class="tr"><i style="width:29%"></i></span><span class="v">4</span></div>
+            <div class="symchips">
+              <div class="s"><b>12 天</b><span>便血</span></div>
+              <div class="s"><b>9 天</b><span>黏液</span></div>
+              <div class="s"><b>7 天</b><span>急迫</span></div>
+              <div class="s"><b>5 天</b><span>夜间腹泻</span></div>
+            </div>
+            <p class="small mut" style="margin-top:10px">平均腹痛 <b style="color:var(--text)">2.4</b> 分（0~10）</p>
+            <div class="actrow">
+              <div class="a"><i style="background:var(--green)"></i><span>缓解</span><b>62</b></div>
+              <div class="a"><i style="background:var(--amber)"></i><span>轻度</span><b>18</b></div>
+              <div class="a"><i style="background:#F97316"></i><span>中度</span><b>4</b></div>
+              <div class="a"><i style="background:var(--red)"></i><span>重度</span><b>2</b></div>
+            </div>
+          </div>
+          <div class="sec-head"><b>食物耐受分布</b></div>
+          <div class="card row" style="gap:8px">
+            <span class="row" style="gap:5px;font-size:12px"><i style="width:10px;height:10px;border-radius:50%;background:var(--green);display:inline-block"></i>可耐受 12</span>
+            <span class="row" style="gap:5px;font-size:12px"><i style="width:10px;height:10px;border-radius:50%;background:var(--amber);display:inline-block"></i>尝试 2</span>
+            <span class="row" style="gap:5px;font-size:12px"><i style="width:10px;height:10px;border-radius:50%;background:var(--red);display:inline-block"></i>不耐受 3</span>
+          </div>
+          <p class="foot-note">数据仅供自我监测参考，不替代医生诊断。</p>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>统计信息页</figcaption>
+    <p class="note">概览改渐变双大数字卡；四类数量改 2×2 可点卡片（进入全时段明细）；布里斯托分布改圆角横向条形图，症状天数改小方格。</p>
+  </figure>
+
+  <!-- ============ 8 记录汇总 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content">
+        <div class="pad">
+          <div class="topbar"><span class="bk">‹</span><b>饮食记录</b><span class="count">全时段 · 42 条</span></div>
+          <div class="yr-h">2025 年<span class="badge">42 条</span><span class="chev">⌃</span></div>
+          <div class="mo-h">6 月<span class="badge" style="background:var(--surface)">24 条</span><span class="chev">⌃</span></div>
+          <div class="dh">6月26日 · 周四</div>
+          <div class="lr"><span class="tm">07:30</span><div class="mt2">早餐 · 燕麦粥 + 蒸蛋<p><span class="tag g" style="font-size:9px">燕麦</span> <span class="tag g" style="font-size:9px">鸡蛋</span> <span class="tag g" style="font-size:9px">香蕉</span></p></div><span class="tiny mut">📷2</span></div>
+          <div class="lr"><span class="tm">13:10</span><div class="mt2">午餐 · 白粥 + 清炒鸡胸肉<p><span class="tag a" style="font-size:9px">鸡胸肉</span></p></div></div>
+          <div class="dh">6月25日 · 周三</div>
+          <div class="lr"><span class="tm">07:40</span><div class="mt2">早餐 · 白粥 + 蒸蛋</div></div>
+          <div class="lr"><span class="tm">12:30</span><div class="mt2">午餐 · 面条 + 青菜（少量）<p><span class="tag g" style="font-size:9px">面条</span></p></div></div>
+          <div class="lr"><span class="tm">18:20</span><div class="mt2">晚餐 · 馒头 + 蒸鸡胸</div></div>
+          <div class="mo-h">5 月<span class="badge" style="background:var(--surface)">18 条</span><span class="chev">⌄</span></div>
+          <div class="mo-h">4 月<span class="badge" style="background:var(--surface)">0 条</span><span class="chev">⌄</span></div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>记录汇总列表（统计页数量块进入）</figcaption>
+    <p class="note">年 → 月两级折叠保留；日期分组用虚线分隔 + 加粗日期头；每条记录同首页的左侧色条卡片样式，保持视觉一致。</p>
+  </figure>
+
+  <!-- ============ 9 服药设置 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content">
+        <div class="pad">
+          <div class="topbar"><span class="bk">‹</span><b>服药设置</b></div>
+          <div class="medcard">
+            <div class="tx"><b>每天服药提醒次数</b><p>最多 6 次 · 驱动首页铃铛与系统通知</p></div>
+            <div class="stepper">
+              <span class="sb">−</span><b>3 次</b><span class="sb">＋</span>
+            </div>
+          </div>
+          <div class="card times">
+            <div class="trow"><div class="mi">💊</div><b>第 1 次</b><span class="tm2">08:00</span><span class="chev">›</span></div>
+            <div class="trow"><div class="mi">💊</div><b>第 2 次</b><span class="tm2">12:00</span><span class="chev">›</span></div>
+            <div class="trow"><div class="mi">💊</div><b>第 3 次</b><span class="tm2">18:00</span><span class="chev">›</span></div>
+          </div>
+          <p class="foot-note l">到点后若当天服药记录数少于已到点次数：首页铃铛亮红点 + 系统通知"您还有 N 次未服药"。需要通知权限（Android 13+ 启动时申请）。</p>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>服药设置页</figcaption>
+    <p class="note">次数卡改渐变强调卡 + 圆形步进按钮；时间列表行加蓝色图标底与加粗时间，点击弹出时间选择器（24h）。</p>
+  </figure>
+
+  <!-- ============ 10 设置 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content">
+        <div class="pad">
+          <div class="topbar"><span class="bk">‹</span><b>设置</b></div>
+          <div class="card menu" style="margin-top:6px">
+            <div class="mrow"><div class="mi p">💬</div><div class="mt">首页寄语<p>欢迎卡横幅轮播内容</p></div><span class="mv">默认 8 条</span><span class="chev">›</span></div>
+            <div class="mrow"><div class="mi n">🌗</div><div class="mt">主题<p>浅色 / 深色 / 跟随系统</p></div><span class="mv">浅色</span><span class="chev">›</span></div>
+            <div class="mrow"><div class="mi n">🔠</div><div class="mt">字体大小<p>首页 / 耐受 / 日常管理</p></div><span class="mv">标准</span><span class="chev">›</span></div>
+            <div class="mrow"><div class="mi g">🌐</div><div class="mt">语言<p>界面 / 通知 12 种语言</p></div><span class="mv">简体中文</span><span class="chev">›</span></div>
+            <div class="mrow"><div class="mi b">🔄</div><div class="mt">软件更新<p>Google Play 应用内更新</p></div><span class="mv">v1.1.0</span><span class="chev">›</span></div>
+            <div class="mrow"><div class="mi n">ℹ️</div><div class="mt">关于<p>应用说明与免责声明</p></div><span class="mv">v1.1.0</span><span class="chev">›</span></div>
+          </div>
+          <p class="foot-note">语言切换立即生效；阿拉伯语自动启用 RTL 布局。</p>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>设置页</figcaption>
+    <p class="note">与"我的"页同套菜单行样式（图标底 + 副标题 + 当前值右对齐），保持二级页视觉统一。</p>
+  </figure>
+
+  <!-- ============ 11 首页寄语 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content">
+        <div class="pad">
+          <div class="topbar"><span class="bk">‹</span><b>首页寄语</b></div>
+          <p class="small mut" style="padding:0 4px 10px">首页欢迎卡每天按顺序轮播显示以下寄语。点条目可修改，点 🗑 删除。</p>
+          <div class="card" style="padding:4px 12px">
+            <div class="srow"><span class="no">1</span><span class="tx">一定要好好吃饭！</span><span class="ops"><span class="op">✎</span><span class="op del">🗑</span></span></div>
+            <div class="srow"><span class="no">2</span><span class="tx">记录每一天，安心多一点</span><span class="ops"><span class="op">✎</span><span class="op del">🗑</span></span></div>
+            <div class="srow"><span class="no">3</span><span class="tx">少食多餐，温柔对待肠胃</span><span class="ops"><span class="op">✎</span><span class="op del">🗑</span></span></div>
+            <div class="srow"><span class="no">4</span><span class="tx">症状会波动，你比它更强大</span><span class="ops"><span class="op">✎</span><span class="op del">🗑</span></span></div>
+            <div class="srow"><span class="no">5</span><span class="tx">今天也好好照顾自己</span><span class="ops"><span class="op">✎</span><span class="op del">🗑</span></span></div>
+            <div class="srow"><span class="no">6</span><span class="tx">清淡一点，肠道轻松一点</span><span class="ops"><span class="op">✎</span><span class="op del">🗑</span></span></div>
+            <div class="srow"><span class="no">7</span><span class="tx">按时吃饭，按时记录</span><span class="ops"><span class="op">✎</span><span class="op del">🗑</span></span></div>
+            <div class="srow"><span class="no">8</span><span class="tx">记住今天，身体都记得</span><span class="ops"><span class="op">✎</span><span class="op del">🗑</span></span></div>
+          </div>
+          <button class="btn out" style="margin-top:12px">＋ 添加寄语</button>
+          <button class="btn txt">恢复默认寄语（8 条）</button>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>首页寄语管理页</figcaption>
+    <p class="note">列表行加圆形序号底；编辑/删除图标统一为圆角方块；底部"添加寄语"用次级按钮、"恢复默认"用文字按钮，层级更清晰。</p>
+  </figure>
+
+  <!-- ============ 12 添加饮食 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content dim-bg">
+        <div class="ghost" style="top:14px;left:14px;right:14px;height:86px"></div>
+        <div class="ghost" style="top:112px;left:14px;right:14px;height:64px"></div>
+        <div class="sheet">
+          <div class="grip"></div>
+          <div class="sheet-h"><h3>添加饮食</h3><span class="sub">记录到：今天</span><span class="x">✕</span></div>
+          <div class="sheet-b">
+            <div class="seclab">记录时间</div>
+            <div class="time-row">🕐<b>13:10</b><span class="sp"></span><span>点击可调整</span></div>
+            <div class="seclab">餐次</div>
+            <div class="seg"><span class="s">早餐</span><span class="s on">午餐</span><span class="s">晚餐</span><span class="s">加餐</span></div>
+            <div class="seclab">照片（最多 9 张）</div>
+            <div class="pgrid">
+              <div class="ph">🍲<span class="x">✕</span></div>
+              <div class="ph">🥩<span class="x">✕</span></div>
+              <div class="ph add">＋</div>
+            </div>
+            <div class="two-btns"><button class="btn out">📷 拍照</button><button class="btn out">🖼 从相册选</button></div>
+            <div class="seclab">添加食物（首次记录新食物）</div>
+            <div class="addfood">
+              <div class="field" style="min-height:38px">输入食物名…</div>
+              <select class="field selbox" style="appearance:none"><option>状态：可耐受</option></select>
+            </div>
+            <div class="seclab">食物标签（多选）</div>
+            <div class="tags" style="display:flex;flex-wrap:wrap;gap:6px">
+              <span class="tag g" style="font-size:11px">✓ 燕麦</span><span class="tag g" style="font-size:11px">✓ 鸡蛋</span><span class="tag g" style="font-size:11px">香蕉</span><span class="tag a" style="font-size:11px">鸡胸肉</span><span class="tag r" style="font-size:11px">牛奶</span>
+            </div>
+            <div class="seclab">备注</div>
+            <div class="field tall">今天吃得比较清淡，没有不适…</div>
+          </div>
+          <div class="sheet-f"><button class="btn pri">保存记录</button></div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>添加 / 编辑饮食（底部抽屉）</figcaption>
+    <p class="note">由全屏页改为圆角底部抽屉（顶部拖拽条）；餐次改分段控件（胶囊滑块）；照片网格 + 虚线添加格；标签沿用状态色描边、选中加 ✓。</p>
+  </figure>
+
+  <!-- ============ 13 排便记录 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content dim-bg">
+        <div class="ghost" style="top:14px;left:14px;right:14px;height:86px"></div>
+        <div class="sheet">
+          <div class="grip"></div>
+          <div class="sheet-h"><h3>排便记录</h3><span class="sub">记录到：今天</span><span class="x">✕</span></div>
+          <div class="sheet-b">
+            <div class="seclab">记录时间</div>
+            <div class="time-row">🕐<b>12:50</b><span class="sp"></span><span>点击可调整</span></div>
+            <div class="seclab">排便次数</div>
+            <div class="stepper2"><span class="sb">−</span><b>1 次</b><span class="sb">＋</span></div>
+            <div style="margin-top:8px"><span class="chip">🌙 夜间腹泻</span></div>
+            <div class="seclab">便便性状（布里斯托分级 1~7）</div>
+            <div class="tflow">
+              <span class="chip">1 硬块</span><span class="chip">2 块状</span><span class="chip">3 裂纹</span><span class="chip">4 光滑</span>
+              <span class="chip sel">5 软块</span><span class="chip">6 糊状</span><span class="chip">7 水样</span>
+            </div>
+            <div class="seclab">便血</div>
+            <div class="tflow"><span class="chip sel">无</span><span class="chip">少量</span><span class="chip">明显</span><span class="chip">血块</span></div>
+            <div class="seclab">其他症状</div>
+            <div class="tflow"><span class="chip">黏液</span><span class="chip">急迫感</span></div>
+            <div class="seclab">腹痛程度</div>
+            <div class="slider"><div class="track"><i></i><b></b></div><span class="val">3</span></div>
+            <div class="tflow" style="margin-top:8px">
+              <span class="chip">无</span><span class="chip">右下腹</span><span class="chip sel">左下腹</span><span class="chip">脐周</span><span class="chip">全腹</span>
+            </div>
+            <div class="seclab">其他不适</div>
+            <div class="field" style="min-height:60px">肚子有点胀…</div>
+          </div>
+          <div class="sheet-f">
+            <div class="act-preview"><span class="act-badge a">轻度活动 1 分</span><span class="hint">参考活动度（简化评分，仅供自我监测）</span></div>
+            <button class="btn pri">保存记录</button>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>排便记录（底部抽屉）</figcaption>
+    <p class="note">分组小标题统一样式；次数改圆角方形步进器；选项 chip 选中态为主色填充；底部常驻实时活动度徽章（保存前即可预判）。</p>
+  </figure>
+
+  <!-- ============ 14 服药记录 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content dim-bg">
+        <div class="ghost" style="top:14px;left:14px;right:14px;height:86px"></div>
+        <div class="sheet" style="top:210px">
+          <div class="grip"></div>
+          <div class="sheet-h"><h3>添加服药</h3><span class="sub">记录到：今天</span><span class="x">✕</span></div>
+          <div class="sheet-b">
+            <div class="seclab">记录时间</div>
+            <div class="time-row">🕐<b>12:00</b><span class="sp"></span><span>点击可调整</span></div>
+            <div class="seclab">常用药（点选 · 长按可移除标签）</div>
+            <div class="tflow">
+              <span class="chip sel">✓ 美沙拉嗪</span>
+              <span class="chip">泼尼松</span>
+              <span class="chip">柳氮磺吡啶</span>
+            </div>
+            <div class="seclab">药名</div>
+            <div class="field" style="color:var(--text);min-height:42px">美沙拉嗪</div>
+            <div class="seclab">剂量</div>
+            <div class="field" style="color:var(--text);min-height:42px">2g</div>
+          </div>
+          <div class="sheet-f"><button class="btn pri">保存记录</button></div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>添加 / 编辑服药（底部抽屉）</figcaption>
+    <p class="note">常用药 chip 选中加 ✓ 与主色填充；药名/剂量用高一点输入框；抽屉高度随内容自适应（本屏较短）。</p>
+  </figure>
+
+  <!-- ============ 15 今日感受 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content dim-bg">
+        <div class="ghost" style="top:14px;left:14px;right:14px;height:86px"></div>
+        <div class="sheet" style="top:280px">
+          <div class="grip"></div>
+          <div class="sheet-h"><h3>今日感受</h3><span class="sub">记录到：今天</span><span class="x">✕</span></div>
+          <div class="sheet-b">
+            <div class="field tall" style="min-height:150px">排便、睡眠、心情、不适……<br><br>睡眠一般，肚子比昨天舒服，今天少吃了点油。</div>
+          </div>
+          <div class="sheet-f"><button class="btn pri">保存感受</button></div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>今日感受（底部抽屉）</figcaption>
+    <p class="note">每天一条自由文本；大输入框占满抽屉主体，保存按钮固定底部；补录历史日期时标题显示对应日期。</p>
+  </figure>
+
+  <!-- ============ 16 导出对话框 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content">
+        <div class="pad">
+          <div class="me-hero" style="opacity:.75"><div class="av">🧍</div><div style="flex:1"><h3>小雨</h3><p>溃结日常记录</p></div></div>
+          <div class="card menu" style="opacity:.75;margin-top:12px">
+            <div class="mrow"><div class="mi g">⬆️</div><div class="mt">导出记录<p>给医生看 · TXT / CSV</p></div><span class="chev">›</span></div>
+            <div class="mrow"><div class="mi g">⬇️</div><div class="mt">恢复记录<p>从导出的 CSV 文件恢复</p></div><span class="chev">›</span></div>
+          </div>
+        </div>
+        <div class="overlay" style="align-items:center">
+          <div class="qa" style="width:88%">
+            <div class="xrow"><span class="xdate">2025-06-23</span><span class="mut">—</span><span class="xdate">2025-06-29</span></div>
+            <div class="seclab" style="margin-top:0">记录类型（多选）</div>
+            <div style="display:flex;gap:6px;margin-bottom:12px">
+              <span class="xsel on">🍚 饮食</span><span class="xsel on">💩 大便</span><span class="xsel on">💊 服药</span><span class="xsel on">📝 感受</span>
+            </div>
+            <div class="seclab" style="margin-top:0">输出方式</div>
+            <div style="display:flex;gap:6px;margin-bottom:12px">
+              <span class="xsel on" style="flex:1">剪切板</span><span class="xsel" style="flex:1">文件</span>
+            </div>
+            <div class="seclab" style="margin-top:0">文件格式（文件输出时）</div>
+            <div style="display:flex;gap:6px">
+              <span class="xsel on" style="flex:1">.txt</span><span class="xsel" style="flex:1">.csv</span>
+            </div>
+            <p class="xhint" style="margin-top:8px">选择 CSV 可附带全部食物耐受，日后用"恢复记录"导入。</p>
+            <div class="acts" style="display:flex;gap:9px;margin-top:14px">
+              <button class="btn out" style="height:40px;font-size:13px">取消</button>
+              <button class="btn pri" style="height:40px;font-size:13px">导出</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>导出记录对话框</figcaption>
+    <p class="note">日期区间改蓝底日期块（点击弹日期选择器）；类型/方式/格式统一为"选中填充"小按钮；选 CSV 时提示可恢复。</p>
+  </figure>
+
+  <!-- ============ 17 对话框合集 ============ -->
+  <figure class="fig">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span>9:41</span><span class="r">●●● ⌁ ▮</span></div>
+      <div class="content dim-bg">
+        <div class="ghost" style="top:14px;left:14px;right:14px;height:86px"></div>
+        <div class="stack" style="position:relative;z-index:6">
+          <div class="mini-dlg">
+            <div class="di" style="background:var(--blue-soft);margin-bottom:8px">🔔</div>
+            <h4>服药提醒</h4>
+            <p>您还有 <b style="color:var(--red-text)">1</b> 次未服药，<br>请尽快服药！</p>
+            <div class="acts">
+              <button class="btn txt" style="flex:1">稍后</button>
+              <button class="btn pri" style="flex:2">去服药 →</button>
+            </div>
+          </div>
+          <div class="mini-dlg">
+            <div class="di" style="background:var(--red-soft);margin-bottom:8px">🗑</div>
+            <h4>删除这条饮食记录？</h4>
+            <p>将删除"午餐"（含 2 张照片），<br>删除后不可恢复。</p>
+            <div class="acts">
+              <button class="btn out" style="flex:1">取消</button>
+              <button class="btn danger" style="flex:1">删除</button>
+            </div>
+          </div>
+          <div class="mini-dlg">
+            <div class="di" style="background:var(--surface2);margin-bottom:8px">⌂</div>
+            <h4>退出溃结日常记录？</h4>
+            <p>数据保存在本机，退出后不受影响。</p>
+            <div class="acts">
+              <button class="btn out" style="flex:1">取消</button>
+              <button class="btn danger" style="flex:1">退出</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption>对话框（提醒 / 删除确认 / 退出）</figcaption>
+    <p class="note">对话框统一圆角 20px + 顶部彩色图标底；危险操作按钮用红底浅字；主操作始终为主色渐变按钮。</p>
+  </figure>
+
+  </div>
+</section>
+
+</body>
+</html>
