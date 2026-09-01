@@ -33,22 +33,18 @@
     <string name="tab_daily_management">Уход</string>
     <string name="tab_profile">Профиль</string>
     <string name="quick_add_title">Добавить запись</string>
-
     <string name="type_meal">Питание</string>
     <string name="type_bowel">Стул</string>
     <string name="type_med">Лекарство</string>
     <string name="type_note">Самочувствие</string>
     <string name="type_tolerance">Переносимость</string>
-
     <string name="meal_breakfast">Завтрак</string>
     <string name="meal_lunch">Обед</string>
     <string name="meal_dinner">Ужин</string>
     <string name="meal_snack">Перекус</string>
-
     <string name="tolerance_ok">Переносится</string>
     <string name="tolerance_try">Попробовать</string>
     <string name="tolerance_bad">Не переносится</string>
-
     <string name="bristol_1">Отдельные твердые комки</string>
     <string name="bristol_2">Колбасовидный, но комковатый</string>
     <string name="bristol_3">Колбасовидный с трещинами</string>
@@ -56,23 +52,19 @@
     <string name="bristol_5">Мягкие комки</string>
     <string name="bristol_6">Кашицеобразный</string>
     <string name="bristol_7">Водянистый</string>
-
     <string name="blood_none">Нет</string>
     <string name="blood_little">Незначительная</string>
     <string name="blood_clear">Явная</string>
     <string name="blood_clots">Сгустки</string>
-
     <string name="pain_loc_none">Нет</string>
     <string name="pain_loc_right_lower">Правая подвздошная область</string>
     <string name="pain_loc_left_lower">Левая подвздошная область</string>
     <string name="pain_loc_periumbilical">Околопупочная область</string>
     <string name="pain_loc_whole">Весь живот</string>
-
     <string name="activity_remission">Ремиссия</string>
     <string name="activity_mild">Легкая активность</string>
     <string name="activity_moderate">Умеренная активность</string>
     <string name="activity_severe">Высокая активность</string>
-
     <string name="week_mon">понедельник</string>
     <string name="week_tue">вторник</string>
     <string name="week_wed">среда</string>
@@ -109,18 +101,18 @@
     <string name="home_prev_week">Предыдущая неделя</string>
     <string name="home_next_month">Следующий месяц</string>
     <string name="home_next_week">Следующая неделя</string>
+    <string name="home_cal_hint_week">⌄ Потяните вниз: целый месяц</string>
+    <string name="home_cal_hint_month">⌃ Потяните вверх: недельный вид</string>
     <string name="home_month_header">%1$d/%2$d</string>
     <string name="home_date_header">%2$d.%1$d</string>
     <string name="home_year_week_header">%1$d, неделя %2$d</string>
     <string name="home_med_no_due_time">Сегодня время приема еще не наступило. Не забудьте вовремя принять лекарство.</string>
     <string name="home_med_all_done">Все подошедшие приемы записаны (%1$d/%2$d).</string>
     <string name="home_med_go">Принять лекарство</string>
-
     <string name="day_records_title">Записи за день</string>
     <string name="day_records_empty_filtered">Нет записей «%1$s» за этот день</string>
     <string name="day_records_empty">За этот день записей пока нет</string>
     <string name="day_records_empty_hint">Хорошо питайтесь, вовремя принимайте лекарства и запишите что-нибудь для себя</string>
-
     <string name="record_edit">Изменить запись</string>
     <string name="record_delete">Удалить запись</string>
     <string name="record_meal_photo">Фото приема пищи</string>
@@ -256,15 +248,24 @@
     <string name="profile_menu_about">О приложении</string>
     <string name="profile_menu_about_trailing">v%1$s</string>
     <string name="profile_menu_update_trailing">v%1$s</string>
+    <string name="profile_menu_stats_sub">Дни / активность / толерантность</string>
+    <string name="profile_menu_med_settings_sub">Напоминания и время</string>
+    <string name="profile_menu_export_sub">Для врача · TXT / CSV</string>
+    <string name="profile_menu_restore_sub">Восстановить из экспортированного CSV</string>
+    <string name="profile_menu_settings_sub">Лозунги / тема / шрифт / язык</string>
+    <string name="settings_menu_slogans_sub">Контент карусели приветственной карточки</string>
+    <string name="settings_menu_theme_sub">Светлая / тёмная / как в системе</string>
+    <string name="settings_menu_font_sub">Главная / толерантность / уход</string>
+    <string name="settings_menu_language_sub">Интерфейс и уведомления, 12 языков</string>
+    <string name="settings_menu_update_sub">Обновления через Google Play</string>
+    <string name="settings_menu_about_sub">О приложении и дисклеймер</string>
     <string name="profile_font_desc">Изменяет размер текста на страницах Главная, Переносимость и Уход</string>
     <string name="profile_font_sample">Текст</string>
     <string name="profile_about_title">О приложении «Дневник ЯК»</string>
     <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">Ежедневный дневник для людей с язвенным колитом (ЯК):\n· Фото приемов пищи + метки переносимости продуктов\n· Записи о лекарствах и настройка времени приема\n· Записи о стуле (Бристольская шкала) и самооценка активности\n· Ежедневное самочувствие и просмотр в календаре\n· Справочник по ежедневному уходу: основанные на доказательствах рекомендации (питание / образ жизни / лекарства и медицинская помощь / психологическое благополучие) — только для личной справки</string>
     <string name="profile_about_disclaimer">Активность — упрощенный UCDAI (0~8 б.), только для самоконтроля. Данные и фото хранятся только в папке приложения на вашем устройстве и никогда не загружаются.</string>
-
     <string name="language_system">По системе</string>
-
     <string name="theme_system">Как в системе</string>
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Темная</string>
@@ -355,6 +356,7 @@
     <string name="list_level_day">День</string>
     <string name="list_year_header">%1$d</string>
     <string name="list_total_count">Всего записей: %1$d</string>
+    <string name="list_all_time_count">За всё время · %1$d</string>
     <string name="list_month_header">%1$d</string>
     <string name="list_day_header">%2$d.%1$d %3$s</string>
 

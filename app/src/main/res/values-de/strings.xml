@@ -33,22 +33,18 @@
     <string name="tab_daily_management">Alltagspflege</string>
     <string name="tab_profile">Profil</string>
     <string name="quick_add_title">Eintrag hinzufügen</string>
-
     <string name="type_meal">Mahlzeit</string>
     <string name="type_bowel">Stuhlgang</string>
     <string name="type_med">Medikament</string>
     <string name="type_note">Befinden</string>
     <string name="type_tolerance">Verträglichkeit</string>
-
     <string name="meal_breakfast">Frühstück</string>
     <string name="meal_lunch">Mittagessen</string>
     <string name="meal_dinner">Abendessen</string>
     <string name="meal_snack">Snack</string>
-
     <string name="tolerance_ok">Verträglich</string>
     <string name="tolerance_try">Probieren</string>
     <string name="tolerance_bad">Nicht verträglich</string>
-
     <string name="bristol_1">Einzelne harte Klumpen</string>
     <string name="bristol_2">Wurstförmig, aber klumpig</string>
     <string name="bristol_3">Wurstförmig mit Rissen</string>
@@ -56,23 +52,19 @@
     <string name="bristol_5">Weiche Klumpen</string>
     <string name="bristol_6">Breiig</string>
     <string name="bristol_7">Wässrig</string>
-
     <string name="blood_none">Kein</string>
     <string name="blood_little">Leicht</string>
     <string name="blood_clear">Deutlich</string>
     <string name="blood_clots">Gerinnsel</string>
-
     <string name="pain_loc_none">Keine</string>
     <string name="pain_loc_right_lower">Rechter Unterbauch</string>
     <string name="pain_loc_left_lower">Linker Unterbauch</string>
     <string name="pain_loc_periumbilical">Um den Bauchnabel</string>
     <string name="pain_loc_whole">Ganzer Bauch</string>
-
     <string name="activity_remission">Remission</string>
     <string name="activity_mild">Leichte Aktivität</string>
     <string name="activity_moderate">Mäßige Aktivität</string>
     <string name="activity_severe">Starke Aktivität</string>
-
     <string name="week_mon">Montag</string>
     <string name="week_tue">Dienstag</string>
     <string name="week_wed">Mittwoch</string>
@@ -109,18 +101,18 @@
     <string name="home_prev_week">Vorherige Woche</string>
     <string name="home_next_month">Nächster Monat</string>
     <string name="home_next_week">Nächste Woche</string>
+    <string name="home_cal_hint_week">⌄ Nach unten wischen: ganzer Monat</string>
+    <string name="home_cal_hint_month">⌃ Nach oben wischen: Wochenansicht</string>
     <string name="home_month_header">%1$d/%2$d</string>
     <string name="home_date_header">%2$d.%1$d.</string>
     <string name="home_year_week_header">%1$d, Woche %2$d</string>
     <string name="home_med_no_due_time">Heute ist noch keine Einnahmezeit erreicht. Denken Sie daran, Ihre Medikamente pünktlich zu nehmen.</string>
     <string name="home_med_all_done">Alle fälligen Einnahmen sind erfasst (%1$d/%2$d).</string>
     <string name="home_med_go">Medikamente nehmen</string>
-
     <string name="day_records_title">Einträge des Tages</string>
     <string name="day_records_empty_filtered">Keine %1$s-Einträge für diesen Tag</string>
     <string name="day_records_empty">Noch keine Einträge für diesen Tag</string>
     <string name="day_records_empty_hint">Essen Sie gut, nehmen Sie Ihre Medikamente pünktlich und notieren Sie etwas für sich</string>
-
     <string name="record_edit">Eintrag bearbeiten</string>
     <string name="record_delete">Eintrag löschen</string>
     <string name="record_meal_photo">Mahlzeiten-Foto</string>
@@ -256,15 +248,24 @@
     <string name="profile_menu_about">Über</string>
     <string name="profile_menu_about_trailing">v%1$s</string>
     <string name="profile_menu_update_trailing">v%1$s</string>
+    <string name="profile_menu_stats_sub">Tage / Aktivität / Toleranz</string>
+    <string name="profile_menu_med_settings_sub">Erinnerungen &amp; Uhrzeiten</string>
+    <string name="profile_menu_export_sub">Für den Arzt · TXT / CSV</string>
+    <string name="profile_menu_restore_sub">Aus einer CSV-Datei wiederherstellen</string>
+    <string name="profile_menu_settings_sub">Botschaften / Design / Schrift / Sprache</string>
+    <string name="settings_menu_slogans_sub">Bannerinhalt der Willkommenskarte</string>
+    <string name="settings_menu_theme_sub">Hell / dunkel / wie System</string>
+    <string name="settings_menu_font_sub">Start / Toleranz / Tagesmanagement</string>
+    <string name="settings_menu_language_sub">UI &amp; Benachrichtigungen, 12 Sprachen</string>
+    <string name="settings_menu_update_sub">In-App-Updates über Google Play</string>
+    <string name="settings_menu_about_sub">App-Info &amp; Haftungsausschluss</string>
     <string name="profile_font_desc">Passt die Textgröße auf Start-, Verträglichkeits- und Alltagspflege-Seiten an</string>
     <string name="profile_font_sample">Text</string>
     <string name="profile_about_title">Über UC-Tagebuch</string>
     <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">Ein tägliches Begleittagebuch für Menschen mit Colitis ulcerosa (CU):\n· Mahlzeiten-Fotos + Verträglichkeits-Tags\n· Medikamenten-Protokoll und Einnahmezeiten\n· Stuhlgang-Protokoll (Bristol-Skala) und Selbstbeurteilung der Aktivität\n· Tägliches Befinden und Kalender-Rückblick\n· Handbuch zur Alltagspflege: evidenzbasierte Referenzhinweise (Ernährung / Lebensstil / Medikamente &amp; medizinische Versorgung / psychisches Wohlbefinden) – nur zur eigenen Orientierung</string>
     <string name="profile_about_disclaimer">Die Aktivität ist ein vereinfachter UCDAI (0~8 Pkt.) nur zur Selbstbeobachtung. Daten und Fotos werden nur im App-Ordner auf Ihrem Gerät gespeichert und nie hochgeladen.</string>
-
     <string name="language_system">Systemsprache verwenden</string>
-
     <string name="theme_system">System folgen</string>
     <string name="theme_light">Hell</string>
     <string name="theme_dark">Dunkel</string>
@@ -355,6 +356,7 @@
     <string name="list_level_day">Tag</string>
     <string name="list_year_header">%1$d</string>
     <string name="list_total_count">%1$d Einträge insgesamt</string>
+    <string name="list_all_time_count">Gesamter Zeitraum · %1$d</string>
     <string name="list_month_header">%1$d</string>
     <string name="list_day_header">%2$d.%1$d. %3$s</string>
 

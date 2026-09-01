@@ -3,10 +3,10 @@ package com.ucdaily.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.LocalPharmacy
 import androidx.compose.material.icons.filled.Remove
@@ -18,13 +18,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.ucdaily.R
 
-/** 服药设置页（我的→服药设置）：每天服药次数（1~6）+ 对应提醒时间 */
+/**
+ * 服药设置页（我的→服药设置，设计稿 .medcard / .time-row）：
+ * 渐变 Hero 卡（每天服药次数 + 步进器）+ 提醒时间列表（白卡 + 蓝色图标底 + 主色时间）。
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedSettingsScreen(
@@ -35,6 +42,7 @@ fun MedSettingsScreen(
 ) {
     var pickerIndex by remember { mutableStateOf(-1) }
     val times = state.medReminderTimes
+    val p = ucPalette()
 
     Column(
         modifier = Modifier
@@ -42,37 +50,30 @@ fun MedSettingsScreen(
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
-        // 顶部标题栏
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowLeft,
-                    contentDescription = stringResource(R.string.common_back),
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-            Text(
-                text = stringResource(R.string.med_settings_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        // 顶部标题栏（统一样式）
+        SecondaryTopBar(
+            onBack = onBack,
+            title = stringResource(R.string.med_settings_title)
+        )
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-            // ① 每天服药次数
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = blueCardBackground()),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            // ① 每天服药次数（设计稿 .medcard：渐变底 + 标题/说明 + 半透明白色步进器）
+            val heroShape = RoundedCornerShape(18.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(
+                        8.dp,
+                        heroShape,
+                        ambientColor = Color(0xFF2563EB).copy(alpha = if (LocalDarkTheme.current) 0.4f else 0.25f),
+                        spotColor = Color(0xFF2563EB).copy(alpha = if (LocalDarkTheme.current) 0.4f else 0.25f)
+                    )
+                    .clip(heroShape)
+                    .background(heroBrush())
             ) {
                 Row(
                     modifier = Modifier
@@ -81,99 +82,103 @@ fun MedSettingsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(text = stringResource(R.string.med_settings_daily_count), style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            text = stringResource(R.string.med_settings_daily_count),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = stringResource(R.string.med_settings_times_hint),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            fontSize = 10.5.sp,
+                            color = Color.White.copy(alpha = 0.85f)
                         )
                     }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        IconButton(
+                        MedStepButton(
+                            icon = Icons.Filled.Remove,
+                            contentDescription = stringResource(R.string.med_settings_decrease_one),
                             onClick = { onTimesChange(times.size - 1) },
                             enabled = times.size > 1
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Remove,
-                                contentDescription = stringResource(R.string.med_settings_decrease_one)
-                            )
-                        }
+                        )
                         Text(
                             text = stringResource(R.string.common_times_count, times.size),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
                         )
-                        IconButton(
+                        MedStepButton(
+                            icon = Icons.Filled.Add,
+                            contentDescription = stringResource(R.string.med_settings_increase_one),
                             onClick = { onTimesChange(times.size + 1) },
                             enabled = times.size < 6
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Add,
-                                contentDescription = stringResource(R.string.med_settings_increase_one)
-                            )
-                        }
+                        )
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // ② 提醒时间列表
-            Card(
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-                )
+            // ② 提醒时间列表（设计稿 .time-row：白卡 + 蓝色图标底 + 主色加粗时间）
+            val cardShape = RoundedCornerShape(16.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .softShadow(elevation = 2.dp, shape = cardShape)
+                    .clip(cardShape)
+                    .background(p.surface)
             ) {
-                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)) {
                     times.forEachIndexed { i, t ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { pickerIndex = i }
-                                .padding(vertical = 12.dp),
+                                .padding(vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
                                 modifier = Modifier
                                     .size(32.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(MaterialTheme.colorScheme.primaryContainer),
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(p.primarySoft),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.LocalPharmacy,
                                     contentDescription = null,
                                     modifier = Modifier.size(18.dp),
-                                    tint = MaterialTheme.colorScheme.primary
+                                    tint = p.primaryText
                                 )
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = stringResource(R.string.med_settings_nth, i + 1),
-                                style = MaterialTheme.typography.bodyLarge,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = p.text,
                                 modifier = Modifier.weight(1f)
                             )
                             Text(
                                 text = t,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = p.primaryText
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Icon(
                                 imageVector = Icons.Filled.KeyboardArrowRight,
                                 contentDescription = stringResource(R.string.med_settings_change_time),
                                 modifier = Modifier.size(18.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = p.ring
                             )
                         }
                         if (i < times.size - 1) {
-                            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+                            HorizontalDivider(color = p.surface2)
                         }
                     }
                 }
@@ -192,12 +197,11 @@ fun MedSettingsScreen(
     // 提醒时间选择对话框（M3 TimePicker，24 小时制）
     if (pickerIndex in times.indices) {
         val index = pickerIndex
-        val (h, m) = times[index].split(":").map { it.toInt() }
-        // TimePickerState 只能创建一次：记在状态槽里，首次进入时初始化
-        var timeState by remember(index) { mutableStateOf<TimePickerState?>(null) }
-        if (timeState == null) {
-            timeState = rememberTimePickerState(initialHour = h, initialMinute = m, is24Hour = true)
-        }
+        val timeState = rememberTimePickerState(
+            initialHour = times[index].substringBefore(':').toIntOrNull() ?: 8,
+            initialMinute = times[index].substringAfter(':').toIntOrNull() ?: 0,
+            is24Hour = true
+        )
         AlertDialog(
             onDismissRequest = { pickerIndex = -1 },
             title = { Text(stringResource(R.string.med_settings_picker_title, index + 1)) },
@@ -206,12 +210,12 @@ fun MedSettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    TimePicker(state = timeState!!)
+                    TimePicker(state = timeState)
                 }
             },
             confirmButton = {
                 TextButton(onClick = {
-                    onTimeChange(index, "%02d:%02d".format(timeState!!.hour, timeState!!.minute))
+                    onTimeChange(index, "%02d:%02d".format(timeState.hour, timeState.minute))
                     pickerIndex = -1
                 }) {
                     Text(stringResource(R.string.common_ok))
@@ -222,6 +226,32 @@ fun MedSettingsScreen(
                     Text(stringResource(R.string.common_cancel))
                 }
             }
+        )
+    }
+}
+
+/** 渐变 Hero 卡内的步进按钮：34dp 半透明白圆 + 白图标 */
+@Composable
+private fun MedStepButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+    enabled: Boolean
+) {
+    Box(
+        modifier = Modifier
+            .size(34.dp)
+            .clip(CircleShape)
+            .background(Color.White.copy(alpha = 0.22f))
+            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
+            .alpha(if (enabled) 1f else 0.4f),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            modifier = Modifier.size(18.dp),
+            tint = Color.White
         )
     }
 }

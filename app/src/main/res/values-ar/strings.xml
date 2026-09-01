@@ -33,22 +33,18 @@
     <string name="tab_daily_management">الرعاية اليومية</string>
     <string name="tab_profile">حسابي</string>
     <string name="quick_add_title">إضافة سجل</string>
-
     <string name="type_meal">طعام</string>
     <string name="type_bowel">براز</string>
     <string name="type_med">دواء</string>
     <string name="type_note">حالة</string>
     <string name="type_tolerance">تحمل</string>
-
     <string name="meal_breakfast">فطور</string>
     <string name="meal_lunch">غداء</string>
     <string name="meal_dinner">عشاء</string>
     <string name="meal_snack">وجبة خفيفة</string>
-
     <string name="tolerance_ok">متسامح معه</string>
     <string name="tolerance_try">تجربة</string>
     <string name="tolerance_bad">غير متسامح</string>
-
     <string name="bristol_1">كتل صلبة منفصلة</string>
     <string name="bristol_2">شكل نقانق لكنه متكتّل</string>
     <string name="bristol_3">نقانق به تشققات</string>
@@ -56,23 +52,19 @@
     <string name="bristol_5">كتل طرية</string>
     <string name="bristol_6">عجيني</string>
     <string name="bristol_7">مائي</string>
-
     <string name="blood_none">لا يوجد</string>
     <string name="blood_little">طفيف</string>
     <string name="blood_clear">واضح</string>
     <string name="blood_clots">جلطات</string>
-
     <string name="pain_loc_none">لا يوجد</string>
     <string name="pain_loc_right_lower">الربع السفلي الأيمن</string>
     <string name="pain_loc_left_lower">الربع السفلي الأيسر</string>
     <string name="pain_loc_periumbilical">حول السرة</string>
     <string name="pain_loc_whole">البطن بالكامل</string>
-
     <string name="activity_remission">هدأة</string>
     <string name="activity_mild">نشاط خفيف</string>
     <string name="activity_moderate">نشاط متوسط</string>
     <string name="activity_severe">نشاط شديد</string>
-
     <string name="week_mon">الاثنين</string>
     <string name="week_tue">الثلاثاء</string>
     <string name="week_wed">الأربعاء</string>
@@ -109,18 +101,18 @@
     <string name="home_prev_week">الأسبوع السابق</string>
     <string name="home_next_month">الشهر التالي</string>
     <string name="home_next_week">الأسبوع التالي</string>
+    <string name="home_cal_hint_week">⌄ اسحب للأسفل: الشهر كاملًا</string>
+    <string name="home_cal_hint_month">⌃ اسحب للأعلى: عرض الأسبوع</string>
     <string name="home_month_header">%1$d/%2$d</string>
     <string name="home_date_header">%2$d/%1$d</string>
     <string name="home_year_week_header">%1$d، الأسبوع %2$d</string>
     <string name="home_med_no_due_time">لم يحن موعد أي جرعة اليوم بعد. تذكّر تناول دوائك في موعده.</string>
     <string name="home_med_all_done">تم تسجيل جميع الجرعات التي حان موعدها (%1$d/%2$d).</string>
     <string name="home_med_go">تناول الدواء</string>
-
     <string name="day_records_title">سجلات اليوم</string>
     <string name="day_records_empty_filtered">لا توجد سجلات «%1$s» لهذا اليوم</string>
     <string name="day_records_empty">لا توجد سجلات لهذا اليوم بعد</string>
     <string name="day_records_empty_hint">كُل جيدًا، تناول دواءك في موعده، ودوّن سطرًا لنفسك</string>
-
     <string name="record_edit">تعديل السجل</string>
     <string name="record_delete">حذف السجل</string>
     <string name="record_meal_photo">صورة الوجبة</string>
@@ -256,15 +248,24 @@
     <string name="profile_menu_about">حول</string>
     <string name="profile_menu_about_trailing">v%1$s</string>
     <string name="profile_menu_update_trailing">v%1$s</string>
+    <string name="profile_menu_stats_sub">أيام / نشاط / تحمل</string>
+    <string name="profile_menu_med_settings_sub">التذكيرات والأوقات</string>
+    <string name="profile_menu_export_sub">للطبيب · TXT / CSV</string>
+    <string name="profile_menu_restore_sub">استعادة من ملف CSV مُصدَّر</string>
+    <string name="profile_menu_settings_sub">الرسائل / المظهر / الخط / اللغة</string>
+    <string name="settings_menu_slogans_sub">محتوى شريط بطاقة الترحيب</string>
+    <string name="settings_menu_theme_sub">فاتح / داكن / اتباع النظام</string>
+    <string name="settings_menu_font_sub">الرئيسية / التحمل / الإدارة اليومية</string>
+    <string name="settings_menu_language_sub">الواجهة والإشعارات، 12 لغة</string>
+    <string name="settings_menu_update_sub">تحديثات عبر Google Play</string>
+    <string name="settings_menu_about_sub">معلومات التطبيق والإخلاء</string>
     <string name="profile_font_desc">اضبط حجم النص في صفحات الرئيسية والتحمل والرعاية اليومية</string>
     <string name="profile_font_sample">نص</string>
     <string name="profile_about_title">حول يوميات UC</string>
     <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">مذكرة يومية مصممة لمرضى التهاب القولون التقرحي (UC):\n· صور الوجبات + وسوم تحمّل الأطعمة\n· سجل الأدوية وضبط مواعيد الجرعات\n· سجل البراز (مقياس بريستول) وتقييم ذاتي للنشاط\n· الحالة اليومية والمراجعة عبر التقويم\n· دليل الرعاية اليومية: إرشادات مرجعية مبنية على الأدلة (الغذاء / نمط الحياة / الأدوية والرعاية الطبية / الصحة النفسية) — للاطلاع الشخصي فقط</string>
     <string name="profile_about_disclaimer">النشاط هو UCDAI مبسّط (0~8 نقاط) للمراقبة الذاتية فقط. تُحفظ البيانات والصور في مجلد التطبيق على جهازك فقط ولا يتم رفعها أبدًا.</string>
-
     <string name="language_system">تبعية لغة النظام</string>
-
     <string name="theme_system">تبعية النظام</string>
     <string name="theme_light">فاتح</string>
     <string name="theme_dark">داكن</string>
@@ -355,6 +356,7 @@
     <string name="list_level_day">يوم</string>
     <string name="list_year_header">%1$d</string>
     <string name="list_total_count">إجمالي %1$d عنصرًا</string>
+    <string name="list_all_time_count">الفترة كاملة · %1$d</string>
     <string name="list_month_header">%1$d</string>
     <string name="list_day_header">%2$d/%1$d %3$s</string>
 

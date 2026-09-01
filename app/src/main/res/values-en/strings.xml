@@ -33,22 +33,18 @@
     <string name="tab_daily_management">Daily Care</string>
     <string name="tab_profile">Profile</string>
     <string name="quick_add_title">Add Record</string>
-
     <string name="type_meal">Meal</string>
     <string name="type_bowel">Bowel movement</string>
     <string name="type_med">Medication</string>
     <string name="type_note">Note</string>
     <string name="type_tolerance">Tolerance</string>
-
     <string name="meal_breakfast">Breakfast</string>
     <string name="meal_lunch">Lunch</string>
     <string name="meal_dinner">Dinner</string>
     <string name="meal_snack">Snack</string>
-
     <string name="tolerance_ok">OK</string>
     <string name="tolerance_try">Try</string>
     <string name="tolerance_bad">Avoid</string>
-
     <string name="bristol_1">Separate hard lumps</string>
     <string name="bristol_2">Sausage-shaped but lumpy</string>
     <string name="bristol_3">Sausage-shaped with cracks</string>
@@ -56,23 +52,19 @@
     <string name="bristol_5">Soft blobs</string>
     <string name="bristol_6">Mushy</string>
     <string name="bristol_7">Watery</string>
-
     <string name="blood_none">None</string>
     <string name="blood_little">Slight</string>
     <string name="blood_clear">Obvious</string>
     <string name="blood_clots">Clots</string>
-
     <string name="pain_loc_none">None</string>
     <string name="pain_loc_right_lower">Right lower</string>
     <string name="pain_loc_left_lower">Left lower</string>
     <string name="pain_loc_periumbilical">Periumbilical</string>
     <string name="pain_loc_whole">Whole abdomen</string>
-
     <string name="activity_remission">Remission</string>
     <string name="activity_mild">Mild activity</string>
     <string name="activity_moderate">Moderate activity</string>
     <string name="activity_severe">Severe activity</string>
-
     <string name="week_mon">Mon</string>
     <string name="week_tue">Tue</string>
     <string name="week_wed">Wed</string>
@@ -109,18 +101,18 @@
     <string name="home_prev_week">Previous week</string>
     <string name="home_next_month">Next month</string>
     <string name="home_next_week">Next week</string>
+    <string name="home_cal_hint_week">⌄ Swipe down for full month</string>
+    <string name="home_cal_hint_month">⌃ Swipe up for week view</string>
     <string name="home_month_header">%2$d/%1$d</string>
     <string name="home_date_header">%1$d/%2$d</string>
     <string name="home_year_week_header">%1$d, week %2$d</string>
     <string name="home_med_no_due_time">No medication time has been reached today yet. Remember to take your medicine on time.</string>
     <string name="home_med_all_done">All scheduled doses have been recorded (%1$d/%2$d).</string>
     <string name="home_med_go">Take medicine</string>
-
     <string name="day_records_title">Today\'s Records</string>
     <string name="day_records_empty_filtered">No %1$s records for this day</string>
     <string name="day_records_empty">No records for this day yet</string>
     <string name="day_records_empty_hint">Eat well, take your medicine on time, and jot down a note for yourself</string>
-
     <string name="record_edit">Edit record</string>
     <string name="record_delete">Delete record</string>
     <string name="record_meal_photo">Meal photo</string>
@@ -256,15 +248,24 @@
     <string name="profile_menu_about">About</string>
     <string name="profile_menu_about_trailing">v%1$s</string>
     <string name="profile_menu_update_trailing">v%1$s</string>
+    <string name="profile_menu_stats_sub">Record days / activity / tolerance</string>
+    <string name="profile_menu_med_settings_sub">Reminders and times</string>
+    <string name="profile_menu_export_sub">For your doctor · TXT / CSV</string>
+    <string name="profile_menu_restore_sub">From an exported CSV file</string>
+    <string name="profile_menu_settings_sub">Slogans / theme / font / language</string>
+    <string name="settings_menu_slogans_sub">Welcome card carousel content</string>
+    <string name="settings_menu_theme_sub">Light / dark / follow system</string>
+    <string name="settings_menu_font_sub">Home / tolerance / management</string>
+    <string name="settings_menu_language_sub">UI &amp; notifications, 12 languages</string>
+    <string name="settings_menu_update_sub">Google Play in-app updates</string>
+    <string name="settings_menu_about_sub">App info &amp; disclaimer</string>
     <string name="profile_font_desc">Adjust the text size on the Home, Tolerance and Daily Care pages</string>
     <string name="profile_font_sample">Text</string>
     <string name="profile_about_title">About UC Daily</string>
     <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">A daily self-care journal designed for people with Ulcerative Colitis (UC):\n· Meal photos + food tolerance tags\n· Medication log and reminder time settings\n· Bowel log (Bristol scale) and activity self-assessment\n· Daily notes and calendar review\n· UC daily care handbook: evidence-based reference advice on diet / lifestyle / medication &amp; medical care / mental well-being (for self-reference only)</string>
     <string name="profile_about_disclaimer">Activity is a simplified UCDAI (0~8 pts) for self-monitoring reference only. Data and photos are stored only in the app directory on your device and are never uploaded.</string>
-
     <string name="language_system">Follow system</string>
-
     <string name="theme_system">Follow system</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
@@ -355,6 +356,7 @@
     <string name="list_level_day">Day</string>
     <string name="list_year_header">%1$d</string>
     <string name="list_total_count">%1$d items in total</string>
+    <string name="list_all_time_count">All time · %1$d</string>
     <string name="list_month_header">%1$d</string>
     <string name="list_day_header">%1$d/%2$d %3$s</string>
 

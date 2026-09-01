@@ -137,16 +137,18 @@ private fun ManualHeader() {
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.width(8.dp))
+            val p = ucPalette()
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(40.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .padding(horizontal = 12.dp, vertical = 2.dp)
+                    .background(p.primarySoft)
+                    .padding(horizontal = 10.dp, vertical = 2.dp)
             ) {
                 Text(
                     text = "UC",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = p.primaryText
                 )
             }
         }
@@ -158,7 +160,7 @@ private fun ManualHeader() {
             lineHeight = 21.sp
         )
         Spacer(modifier = Modifier.height(16.dp))
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        HorizontalDivider(color = ucPalette().ring)
     }
 }
 
@@ -170,7 +172,7 @@ private fun ManualFooter() {
             .fillMaxWidth()
             .padding(top = 4.dp)
     ) {
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        HorizontalDivider(color = ucPalette().ring)
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             modifier = Modifier.fillMaxWidth(),
@@ -195,46 +197,61 @@ private fun ManualCard(
     onHeaderClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
-    val scheme = MaterialTheme.colorScheme
+    val p = ucPalette()
+    val shape = RoundedCornerShape(18.dp)
     val arrowRotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         animationSpec = tween(300),
         label = "arrow"
     )
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        color = if (expanded) scheme.surfaceContainerLowest else scheme.surfaceContainer,
-        border = BorderStroke(
-            1.dp,
-            if (expanded) scheme.primary else scheme.outlineVariant
-        ),
-        shadowElevation = if (expanded) 4.dp else 0.dp
+    // 设计稿 .mcard：表面底 + 描边；展开 = 主色描边 + 阴影
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .softShadow(
+                elevation = if (expanded) 4.dp else 2.dp,
+                shape = shape
+            )
+            .clip(shape)
+            .background(p.surface)
+            .border(
+                if (expanded) 1.5.dp else 1.dp,
+                if (expanded) p.primary else p.ring,
+                shape
+            )
     ) {
         Column {
-            // 卡片头：emoji + 标题 … 箭头
+            // 卡片头：emoji 图标底 + 标题 … 箭头
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = onHeaderClick)
-                    .padding(horizontal = 18.dp, vertical = 16.dp),
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = card.icon, fontSize = 22.sp)
+                    Box(
+                        modifier = Modifier
+                            .size(34.dp)
+                            .clip(RoundedCornerShape(11.dp))
+                            .background(p.primarySoft),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = card.icon, fontSize = 17.sp)
+                    }
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = stringResource(card.titleRes),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = scheme.onSurface
+                        fontSize = 14.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = p.text
                     )
                 }
                 Icon(
                     imageVector = Icons.Filled.ExpandMore,
                     contentDescription = null,
-                    tint = if (expanded) scheme.primary else scheme.onSurfaceVariant,
+                    tint = if (expanded) p.primary else p.text2,
                     modifier = Modifier
                         .size(20.dp)
                         .graphicsLayer { rotationZ = arrowRotation }
@@ -247,10 +264,10 @@ private fun ManualCard(
                 exit = shrinkVertically()
             ) {
                 Column(
-                    modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 18.dp)
+                    modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = 16.dp)
                 ) {
                     HorizontalDivider(
-                        color = scheme.outlineVariant,
+                        color = p.surface2,
                         modifier = Modifier.padding(bottom = 10.dp)
                     )
                     content()
@@ -273,9 +290,9 @@ private fun SectionTitle(
 ) {
     Text(
         text = text,
-        style = MaterialTheme.typography.titleSmall,
-        fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.primary,
+        fontSize = 12.5.sp,
+        fontWeight = FontWeight.Bold,
+        color = ucPalette().primaryText,
         modifier = Modifier.padding(top = if (first) 6.dp else 14.dp)
     )
 }
@@ -321,7 +338,7 @@ private fun BulletList(items: List<Bullet>) {
                     text = "•",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = ucPalette().primary,
                     modifier = Modifier.width(18.dp)
                 )
                 Text(
@@ -343,17 +360,16 @@ private fun BulletList(items: List<Bullet>) {
     }
 }
 
-/** 重点提示框（.highlight-box）：浅色底 + 左侧主题色竖条 */
+/** 重点提示框（.highlight-box）：primary-soft 底 + 左侧主题色竖条 */
 @Composable
 private fun HighlightBox(markup: String) {
+    val p = ucPalette()
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 12.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
-            )
+            .background(p.primarySoft)
             .padding(horizontal = 12.dp, vertical = 12.dp)
     ) {
         Box(
@@ -361,7 +377,7 @@ private fun HighlightBox(markup: String) {
                 .width(4.dp)
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(2.dp))
-                .background(MaterialTheme.colorScheme.primary)
+                .background(p.primary)
         )
         Spacer(modifier = Modifier.width(10.dp))
         Text(
@@ -390,7 +406,7 @@ private fun DietContent() {
                     pushStyle(
                         SpanStyle(
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = ucPalette().primary
                         )
                     )
                 }
@@ -602,8 +618,8 @@ private fun AssessmentContent() {
         )
     }
 
-    // 计算评分按钮
-    Button(
+    // 计算评分按钮（设计稿 .btn：渐变）
+    GradientButton(
         onClick = {
             resultTotal = selections.mapIndexed { index, picked -> SCORE_QUESTIONS[index][picked].score }.sum()
             showResult = true
@@ -611,23 +627,18 @@ private fun AssessmentContent() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 12.dp, bottom = 4.dp),
-        shape = RoundedCornerShape(40.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.dm_assess_score_button),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-    }
+        text = stringResource(R.string.dm_assess_score_button)
+    )
 
     // 评分结果
+    val p2 = ucPalette()
     AnimatedVisibility(visible = showResult) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(scheme.secondaryContainer.copy(alpha = 0.6f)),
+                .clip(RoundedCornerShape(14.dp))
+                .background(p2.primarySoft),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
@@ -635,7 +646,7 @@ private fun AssessmentContent() {
                     .width(4.dp)
                     .height(36.dp)
                     .clip(RoundedCornerShape(2.dp))
-                    .background(scheme.primary)
+                    .background(p2.primary)
             )
             Column(
                 modifier = Modifier
@@ -652,7 +663,7 @@ private fun AssessmentContent() {
                         text = "$resultTotal",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        color = scheme.onSurface
+                        color = p2.text
                     )
                     Text(
                         text = " ${stringResource(R.string.common_points)}",
@@ -663,7 +674,7 @@ private fun AssessmentContent() {
                     text = scoreStatus(resultTotal),
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
-                    color = scheme.primary
+                    color = p2.primaryText
                 )
             }
         }
@@ -686,7 +697,7 @@ private fun ScoreSelect(
     selectedIndex: Int,
     onSelect: (Int) -> Unit
 ) {
-    val scheme = MaterialTheme.colorScheme
+    val p = ucPalette()
     var menuOpen by remember { mutableStateOf(false) }
 
     Column(
@@ -696,21 +707,21 @@ private fun ScoreSelect(
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Medium,
-            color = scheme.onSurface
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = p.text
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         Box {
             Row(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(30.dp))
+                    .clip(RoundedCornerShape(14.dp))
                     .border(
                         1.dp,
-                        if (menuOpen) scheme.primary else scheme.outlineVariant,
-                        RoundedCornerShape(30.dp)
+                        if (menuOpen) p.primary else p.ring,
+                        RoundedCornerShape(14.dp)
                     )
-                    .background(scheme.surfaceContainerLowest)
+                    .background(p.surface)
                     .clickable { menuOpen = true }
                     .padding(horizontal = 14.dp, vertical = 9.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -718,13 +729,13 @@ private fun ScoreSelect(
             ) {
                 Text(
                     text = stringResource(options[selectedIndex].labelRes),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = scheme.onSurface
+                    fontSize = 12.5.sp,
+                    color = p.text
                 )
                 Icon(
                     imageVector = Icons.Filled.ExpandMore,
                     contentDescription = null,
-                    tint = scheme.onSurfaceVariant,
+                    tint = p.text2,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -740,7 +751,7 @@ private fun ScoreSelect(
                                 Icon(
                                     imageVector = Icons.Filled.Check,
                                     contentDescription = null,
-                                    tint = scheme.primary
+                                    tint = p.primary
                                 )
                             }
                         } else null,

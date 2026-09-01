@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.*
@@ -26,8 +27,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerId
@@ -37,9 +40,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import android.os.SystemClock
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.ucdaily.R
 import com.ucdaily.data.ActivityLevel
@@ -136,6 +141,266 @@ fun RecordOverlays(
     }
 }
 
+/**
+ * 记录面板容器（设计稿 .sheet）：半透明遮罩 + 底部抽屉（顶部 26dp 圆角 + 拖拽条 + 标题行 + 关闭按钮）。
+ * 内容高度自适应：内容短时抽屉跟着变矮（服药/感受面板），最高 88% 视区高度。
+ * 点遮罩或关闭按钮 = 取消（系统返回键由 MainActivity 的 BackHandler 走同一回调）。
+ */
+@Composable
+private fun RecordSheet(
+    title: String,
+    subtitle: String,
+    onCancel: () -> Unit,
+    footer: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val p = ucPalette()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+    ) {
+        // 遮罩：点击取消
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.45f))
+                .clickable(
+                    onClick = onCancel,
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                )
+        )
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val shape = RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp)
+            // 面板最高占 88% 视区（maxHeight 为 Dp，含系统栏）
+            val maxSheetHeight = maxHeight * 0.88f
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .heightIn(max = maxSheetHeight)
+                    .shadow(
+                        14.dp,
+                        shape,
+                        ambientColor = Color.Black.copy(alpha = if (LocalDarkTheme.current) 0.5f else 0.18f),
+                        spotColor = Color.Black.copy(alpha = if (LocalDarkTheme.current) 0.5f else 0.18f)
+                    )
+                    .clip(shape)
+                    .background(p.surface)
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    // 顶部拖拽条
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .width(38.dp)
+                                .height(4.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(p.ring)
+                        )
+                    }
+                    // 标题行：标题 + 记录日期 + 关闭按钮
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 8.dp, top = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = title,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = p.text
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = subtitle,
+                            fontSize = 10.5.sp,
+                            color = p.text2,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Box(
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(CircleShape)
+                                .background(p.surface2)
+                                .clickable(onClick = onCancel),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = stringResource(R.string.common_cancel),
+                                modifier = Modifier.size(16.dp),
+                                tint = p.text2
+                            )
+                        }
+                    }
+                    // 可滚动内容区
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 16.dp)
+                            .padding(top = 6.dp, bottom = 4.dp),
+                        content = content
+                    )
+                    // 底部固定操作区
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 16.dp)
+                    ) {
+                        footer()
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** 面板内分组小标题（设计稿 .seclab）：12sp 加粗灰字 */
+@Composable
+private fun SectionLabel(text: String) {
+    Text(
+        text = text,
+        fontSize = 12.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = ucPalette().text2
+    )
+}
+
+/** 面板内选项胶囊（设计稿 .chip）：未选 = 白底 + 描边 + 灰字；选中 = 主色填充 + 白字加粗 */
+@Composable
+private fun PanelChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val p = ucPalette()
+    val shape = RoundedCornerShape(50.dp)
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .background(if (selected) p.primary else p.surface)
+            .border(1.dp, if (selected) p.primary else p.ring, shape)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 5.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = if (selected) Color.White else p.text2
+        )
+    }
+}
+
+/** 餐次分段控件（设计稿 .seg）：surface2 底 + 4 格，选中格白底阴影 + 主色加粗文字 */
+@Composable
+private fun MealTypeSegment(selected: MealType, onChange: (MealType) -> Unit) {
+    val p = ucPalette()
+    val selShape = RoundedCornerShape(10.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(13.dp))
+            .background(p.surface2)
+            .padding(3.dp),
+        horizontalArrangement = Arrangement.spacedBy(3.dp)
+    ) {
+        MealType.entries.forEach { type ->
+            val isSel = type == selected
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(selShape)
+                    .then(
+                        if (isSel) {
+                            Modifier.shadow(
+                                2.dp,
+                                selShape,
+                                ambientColor = Color.Black.copy(alpha = 0.08f),
+                                spotColor = Color.Black.copy(alpha = 0.08f)
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
+                    .then(if (isSel) Modifier.background(p.surface) else Modifier)
+                    .clickable { onChange(type) }
+                    .padding(vertical = 7.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(type.labelRes),
+                    fontSize = 12.sp,
+                    fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal,
+                    color = if (isSel) p.primaryText else p.text2
+                )
+            }
+        }
+    }
+}
+
+/** 计数步进（设计稿 .stepper2）：38dp 方块 − / + 按钮 + 居中计数 */
+@Composable
+private fun CountStepper(
+    countText: String,
+    onMinus: () -> Unit,
+    onPlus: () -> Unit,
+    minusEnabled: Boolean,
+    plusEnabled: Boolean
+) {
+    val p = ucPalette()
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        StepButton("−", onMinus, minusEnabled)
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = countText,
+            fontSize = 19.sp,
+            fontWeight = FontWeight.Bold,
+            color = p.text,
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        StepButton("+", onPlus, plusEnabled)
+    }
+}
+
+@Composable
+private fun StepButton(label: String, onClick: () -> Unit, enabled: Boolean) {
+    val p = ucPalette()
+    val shape = RoundedCornerShape(12.dp)
+    Box(
+        modifier = Modifier
+            .size(38.dp)
+            .clip(shape)
+            .background(p.surface2)
+            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
+            .alpha(if (enabled) 1f else 0.35f),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = label, fontSize = 18.sp, color = p.text)
+    }
+}
+
 /** 面板日期文案：今天 = "今天"，否则按当前语言格式化 "M月d日 E" */
 @Composable
 private fun panelDateText(date: java.time.LocalDate): String {
@@ -183,38 +448,42 @@ fun DayRecordHeader(
     state: MealUiState,
     onClearFilter: (() -> Unit)? = null
 ) {
+    // 设计稿 .sec-head：加粗标题 + primary-soft 条数徽章；筛选时附"恢复"小按钮
+    val p = ucPalette()
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = stringResource(R.string.day_records_title),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = p.text
         )
         val count = state.visibleCount()
         if (count > 0) {
             Spacer(modifier = Modifier.width(8.dp))
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(50.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .padding(horizontal = 10.dp, vertical = 2.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.common_items_count, count),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
+            CountBadge(text = stringResource(R.string.common_items_count, count))
         }
         if (state.dayRecordFilter != null && onClearFilter != null) {
-            Spacer(modifier = Modifier.width(4.dp))
-            TextButton(onClick = onClearFilter) {
+            Spacer(modifier = Modifier.width(6.dp))
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50.dp))
+                    .background(p.surface2)
+                    .clickable(onClick = onClearFilter)
+                    .padding(horizontal = 8.dp, vertical = 3.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Icon(
                     imageVector = Icons.Filled.Close,
                     contentDescription = null,
-                    modifier = Modifier.size(14.dp)
+                    modifier = Modifier.size(11.dp),
+                    tint = p.text2
                 )
                 Spacer(modifier = Modifier.width(2.dp))
-                Text(stringResource(R.string.common_restore))
+                Text(
+                    stringResource(R.string.common_restore),
+                    fontSize = 10.5.sp,
+                    color = p.text2
+                )
             }
         }
     }
@@ -375,71 +644,41 @@ private fun AddRecordPanel(
     val isToday = state.selectedDate == state.today
     val dateText = panelDateText(state.selectedDate)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .padding(horizontal = 16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = if (isEditing) stringResource(R.string.panel_edit_meal)
-                else stringResource(R.string.panel_add_meal),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            IconButton(onClick = onCancel) {
-                Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.common_cancel))
-            }
+    val subtitle = if (isEditing) {
+        stringResource(R.string.panel_editing_on, dateText)
+    } else {
+        buildString {
+            append(stringResource(R.string.panel_record_to)).append(dateText)
+            if (!isToday) append(stringResource(R.string.panel_backfill))
         }
+    }
 
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = if (isEditing) {
-                stringResource(R.string.panel_editing_on, dateText)
-            } else {
-                buildString {
-                    append(stringResource(R.string.panel_record_to)).append(dateText)
-                    if (!isToday) append(stringResource(R.string.panel_backfill))
-                }
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 可滚动内容区
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-        ) {
-            // 记录时间（补录时可调整）
-            SectionLabel(stringResource(R.string.panel_time))
+    RecordSheet(
+        title = if (isEditing) stringResource(R.string.panel_edit_meal)
+        else stringResource(R.string.panel_add_meal),
+        subtitle = subtitle,
+        onCancel = onCancel,
+        footer = {
+            GradientButton(
+                onClick = onSave,
+                text = if (isEditing) stringResource(R.string.panel_save_changes)
+                else stringResource(R.string.panel_save_record),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    ) {
+        // 记录时间（补录时可调整）
+        SectionLabel(stringResource(R.string.panel_time))
             Spacer(modifier = Modifier.height(8.dp))
             TimePickerRow(time = state.draft.time, onSelect = onTimeChange)
 
             Spacer(modifier = Modifier.height(20.dp))
             SectionLabel(stringResource(R.string.panel_meal_type))
             Spacer(modifier = Modifier.height(8.dp))
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                MealType.entries.forEach { type ->
-                    FilterChip(
-                        selected = state.draft.mealType == type,
-                        onClick = { onMealTypeChange(type) },
-                        label = { Text(stringResource(type.labelRes)) }
-                    )
-                }
-            }
+            MealTypeSegment(
+                selected = state.draft.mealType,
+                onChange = onMealTypeChange
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
             SectionLabel(stringResource(R.string.panel_photos))
@@ -453,8 +692,8 @@ private fun AddRecordPanel(
                     state.draft.photos.forEachIndexed { index, path ->
                         Box(
                             modifier = Modifier
-                                .size(84.dp)
-                                .clip(RoundedCornerShape(10.dp))
+                                .size(76.dp)
+                                .clip(RoundedCornerShape(14.dp))
                         ) {
                             AsyncImage(
                                 model = File(path),
@@ -484,13 +723,20 @@ private fun AddRecordPanel(
                 Spacer(modifier = Modifier.height(10.dp))
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = onAddPhotoByCamera) {
-                    Text(stringResource(R.string.panel_take_photo))
-                }
-                OutlinedButton(onClick = onAddPhotoByGallery) {
-                    Text(stringResource(R.string.panel_from_album))
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                OutlineButton2(
+                    onClick = onAddPhotoByCamera,
+                    text = stringResource(R.string.panel_take_photo),
+                    modifier = Modifier.weight(1f)
+                )
+                OutlineButton2(
+                    onClick = onAddPhotoByGallery,
+                    text = stringResource(R.string.panel_from_album),
+                    modifier = Modifier.weight(1f)
+                )
             }
 
             // 添加食物标签（从耐受页移来）
@@ -534,26 +780,12 @@ private fun AddRecordPanel(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 100.dp),
+                shape = RoundedCornerShape(12.dp),
                 placeholder = { Text(stringResource(R.string.panel_meal_note_hint)) },
                 minLines = 3
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        Button(
-            onClick = onSave,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-        ) {
-            Text(
-                if (isEditing) stringResource(R.string.panel_save_changes)
-                else stringResource(R.string.panel_save_record),
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(4.dp))
     }
 }
 
@@ -574,48 +806,26 @@ private fun MedRecordPanel(
     /** 长按后显示删除角标的标签名（null = 无） */
     var editingMedName by remember { mutableStateOf<String?>(null) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .padding(horizontal = 16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = if (isEditing) stringResource(R.string.panel_edit_med)
-                else stringResource(R.string.panel_add_med),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+    RecordSheet(
+        title = if (isEditing) stringResource(R.string.panel_edit_med)
+        else stringResource(R.string.panel_add_med),
+        subtitle = buildString {
+            append(stringResource(R.string.panel_record_to)).append(dateText)
+            if (!isToday) append(stringResource(R.string.panel_backfill))
+        },
+        onCancel = onCancel,
+        footer = {
+            GradientButton(
+                onClick = onSave,
+                enabled = draft.name.isNotBlank(),
+                text = if (isEditing) stringResource(R.string.panel_save_changes)
+                else stringResource(R.string.panel_save_record),
+                modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.weight(1f))
-            IconButton(onClick = onCancel) {
-                Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.common_cancel))
-            }
         }
-
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = buildString {
-                append(stringResource(R.string.panel_record_to)).append(dateText)
-                if (!isToday) append(stringResource(R.string.panel_backfill))
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-        ) {
-            // 记录时间（补录时可调整）
-            SectionLabel(stringResource(R.string.panel_time))
+    ) {
+        // 记录时间（补录时可调整）
+        SectionLabel(stringResource(R.string.panel_time))
             Spacer(modifier = Modifier.height(8.dp))
             TimePickerRow(time = draft.time) {
                 onDraftChange(draft.copy(time = it))
@@ -652,6 +862,7 @@ private fun MedRecordPanel(
                 value = draft.name,
                 onValueChange = { onDraftChange(draft.copy(name = it)) },
                 modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
                 placeholder = { Text(stringResource(R.string.panel_med_name_hint)) },
                 singleLine = true
             )
@@ -663,27 +874,12 @@ private fun MedRecordPanel(
                 value = draft.dose,
                 onValueChange = { onDraftChange(draft.copy(dose = it)) },
                 modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
                 placeholder = { Text(stringResource(R.string.panel_med_dose_hint)) },
                 singleLine = true
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        Button(
-            onClick = onSave,
-            enabled = draft.name.isNotBlank(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-        ) {
-            Text(
-                if (isEditing) stringResource(R.string.panel_save_changes)
-                else stringResource(R.string.panel_save_record),
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(4.dp))
     }
 }
 
@@ -701,41 +897,38 @@ private fun CommonMedChip(
     onLongClick: () -> Unit,
     onDelete: () -> Unit
 ) {
+    // 设计稿 .chip.sel：选中 = 主色填充 + 白字 + ✓；未选 = 白底 + 描边
+    val p = ucPalette()
+    val shape = RoundedCornerShape(12.dp)
     Box {
-        Surface(
-            modifier = Modifier.combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            ),
-            shape = RoundedCornerShape(8.dp),
-            color = if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
-            border = if (selected) {
-                null
-            } else {
-                BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
-            }
+        Box(
+            modifier = Modifier
+                .clip(shape)
+                .background(if (selected) p.primary else p.surface)
+                .border(1.dp, if (selected) p.primary else p.ring, shape)
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick
+                )
+                .padding(horizontal = 12.dp, vertical = 6.dp)
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (selected) {
                     Icon(
                         Icons.Filled.Check,
                         contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                        modifier = Modifier.size(13.dp),
+                        tint = Color.White
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                 }
                 Text(
                     text = name,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = if (selected) {
-                        MaterialTheme.colorScheme.onSecondaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    }
+                    fontSize = 12.sp,
+                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                    color = if (selected) Color.White else p.text2
                 )
             }
         }
@@ -746,7 +939,7 @@ private fun CommonMedChip(
                     .offset(x = 6.dp, y = -5.dp)
                     .size(18.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.error)
+                    .background(p.red)
                     .clickable(onClick = onDelete),
                 contentAlignment = Alignment.Center
             ) {
@@ -772,60 +965,34 @@ private fun NotePanel(
     val isToday = state.selectedDate == state.today
     val dateText = panelDateText(state.selectedDate)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .padding(horizontal = 16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.panel_note_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+    // 感受面板内容少：抽屉高度自适应（内容 + 边距），最高 88% 视区
+    RecordSheet(
+        title = stringResource(R.string.panel_note_title),
+        subtitle = buildString {
+            append(stringResource(R.string.panel_record_to)).append(dateText)
+            if (!isToday) append(stringResource(R.string.panel_backfill))
+        },
+        onCancel = onCancel,
+        footer = {
+            GradientButton(
+                onClick = onSave,
+                enabled = state.noteDraft.text.isNotBlank(),
+                text = stringResource(R.string.panel_save_note),
+                modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.weight(1f))
-            IconButton(onClick = onCancel) {
-                Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.common_cancel))
-            }
         }
-
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = buildString {
-                append(stringResource(R.string.panel_record_to)).append(dateText)
-                if (!isToday) append(stringResource(R.string.panel_backfill))
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
+    ) {
         OutlinedTextField(
             value = state.noteDraft.text,
             onValueChange = { onDraftChange(NoteDraft(text = it)) },
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .heightIn(min = 150.dp),
+            shape = RoundedCornerShape(12.dp),
             placeholder = { Text(stringResource(R.string.panel_note_hint)) },
-            minLines = 8
+            minLines = 6
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = onSave,
-            enabled = state.noteDraft.text.isNotBlank(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-        ) {
-            Text(stringResource(R.string.panel_save_note), style = MaterialTheme.typography.titleMedium)
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(4.dp))
     }
 }
 
@@ -841,87 +1008,53 @@ private fun MedRecordCard(
     onSelect: () -> Unit = {}
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val p = ucPalette()
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(
-                if (selectable && selected) 2.dp else 1.dp,
-                if (selectable && selected) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
-                },
-                RoundedCornerShape(12.dp)
-            )
-            .then(if (selectable) Modifier.clickable(onClick = onSelect) else Modifier),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    // 卡片整体点击：可筛选列表（首页当天记录）切换选中；其余场景直接打开编辑
+    val onCardClick: () -> Unit = if (selectable) onSelect else ({ onEdit(med) })
+
+    RecordCardShell(
+        kind = RecordKind.MED,
+        selected = selectable && selected,
+        onSelect = onCardClick
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            // 第一行：类型徽章 + 时间；选中后（或日历页）右侧出现编辑/删除图标
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TypeBadge(stringResource(R.string.type_med))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = med.time,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                if (!selectable || selected) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    IconButton(onClick = { onEdit(med) }, modifier = Modifier.size(32.dp)) {
-                        Icon(
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = stringResource(R.string.med_edit),
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    IconButton(onClick = { showDeleteDialog = true }, modifier = Modifier.size(32.dp)) {
-                        Icon(
-                            imageVector = Icons.Filled.Delete,
-                            contentDescription = stringResource(R.string.med_delete),
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-            // 第二行：服用药品标签（药名 + 剂量）
-            Spacer(modifier = Modifier.height(8.dp))
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                TagChip(text = med.name)
-                if (med.dose.isNotBlank()) {
-                    TagChip(text = med.dose)
-                }
+        RecordHeadRow(
+            kind = RecordKind.MED,
+            title = stringResource(R.string.type_med),
+            time = med.time,
+            onEdit = { onEdit(med) },
+            onDelete = { showDeleteDialog = true },
+            editLabel = stringResource(R.string.med_edit),
+            deleteLabel = stringResource(R.string.med_delete)
+        )
+        // 服用药品标签（药名 + 剂量）
+        Spacer(modifier = Modifier.height(7.dp))
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            TagChip(text = med.name)
+            if (med.dose.isNotBlank()) {
+                TagChip(text = med.dose)
             }
         }
     }
 
     if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text(stringResource(R.string.med_delete)) },
-            text = { Text(stringResource(R.string.med_delete_message, med.name)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showDeleteDialog = false
-                    onDelete(med)
-                }) {
-                    Text(stringResource(R.string.common_delete), color = MaterialTheme.colorScheme.error)
-                }
+        UcDialog(
+            icon = Icons.Filled.Delete,
+            iconBg = p.redSoft,
+            iconTint = p.redText,
+            title = stringResource(R.string.med_delete),
+            message = stringResource(R.string.med_delete_message, med.name),
+            confirmLabel = stringResource(R.string.common_delete),
+            confirmIsDanger = true,
+            onConfirm = {
+                showDeleteDialog = false
+                onDelete(med)
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text(stringResource(R.string.common_cancel))
-                }
-            }
+            dismissLabel = stringResource(R.string.common_cancel),
+            onDismiss = { showDeleteDialog = false }
         )
     }
 }
@@ -937,78 +1070,49 @@ private fun NoteCard(
     onSelect: () -> Unit = {}
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val p = ucPalette()
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(
-                if (selectable && selected) 2.dp else 1.dp,
-                if (selectable && selected) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
-                },
-                RoundedCornerShape(12.dp)
-            )
-            .then(
-                if (selectable) {
-                    Modifier.clickable(onClick = onSelect)
-                } else {
-                    Modifier.clickable(onClick = onOpen)
-                }
-            ),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    // 卡片整体点击：可筛选列表（首页当天记录）切换选中；其余场景直接打开编辑
+    val onCardClick: () -> Unit = if (selectable) onSelect else onOpen
+
+    RecordCardShell(
+        kind = RecordKind.NOTE,
+        selected = selectable && selected,
+        onSelect = onCardClick
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            // 第一行：类型徽章；选中后（或日历页）右侧出现编辑/删除图标
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TypeBadge(stringResource(R.string.type_note))
-                if (!selectable || selected) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    IconButton(onClick = onOpen, modifier = Modifier.size(32.dp)) {
-                        Icon(
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = stringResource(R.string.note_edit),
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    IconButton(onClick = { showDeleteDialog = true }, modifier = Modifier.size(32.dp)) {
-                        Icon(
-                            imageVector = Icons.Filled.Delete,
-                            contentDescription = stringResource(R.string.note_delete),
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = note.text, style = MaterialTheme.typography.bodyMedium)
-        }
+        RecordHeadRow(
+            kind = RecordKind.NOTE,
+            title = stringResource(R.string.panel_note_title),
+            onEdit = onOpen,
+            onDelete = { showDeleteDialog = true },
+            editLabel = stringResource(R.string.note_edit),
+            deleteLabel = stringResource(R.string.note_delete)
+        )
+        Spacer(modifier = Modifier.height(7.dp))
+        Text(
+            text = note.text,
+            fontSize = 12.5.sp,
+            color = p.text,
+            lineHeight = 20.sp
+        )
     }
 
     if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text(stringResource(R.string.note_delete)) },
-            text = { Text(stringResource(R.string.note_delete_message)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showDeleteDialog = false
-                    onDelete()
-                }) {
-                    Text(stringResource(R.string.common_delete), color = MaterialTheme.colorScheme.error)
-                }
+        val p = ucPalette()
+        UcDialog(
+            icon = Icons.Filled.Delete,
+            iconBg = p.redSoft,
+            iconTint = p.redText,
+            title = stringResource(R.string.note_delete),
+            message = stringResource(R.string.note_delete_message),
+            confirmLabel = stringResource(R.string.common_delete),
+            confirmIsDanger = true,
+            onConfirm = {
+                showDeleteDialog = false
+                onDelete()
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text(stringResource(R.string.common_cancel))
-                }
-            }
+            dismissLabel = stringResource(R.string.common_cancel),
+            onDismiss = { showDeleteDialog = false }
         )
     }
 }
@@ -1025,54 +1129,45 @@ private fun BowelSymptomPanel(
     val draft = state.symptomDraft
     val isToday = state.selectedDate == state.today
     val dateText = panelDateText(state.selectedDate)
+    val isEditing = state.editingSymptomId != null
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .padding(horizontal = 16.dp)
-    ) {
-        val isEditing = state.editingSymptomId != null
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = if (isEditing) stringResource(R.string.panel_edit_bowel)
-                else stringResource(R.string.panel_bowel_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            IconButton(onClick = onCancel) {
-                Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.common_cancel))
+    RecordSheet(
+        title = if (isEditing) stringResource(R.string.panel_edit_bowel)
+        else stringResource(R.string.panel_bowel_title),
+        subtitle = buildString {
+            append(
+                if (isEditing) stringResource(R.string.panel_editing_label)
+                else stringResource(R.string.panel_record_to)
+            ).append(dateText)
+            if (!isToday) append(stringResource(R.string.panel_backfill))
+        },
+        onCancel = onCancel,
+        footer = {
+            val p = ucPalette()
+            // 实时活动度预览（仅展示，不可点）
+            val score = symptomDraftScore(draft)
+            val level = ActivityLevel.fromScore(score)
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ActivityBadge(level = level, score = score)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.panel_activity_hint),
+                        fontSize = 10.sp,
+                        color = p.text2
+                    )
+                }
+                GradientButton(
+                    onClick = onSave,
+                    text = if (isEditing) stringResource(R.string.panel_save_changes)
+                    else stringResource(R.string.panel_save_record),
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
-
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = buildString {
-                append(
-                    if (isEditing) stringResource(R.string.panel_editing_label)
-                    else stringResource(R.string.panel_record_to)
-                ).append(dateText)
-                if (!isToday) append(stringResource(R.string.panel_backfill))
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 可滚动内容区
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-        ) {
-            // 记录时间（补录时可调整）
-            SectionLabel(stringResource(R.string.panel_time))
+    ) {
+        // 记录时间（补录时可调整）
+        SectionLabel(stringResource(R.string.panel_time))
             Spacer(modifier = Modifier.height(8.dp))
             TimePickerRow(time = draft.time) {
                 onDraftChange(draft.copy(time = it))
@@ -1082,30 +1177,18 @@ private fun BowelSymptomPanel(
             // 排便次数
             SectionLabel(stringResource(R.string.panel_bowel_count))
             Spacer(modifier = Modifier.height(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                OutlinedButton(
-                    onClick = { onDraftChange(draft.copy(bowelCount = (draft.bowelCount - 1).coerceAtLeast(0))) },
-                    enabled = draft.bowelCount > 0
-                ) {
-                    Text("−", style = MaterialTheme.typography.titleLarge)
-                }
-                Text(
-                    text = stringResource(R.string.common_times_count, draft.bowelCount),
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
-                )
-                OutlinedButton(
-                    onClick = { onDraftChange(draft.copy(bowelCount = (draft.bowelCount + 1).coerceAtMost(30))) }
-                ) {
-                    Text("+", style = MaterialTheme.typography.titleLarge)
-                }
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            FilterChip(
+            CountStepper(
+                countText = stringResource(R.string.common_times_count, draft.bowelCount),
+                onMinus = { onDraftChange(draft.copy(bowelCount = (draft.bowelCount - 1).coerceAtLeast(0))) },
+                onPlus = { onDraftChange(draft.copy(bowelCount = (draft.bowelCount + 1).coerceAtMost(30))) },
+                minusEnabled = draft.bowelCount > 0,
+                plusEnabled = draft.bowelCount < 30
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            PanelChip(
+                label = stringResource(R.string.symptom_night_diarrhea),
                 selected = draft.nightDiarrhea,
-                onClick = { onDraftChange(draft.copy(nightDiarrhea = !draft.nightDiarrhea)) },
-                label = { Text(stringResource(R.string.symptom_night_diarrhea)) }
+                onClick = { onDraftChange(draft.copy(nightDiarrhea = !draft.nightDiarrhea)) }
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -1117,12 +1200,12 @@ private fun BowelSymptomPanel(
             ) {
                 BRISTOL_LABELS.forEachIndexed { i, res ->
                     val type = i + 1
-                    FilterChip(
+                    PanelChip(
+                        label = "$type ${stringResource(res)}",
                         selected = draft.bristolType == type,
                         onClick = {
                             onDraftChange(draft.copy(bristolType = if (draft.bristolType == type) 0 else type))
-                        },
-                        label = { Text("$type ${stringResource(res)}") }
+                        }
                     )
                 }
             }
@@ -1135,10 +1218,10 @@ private fun BowelSymptomPanel(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 BLOOD_LABELS.forEachIndexed { i, res ->
-                    FilterChip(
+                    PanelChip(
+                        label = stringResource(res),
                         selected = draft.blood == i,
-                        onClick = { onDraftChange(draft.copy(blood = i)) },
-                        label = { Text(stringResource(res)) }
+                        onClick = { onDraftChange(draft.copy(blood = i)) }
                     )
                 }
             }
@@ -1150,15 +1233,15 @@ private fun BowelSymptomPanel(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FilterChip(
+                PanelChip(
+                    label = stringResource(R.string.panel_mucus),
                     selected = draft.mucus,
-                    onClick = { onDraftChange(draft.copy(mucus = !draft.mucus)) },
-                    label = { Text(stringResource(R.string.panel_mucus)) }
+                    onClick = { onDraftChange(draft.copy(mucus = !draft.mucus)) }
                 )
-                FilterChip(
+                PanelChip(
+                    label = stringResource(R.string.panel_urgency),
                     selected = draft.urgency,
-                    onClick = { onDraftChange(draft.copy(urgency = !draft.urgency)) },
-                    label = { Text(stringResource(R.string.panel_urgency)) }
+                    onClick = { onDraftChange(draft.copy(urgency = !draft.urgency)) }
                 )
             }
 
@@ -1186,15 +1269,10 @@ private fun BowelSymptomPanel(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 PAIN_LOCATION_LABELS.forEachIndexed { i, res ->
-                    FilterChip(
+                    PanelChip(
+                        label = if (i == 0) stringResource(R.string.panel_no_pain) else stringResource(res),
                         selected = draft.painLocation == i,
-                        onClick = { onDraftChange(draft.copy(painLocation = i)) },
-                        label = {
-                            Text(
-                                if (i == 0) stringResource(R.string.panel_no_pain)
-                                else stringResource(res)
-                            )
-                        }
+                        onClick = { onDraftChange(draft.copy(painLocation = i)) }
                     )
                 }
             }
@@ -1208,51 +1286,13 @@ private fun BowelSymptomPanel(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 80.dp),
+                shape = RoundedCornerShape(12.dp),
                 placeholder = { Text(stringResource(R.string.panel_other_discomfort_hint)) },
                 minLines = 2
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        // 实时活动度预览
-        val score = symptomDraftScore(draft)
-        val level = ActivityLevel.fromScore(score)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            ActivityBadge(level = level, score = score)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = stringResource(R.string.panel_activity_hint),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Button(
-            onClick = onSave,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-        ) {
-            Text(
-                if (isEditing) stringResource(R.string.panel_save_changes)
-                else stringResource(R.string.panel_save_record),
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(4.dp))
     }
-}
-
-/** 面板内分组小标题 */
-@Composable
-private fun SectionLabel(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleSmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
 }
 
 /**
@@ -1265,21 +1305,32 @@ private fun ToleranceTagChip(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    val p = ucPalette()
     val color = toleranceColor(FoodTolerance.fromValue(tag.tolerance))
+    // 设计稿 .tag：12px 圆角 + 1.5px 状态色描边；选中 = 浅色底 + 同色加粗 + ✓
     Row(
         modifier = Modifier
-            .clip(RoundedCornerShape(50.dp))
-            .border(1.5.dp, color, RoundedCornerShape(50.dp))
-            .background(if (selected) color.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surface)
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.5.dp, color, RoundedCornerShape(12.dp))
+            .background(
+                if (selected) {
+                    color.copy(alpha = if (p == LightUcPalette) 0.12f else 0.22f)
+                } else {
+                    p.surface
+                }
+            )
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        if (selected) {
+            Text(text = "✓ ", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = color)
+        }
         Text(
             text = tag.name,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-            color = if (selected) color else MaterialTheme.colorScheme.onSurface
+            fontSize = 12.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
+            color = if (selected) color else p.text
         )
     }
 }
@@ -1292,31 +1343,32 @@ private fun ToleranceTagChip(
 @Composable
 private fun TimePickerRow(time: String, onSelect: (String) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
+    // 设计稿 .time-row：13px 圆角 + 描边，🕐 + 加粗时间 + 右侧提示
+    val p = ucPalette()
+    val shape = RoundedCornerShape(13.dp)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .border(
-                1.dp,
-                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
-                RoundedCornerShape(12.dp)
-            )
+            .clip(shape)
+            .border(1.dp, p.ring, shape)
+            .background(p.surface)
             .clickable { showDialog = true }
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("🕐", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.width(10.dp))
+        Text("🕐", fontSize = 13.sp)
+        Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = time,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = p.text
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
             text = stringResource(R.string.panel_tap_to_adjust),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            fontSize = 10.sp,
+            color = p.text2
         )
     }
     if (showDialog) {

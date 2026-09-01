@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -22,6 +21,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
@@ -41,12 +42,13 @@ import java.time.LocalDate
 /**
  * 记录汇总页：全时段某一类记录的明细列表（我的→统计信息→点数量块进入，
  * 覆盖在统计页之上，返回回到统计页）。
- * 记录按 年 → 月 → 日 三级分级展示：
+ * 记录按 年 → 月 → 日 三级分级展示（设计稿 #12）：
  * - 底部悬浮框三个按钮"年 / 月 / 日"：
  *   年 = 全部收起，只展示年份（点年份展开其月份）；
  *   月 = 展开全部月份（点月份展开该月日期记录）；
  *   日 = 完全展开到日期记录。
- * - 年 / 月行也可手动点击展开 / 收起。
+ * - 年 / 月行也可手动点击展开 / 收起；
+ * - 日期组：虚线分隔 + 加粗日期头 + 左色条明细行。
  */
 @Composable
 fun RecordListScreen(
@@ -60,6 +62,13 @@ fun RecordListScreen(
         ExportType.MED -> stringResource(R.string.list_title_med)
         ExportType.NOTE -> stringResource(R.string.list_title_note)
     }
+    // 全时段条数（顶栏右侧说明）
+    val totalCount = when (type) {
+        ExportType.MEAL -> state.allMeals.size
+        ExportType.BOWEL -> state.allSymptoms.size
+        ExportType.MED -> state.allMeds.size
+        ExportType.NOTE -> state.allNotes.size
+    }
 
     Column(
         modifier = Modifier
@@ -67,26 +76,12 @@ fun RecordListScreen(
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
-        // 顶部标题栏（与统计信息页一致）
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowLeft,
-                    contentDescription = stringResource(R.string.common_back),
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        // 顶部标题栏（统一样式 + 右侧全时段说明胶囊）
+        SecondaryTopBar(
+            onBack = onBack,
+            title = title,
+            trailing = stringResource(R.string.list_all_time_count, totalCount)
+        )
 
         when (type) {
             ExportType.MEAL -> {
@@ -306,62 +301,49 @@ private fun <T> RecordHierarchy(
     }
 }
 
-/** 年份头行（点击展开 / 收起该年月份） */
+/** 年份头行（设计稿 .year：加粗大字 + 条数徽章 + 箭头，点击展开 / 收起该年月份） */
 @Composable
 private fun YearHeader(year: Int, count: Int, expanded: Boolean, onClick: () -> Unit) {
+    val p = ucPalette()
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-            )
             .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 12.dp),
+            .padding(top = 8.dp, bottom = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = stringResource(R.string.list_year_header, year),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            fontSize = 13.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = p.text
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = stringResource(R.string.list_total_count, count),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        CountBadge(text = stringResource(R.string.list_total_count, count))
         Spacer(modifier = Modifier.weight(1f))
         ExpandChevron(expanded)
     }
 }
 
-/** 月份头行（点击展开 / 收起该月日期记录） */
+/** 月份头行（设计稿 .month：加粗 + 条数，点击展开 / 收起该月日期记录） */
 @Composable
 private fun MonthHeader(month: Int, count: Int, expanded: Boolean, onClick: () -> Unit) {
+    val p = ucPalette()
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f)
-            )
             .clickable(onClick = onClick)
-            .padding(start = 28.dp, end = 12.dp, top = 8.dp, bottom = 8.dp),
+            .padding(start = 8.dp, top = 2.dp, bottom = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = stringResource(R.string.list_month_header, month),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
+            fontSize = 12.5.sp,
+            fontWeight = FontWeight.Bold,
+            color = p.text2
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = stringResource(R.string.common_items_count, count),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        CountBadge(text = stringResource(R.string.common_items_count, count))
         Spacer(modifier = Modifier.weight(1f))
         ExpandChevron(expanded)
     }
@@ -378,68 +360,83 @@ private fun ExpandChevron(expanded: Boolean) {
     Icon(
         imageVector = Icons.Filled.KeyboardArrowRight,
         contentDescription = null,
-        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        tint = ucPalette().text2,
         modifier = Modifier
             .size(20.dp)
             .graphicsLayer { rotationZ = angle }
     )
 }
 
-/** 悬浮框层级按钮：选中时高亮 */
+/** 悬浮框层级按钮：选中时高亮（设计稿 .lv） */
 @Composable
 private fun LevelButton(label: String, selected: Boolean, onClick: () -> Unit) {
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(22.dp),
-        color = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
+    val p = ucPalette()
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(22.dp))
+            .background(if (selected) p.primary else Color.Transparent)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 26.dp, vertical = 10.dp)
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelLarge,
+            fontSize = 13.sp,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-            color = if (selected) MaterialTheme.colorScheme.onPrimary
-            else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 26.dp, vertical = 10.dp)
+            color = if (selected) Color.White else p.text2
         )
     }
 }
 
-/** 日期卡片：日期头 + 条数 + 当日明细行 */
+/**
+ * 日期组（设计稿 .dgroup）：虚线分隔 + 加粗日期头（含条数），组内每条记录一行。
+ */
 @Composable
-private fun <T> DayCard(date: String, dayItems: List<T>, row: @Composable (T) -> Unit) {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-        )
-    ) {
-        Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = dateLabel(date),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = stringResource(R.string.common_items_count, dayItems.size),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            dayItems.forEachIndexed { i, item ->
-                if (i > 0) {
-                    HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
+private fun <T> DayCard(
+    date: String,
+    dayItems: List<T>,
+    row: @Composable (T) -> Unit
+) {
+    val p = ucPalette()
+    Column {
+        // 虚线分隔
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .drawBehind {
+                    val dash = 5.dp.toPx()
+                    val gap = 4.dp.toPx()
+                    var x = 0f
+                    while (x < size.width) {
+                        drawLine(
+                            color = p.ring,
+                            start = Offset(x, 0f),
+                            end = Offset(minOf(x + dash, size.width), 0f),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                        x += dash + gap
+                    }
                 }
-                row(item)
-            }
+                .padding(top = 6.dp)
+        )
+        // 日期头
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = dateLabel(date),
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = p.text
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            CountBadge(text = stringResource(R.string.common_items_count, dayItems.size))
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            dayItems.forEach { item -> row(item) }
         }
     }
 }
@@ -467,53 +464,44 @@ private fun weekdayRes(dayOfWeekValue: Int): Int = when (dayOfWeekValue) {
     else -> R.string.week_sun
 }
 
-/** 明细行左侧的固定宽时间（HH:mm；空 = 未记录，显示占位） */
-@Composable
-private fun RowTime(time: String) {
-    Text(
-        text = time.ifEmpty { "—" },
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.width(44.dp)
-    )
-}
-
-/** 饮食明细行：时间 + 餐次（+ 照片数）/ 食物标签 / 备注 */
+/** 饮食明细行（设计稿 .rrow：左色条 + 时间列 + 内容） */
 @Composable
 private fun MealRow(r: MealRecord) {
-    Column {
+    val p = ucPalette()
+    ListRowCard(kind = RecordKind.MEAL, time = r.time.ifEmpty { "—" }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            RowTime(r.time)
             Text(
                 text = stringResource(r.mealType.labelRes),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold
+                fontSize = 12.5.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = p.text,
+                modifier = Modifier.weight(1f)
             )
             if (r.photos.isNotEmpty()) {
-                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "📷 ${r.photos.size}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    fontSize = 10.5.sp,
+                    color = p.text2
                 )
             }
         }
         if (r.tags.isNotEmpty()) {
             Text(
                 text = r.tags.joinToString("、"),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                fontSize = 11.sp,
+                color = p.text2
             )
         }
         if (r.note.isNotBlank()) {
-            Text(text = r.note, style = MaterialTheme.typography.bodySmall)
+            Text(text = r.note, fontSize = 11.sp, color = p.text)
         }
     }
 }
 
-/** 排便明细行：时间 + 次数 + 便级 / 症状标记 / 其他不适 */
+/** 排便明细行：次数 + 便级 / 症状标记 / 其他不适 */
 @Composable
 private fun BowelRow(s: DailySymptom) {
+    val p = ucPalette()
     val flags = buildList {
         if (s.blood > 0) add(stringResource(R.string.flag_blood, stringResource(BLOOD_LABELS[s.blood])))
         if (s.mucus) add(stringResource(R.string.symptom_mucus))
@@ -524,57 +512,60 @@ private fun BowelRow(s: DailySymptom) {
             add(stringResource(R.string.flag_pain, s.painScore, loc))
         }
     }
-    Column {
+    ListRowCard(kind = RecordKind.BOWEL, time = s.time.ifEmpty { "—" }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            RowTime(s.time)
             Text(
                 text = stringResource(R.string.summary_bowel, s.bowelCount),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold
+                fontSize = 12.5.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = p.text,
+                modifier = Modifier.weight(1f)
             )
             if (s.bristolType in 1..7) {
-                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = stringResource(
                         R.string.bristol_label,
                         s.bristolType,
                         stringResource(BRISTOL_LABELS[s.bristolType - 1])
                     ),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    fontSize = 10.5.sp,
+                    color = p.text2
                 )
             }
         }
         if (flags.isNotEmpty()) {
             Text(
                 text = flags.joinToString(" · "),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                fontSize = 11.sp,
+                color = p.text2
             )
         }
         if (s.note.isNotBlank()) {
-            Text(text = s.note, style = MaterialTheme.typography.bodySmall)
+            Text(text = s.note, fontSize = 11.sp, color = p.text)
         }
     }
 }
 
-/** 服药明细行：时间 + 药名（+ 剂量） */
+/** 服药明细行：药名（+ 剂量） */
 @Composable
 private fun MedRow(m: MedRecord) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        RowTime(m.time)
-        Text(
-            text = m.name,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold
-        )
-        if (m.dose.isNotBlank()) {
-            Spacer(modifier = Modifier.width(6.dp))
+    val p = ucPalette()
+    ListRowCard(kind = RecordKind.MED, time = m.time) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = m.dose,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = m.name,
+                fontSize = 12.5.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = p.text,
+                modifier = Modifier.weight(1f)
             )
+            if (m.dose.isNotBlank()) {
+                Text(
+                    text = m.dose,
+                    fontSize = 10.5.sp,
+                    color = p.text2
+                )
+            }
         }
     }
 }
@@ -582,9 +573,13 @@ private fun MedRow(m: MedRecord) {
 /** 感受明细行：全文（一天一条） */
 @Composable
 private fun NoteRow(n: DailyNote) {
-    Text(
-        text = n.text,
-        style = MaterialTheme.typography.bodyMedium,
-        lineHeight = 22.sp
-    )
+    val p = ucPalette()
+    ListRowCard(kind = RecordKind.NOTE, time = "") {
+        Text(
+            text = n.text,
+            fontSize = 11.5.sp,
+            color = p.text,
+            lineHeight = 18.sp
+        )
+    }
 }

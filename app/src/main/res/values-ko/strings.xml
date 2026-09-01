@@ -33,22 +33,18 @@
     <string name="tab_daily_management">일상 관리</string>
     <string name="tab_profile">내 정보</string>
     <string name="quick_add_title">기록 추가</string>
-
     <string name="type_meal">식사</string>
     <string name="type_bowel">배변</string>
     <string name="type_med">복약</string>
     <string name="type_note">컨디션</string>
     <string name="type_tolerance">내성</string>
-
     <string name="meal_breakfast">아침</string>
     <string name="meal_lunch">점심</string>
     <string name="meal_dinner">저녁</string>
     <string name="meal_snack">간식</string>
-
     <string name="tolerance_ok">괜찮음</string>
     <string name="tolerance_try">시도</string>
     <string name="tolerance_bad">주의</string>
-
     <string name="bristol_1">딱딱한 덩어리</string>
     <string name="bristol_2">소시지 모양이지만 울퉁불퉁</string>
     <string name="bristol_3">갈라진 소시지 모양</string>
@@ -56,23 +52,19 @@
     <string name="bristol_5">부드러운 덩어리</string>
     <string name="bristol_6">죽처럼 묽음</string>
     <string name="bristol_7">물처럼 묽음</string>
-
     <string name="blood_none">없음</string>
     <string name="blood_little">소량</string>
     <string name="blood_clear">뚜렷함</string>
     <string name="blood_clots">혈괴</string>
-
     <string name="pain_loc_none">없음</string>
     <string name="pain_loc_right_lower">우하복부</string>
     <string name="pain_loc_left_lower">좌하복부</string>
     <string name="pain_loc_periumbilical">배꼽 주위</string>
     <string name="pain_loc_whole">복부 전체</string>
-
     <string name="activity_remission">관해</string>
     <string name="activity_mild">경증 활동성</string>
     <string name="activity_moderate">중등도 활동성</string>
     <string name="activity_severe">중증 활동성</string>
-
     <string name="week_mon">월요일</string>
     <string name="week_tue">화요일</string>
     <string name="week_wed">수요일</string>
@@ -109,18 +101,18 @@
     <string name="home_prev_week">지난주</string>
     <string name="home_next_month">다음달</string>
     <string name="home_next_week">다음주</string>
+    <string name="home_cal_hint_week">⌄ 아래로 스와이프하여 전체 달 펼치기</string>
+    <string name="home_cal_hint_month">⌃ 위로 스와이프하여 주간 보기로 접기</string>
     <string name="home_month_header">%1$d년 %2$d월</string>
     <string name="home_date_header">%1$d월 %2$d일</string>
     <string name="home_year_week_header">%1$d년, 제%2$d주</string>
     <string name="home_med_no_due_time">오늘은 아직 복약 시간이 되지 않았습니다. 제때 약을 드는 것을 잊지 마세요.</string>
     <string name="home_med_all_done">도래한 복약 시간을 모두 기록했습니다 (%1$d/%2$d회).</string>
     <string name="home_med_go">약 먹기</string>
-
     <string name="day_records_title">당일 기록</string>
     <string name="day_records_empty_filtered">이 날의 %1$s 기록이 없습니다</string>
     <string name="day_records_empty">이 날의 기록이 아직 없습니다</string>
     <string name="day_records_empty_hint">잘 먹고, 제때 약 먹고, 나를 위해 한 줄 기록해 보세요</string>
-
     <string name="record_edit">기록 편집</string>
     <string name="record_delete">기록 삭제</string>
     <string name="record_meal_photo">식사 사진</string>
@@ -256,15 +248,24 @@
     <string name="profile_menu_about">정보</string>
     <string name="profile_menu_about_trailing">v%1$s</string>
     <string name="profile_menu_update_trailing">v%1$s</string>
+    <string name="profile_menu_stats_sub">기록일수 / 활동도 / 내성 분포</string>
+    <string name="profile_menu_med_settings_sub">알림 횟수와 시간</string>
+    <string name="profile_menu_export_sub">의사를 위해 · TXT / CSV</string>
+    <string name="profile_menu_restore_sub">내보낸 CSV 파일에서 복구</string>
+    <string name="profile_menu_settings_sub">메시지 / 테마 / 글꼴 / 언어</string>
+    <string name="settings_menu_slogans_sub">환영 카드 배너 내용</string>
+    <string name="settings_menu_theme_sub">라이트 / 다크 / 시스템 따름</string>
+    <string name="settings_menu_font_sub">홈 / 내성 / 일상 관리</string>
+    <string name="settings_menu_language_sub">UI / 알림, 12개 언어</string>
+    <string name="settings_menu_update_sub">Google Play 앱 내 업데이트</string>
+    <string name="settings_menu_about_sub">앱 정보 및 면책 조항</string>
     <string name="profile_font_desc">홈, 내성, 일상 관리 페이지의 글자 크기를 조절합니다</string>
     <string name="profile_font_sample">문자</string>
     <string name="profile_about_title">UC 데일리 기록 소개</string>
     <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">궤양성 대장염(UC)을 위한 일상 기록 도구:\n· 식사 사진 + 음식 내성 태그\n· 복약 기록과 복약 시간 설정\n· 배변 기록(브리스톨 척도)과 활동도 자가 평가\n· 매일의 컨디션 메모와 달력 되돌아보기\n· 궤양성 대장염 일상 관리 핸드북: 식이/생활 습관/약물과 의료/심리 케어에 대한 근거 기반 참고 조언(자기 참고용)</string>
     <string name="profile_about_disclaimer">활동도는 간이 UCDAI(0~8점)로, 자기 관찰 참고용입니다. 데이터와 사진은 이 기기의 앱 폴더에만 저장되며 업로드되지 않습니다.</string>
-
     <string name="language_system">시스템 언어 따르기</string>
-
     <string name="theme_system">시스템 따르기</string>
     <string name="theme_light">라이트</string>
     <string name="theme_dark">다크</string>
@@ -355,6 +356,7 @@
     <string name="list_level_day">일</string>
     <string name="list_year_header">%1$d년</string>
     <string name="list_total_count">총 %1$d개</string>
+    <string name="list_all_time_count">전체 기간 · %1$d개</string>
     <string name="list_month_header">%1$d월</string>
     <string name="list_day_header">%1$d월 %2$d일 %3$s</string>
 

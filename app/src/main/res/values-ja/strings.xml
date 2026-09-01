@@ -33,22 +33,18 @@
     <string name="tab_daily_management">日常管理</string>
     <string name="tab_profile">マイページ</string>
     <string name="quick_add_title">記録を追加</string>
-
     <string name="type_meal">食事</string>
     <string name="type_bowel">排便</string>
     <string name="type_med">服薬</string>
     <string name="type_note">体調メモ</string>
     <string name="type_tolerance">耐性</string>
-
     <string name="meal_breakfast">朝食</string>
     <string name="meal_lunch">昼食</string>
     <string name="meal_dinner">夕食</string>
     <string name="meal_snack">間食</string>
-
     <string name="tolerance_ok">耐性あり</string>
     <string name="tolerance_try">試し</string>
     <string name="tolerance_bad">耐性なし</string>
-
     <string name="bristol_1">硬い塊状</string>
     <string name="bristol_2">コロコロしたソーセージ状</string>
     <string name="bristol_3">表面にひび割れのあるソーセージ状</string>
@@ -56,23 +52,19 @@
     <string name="bristol_5">柔らかい塊</string>
     <string name="bristol_6">どろどろ状</string>
     <string name="bristol_7">水様</string>
-
     <string name="blood_none">なし</string>
     <string name="blood_little">少量</string>
     <string name="blood_clear">明らかに多い</string>
     <string name="blood_clots">凝血塊</string>
-
     <string name="pain_loc_none">なし</string>
     <string name="pain_loc_right_lower">右下腹部</string>
     <string name="pain_loc_left_lower">左下腹部</string>
     <string name="pain_loc_periumbilical">臍周囲</string>
     <string name="pain_loc_whole">腹部全体</string>
-
     <string name="activity_remission">寛解</string>
     <string name="activity_mild">軽度活動性</string>
     <string name="activity_moderate">中等度活動性</string>
     <string name="activity_severe">重度活動性</string>
-
     <string name="week_mon">月曜日</string>
     <string name="week_tue">火曜日</string>
     <string name="week_wed">水曜日</string>
@@ -109,18 +101,18 @@
     <string name="home_prev_week">前の週</string>
     <string name="home_next_month">次の月</string>
     <string name="home_next_week">次の週</string>
+    <string name="home_cal_hint_week">⌄ 下スワイドで月全体を展開</string>
+    <string name="home_cal_hint_month">⌃ 上スワイドで週表示に折りたたむ</string>
     <string name="home_month_header">%1$d年%2$d月</string>
     <string name="home_date_header">%1$d月%2$d日</string>
     <string name="home_year_week_header">%1$d年 第%2$d週</string>
     <string name="home_med_no_due_time">今日はまだ服薬時間が来ていません。時間どおりに服薬しましょう。</string>
     <string name="home_med_all_done">時間が来た服薬はすべて記録済みです（%1$d/%2$d 回）。</string>
     <string name="home_med_go">服薬する</string>
-
     <string name="day_records_title">当日の記録</string>
     <string name="day_records_empty_filtered">この日の%1$s記録はありません</string>
     <string name="day_records_empty">この日の記録はまだありません</string>
     <string name="day_records_empty_hint">しっかり食べて、時間どおり服薬して、ひとつ記録を残しましょう</string>
-
     <string name="record_edit">記録を編集</string>
     <string name="record_delete">記録を削除</string>
     <string name="record_meal_photo">食事の写真</string>
@@ -256,15 +248,24 @@
     <string name="profile_menu_about">このアプリについて</string>
     <string name="profile_menu_about_trailing">v%1$s</string>
     <string name="profile_menu_update_trailing">v%1$s</string>
+    <string name="profile_menu_stats_sub">記録日数 / 活動度 / 耐性分布</string>
+    <string name="profile_menu_med_settings_sub">リマインダー回数と時間</string>
+    <string name="profile_menu_export_sub">医師向け · TXT / CSV</string>
+    <string name="profile_menu_restore_sub">書き出した CSV から復元</string>
+    <string name="profile_menu_settings_sub">メッセージ / テーマ / フォント / 言語</string>
+    <string name="settings_menu_slogans_sub">ウェルカムカードのバナー内容</string>
+    <string name="settings_menu_theme_sub">ライト / ダーク / システムに従う</string>
+    <string name="settings_menu_font_sub">ホーム / 耐性 / 日常管理</string>
+    <string name="settings_menu_language_sub">UI / 通知、12 言語</string>
+    <string name="settings_menu_update_sub">Google Play でのアプリ内更新</string>
+    <string name="settings_menu_about_sub">アプリの说明と免責事項</string>
     <string name="profile_font_desc">ホーム・耐性・日常管理ページの文字サイズを調整します</string>
     <string name="profile_font_sample">文字</string>
     <string name="profile_about_title">潰結デイリー記録について</string>
     <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">潰瘍性大腸炎（UC）のための日常記録ツール：\n・食事の写真＋食品耐性タグ\n・服薬記録と服薬時間の設定\n・排便記録（ブリストル分類）と活動度の自己評価\n・毎日の体調メモとカレンダーで振り返り\n・潰瘍性大腸炎の日常管理ハンドブック：食事／生活習慣／薬と医療／心理的なケアのエビデンスに基づく参考アドバイス（自己参考用）</string>
     <string name="profile_about_disclaimer">活動度は簡易版 UCDAI（0~8 点）で、自己観察の参考のみです。データと写真は端末内のアプリ領域にのみ保存され、アップロードされることはありません。</string>
-
     <string name="language_system">システムに従う</string>
-
     <string name="theme_system">システムに従う</string>
     <string name="theme_light">ライト</string>
     <string name="theme_dark">ダーク</string>
@@ -355,6 +356,7 @@
     <string name="list_level_day">日</string>
     <string name="list_year_header">%1$d年</string>
     <string name="list_total_count">合計 %1$d 件</string>
+    <string name="list_all_time_count">全期間 · %1$d件</string>
     <string name="list_month_header">%1$d月</string>
     <string name="list_day_header">%1$d月%2$d日 %3$s</string>
 

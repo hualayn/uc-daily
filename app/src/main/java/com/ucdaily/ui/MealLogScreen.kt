@@ -25,8 +25,10 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.ucdaily.MedReminder
 import com.ucdaily.R
@@ -247,20 +249,23 @@ internal fun ExportDialog(
     }
 }
 
-/** 导出对话框中的日期文字：可点击打开日期选择器 */
+/** 导出对话框中的日期块：primary-soft 底 + 主色文字（设计稿 .dbox），可点击打开日期选择器 */
 @Composable
 private fun ExportClickableDate(
     date: LocalDate,
     onClick: () -> Unit
 ) {
+    val p = ucPalette()
     Text(
         text = date.toString(),
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.primary,
+        fontSize = 12.5.sp,
+        fontWeight = FontWeight.Bold,
+        color = p.primaryText,
         modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
+            .clip(RoundedCornerShape(10.dp))
+            .background(p.primarySoft)
             .clickable(onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 2.dp)
+            .padding(horizontal = 12.dp, vertical = 5.dp)
     )
 }
 
@@ -371,12 +376,13 @@ fun weekLabelRes(date: LocalDate): Int = when (date.dayOfWeek.value) {
 fun isoWeek(date: LocalDate): Int =
     date.get(WeekFields.ISO.weekOfWeekBasedYear())
 
-/** 活动度对应的热力色（日历圆点与徽章共用） */
+/** 活动度对应的热力色（日历圆点与徽章共用）：绿=缓解 琥珀=轻度 橙=中度 红=重度（随主题切换深浅令牌） */
+@Composable
 fun activityColor(level: ActivityLevel): Color = when (level) {
-    ActivityLevel.REMISSION -> Color(0xFF4CAF50) // 绿：缓解
-    ActivityLevel.MILD -> Color(0xFFF9A825)      // 黄：轻度
-    ActivityLevel.MODERATE -> Color(0xFFEF6C00)  // 橙：中度
-    ActivityLevel.SEVERE -> Color(0xFFE53935)    // 红：重度
+    ActivityLevel.REMISSION -> ucPalette().green
+    ActivityLevel.MILD -> ucPalette().amber
+    ActivityLevel.MODERATE -> ucPalette().orange
+    ActivityLevel.SEVERE -> ucPalette().red
 }
 
 /** 记录创建时间（HH:mm）：排便卡片展示 + 当日列表排序共用（RecordPanels 也引用） */
@@ -404,55 +410,33 @@ private fun symptomSummary(s: DailySymptom): String {
     return parts.joinToString(" · ")
 }
 
-/** 记录类型小徽章（饮食/排便/服药/感受卡片第一行左侧） */
-@Composable
-internal fun TypeBadge(
-    label: String,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.secondaryContainer)
-            .padding(horizontal = 10.dp, vertical = 4.dp)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSecondaryContainer
-        )
-    }
-}
-
-/** 小标签（食物/药品名等）；tint 非空时用对应颜色（如耐受状态色），否则中性色 */
+/** 小标签（食物/药品名等，设计稿 .tag）：彩色描边 + 浅色底 + 同色文字；tint 为 null 时中性色 */
 @Composable
 internal fun TagChip(
     text: String,
     tint: Color? = null,
     modifier: Modifier = Modifier
 ) {
+    val p = ucPalette()
+    val c = tint ?: p.text2
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(6.dp))
-            .background(
-                if (tint != null) {
-                    tint.copy(alpha = 0.12f)
-                } else {
-                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                }
-            )
+            .clip(RoundedCornerShape(8.dp))
             .border(
                 1.dp,
-                if (tint != null) tint.copy(alpha = 0.5f) else Color.Transparent,
-                RoundedCornerShape(6.dp)
+                if (tint != null) tint else p.ring,
+                RoundedCornerShape(8.dp)
             )
-            .padding(horizontal = 8.dp, vertical = 3.dp)
+            .background(
+                if (tint != null) {
+                    tint.copy(alpha = if (LocalDarkTheme.current) 0.2f else 0.1f)
+                } else {
+                    p.surface2
+                }
+            )
+            .padding(horizontal = 8.dp, vertical = 2.5.dp)
     ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelSmall,
-            color = if (tint != null) tint else MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Text(text = text, fontSize = 10.5.sp, color = c)
     }
 }
 
@@ -471,137 +455,94 @@ fun RecordCard(
     tagTolerances: Map<String, FoodTolerance> = emptyMap()
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val p = ucPalette()
+    val tc = recordTypeColors(RecordKind.MEAL)
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(
-                if (selectable && selected) 2.dp else 1.dp,
-                if (selectable && selected) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
-                },
-                RoundedCornerShape(12.dp)
-            )
-            .then(if (selectable) Modifier.clickable(onClick = onSelect) else Modifier),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    // 卡片整体点击：可筛选列表（首页当天记录）切换筛选；其余场景直接打开编辑
+    val onCardClick: () -> Unit = if (selectable) onSelect else ({ onEdit(record) })
+
+    RecordCardShell(
+        kind = RecordKind.MEAL,
+        selected = selectable && selected,
+        onSelect = onCardClick
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // 类型徽章 + 时间；选中后（或日历页）右侧出现编辑/删除图标
-                TypeBadge(stringResource(record.mealType.labelRes))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = record.time,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                if (!selectable || selected) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    IconButton(
-                        onClick = { onEdit(record) },
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = stringResource(R.string.record_edit),
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    IconButton(
-                        onClick = { showDeleteDialog = true },
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Delete,
-                            contentDescription = stringResource(R.string.record_delete),
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+        RecordHeadRow(
+            kind = RecordKind.MEAL,
+            title = stringResource(record.mealType.labelRes),
+            time = record.time,
+            onEdit = { onEdit(record) },
+            onDelete = { showDeleteDialog = true },
+            editLabel = stringResource(R.string.record_edit),
+            deleteLabel = stringResource(R.string.record_delete)
+        )
+
+        if (record.note.isNotBlank()) {
+            Spacer(modifier = Modifier.height(7.dp))
+            Text(
+                text = record.note,
+                fontSize = 12.5.sp,
+                color = p.text
+            )
+        }
+
+        // 食物标签：按耐受列表中的状态着色（绿=可耐受 红=不耐受 黄=尝试，无记录则中性色）
+        if (record.tags.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(7.dp))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                record.tags.forEach { tag ->
+                    TagChip(
+                        text = tag,
+                        tint = tagTolerances[tag]?.let { toleranceColor(it) }
+                    )
                 }
             }
+        }
 
-            if (record.note.isNotBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = record.note,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-
-            // 食物标签：按耐受列表中的状态着色（绿=可耐受 红=不耐受 黄=尝试，无记录则中性色）
-            if (record.tags.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    record.tags.forEach { tag ->
-                        TagChip(
-                            text = tag,
-                            tint = tagTolerances[tag]?.let { toleranceColor(it) }
-                        )
-                    }
-                }
-            }
-
-            // 照片：横向滑动查看（一张照片一行，再多也不会撑高卡片）
-            val photos = record.photos.filter { File(it).exists() }
-            if (photos.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 1.dp)
-                ) {
-                    items(photos, key = { it }) { path ->
-                        AsyncImage(
-                            model = File(path),
-                            contentDescription = stringResource(R.string.record_meal_photo),
-                            modifier = Modifier
-                                .size(100.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .clickable { onPhotoClick(path, photos) },
-                            contentScale = ContentScale.Crop
-                        )
-                    }
+        // 照片：横向滑动查看（一张照片一行，再多也不会撑高卡片）
+        val photos = record.photos.filter { File(it).exists() }
+        if (photos.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 2.dp, vertical = 1.dp)
+            ) {
+                items(photos, key = { it }) { path ->
+                    AsyncImage(
+                        model = File(path),
+                        contentDescription = stringResource(R.string.record_meal_photo),
+                        modifier = Modifier
+                            .width(74.dp)
+                            .height(52.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .clickable { onPhotoClick(path, photos) },
+                        contentScale = ContentScale.Crop
+                    )
                 }
             }
         }
     }
 
     if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text(stringResource(R.string.record_delete)) },
-            text = {
-                Text(
-                    stringResource(
-                        R.string.record_delete_meal_message,
-                        stringResource(record.mealType.labelRes)
-                    )
-                )
+        UcDialog(
+            icon = Icons.Filled.Delete,
+            iconBg = p.redSoft,
+            iconTint = p.redText,
+            title = stringResource(R.string.record_delete),
+            message = stringResource(
+                R.string.record_delete_meal_message,
+                stringResource(record.mealType.labelRes)
+            ),
+            confirmLabel = stringResource(R.string.common_delete),
+            confirmIsDanger = true,
+            onConfirm = {
+                showDeleteDialog = false
+                onDelete(record)
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        onDelete(record)
-                    }
-                ) {
-                    Text(stringResource(R.string.common_delete), color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text(stringResource(R.string.common_cancel))
-                }
-            }
+            dismissLabel = stringResource(R.string.common_cancel),
+            onDismiss = { showDeleteDialog = false }
         )
     }
 }
@@ -617,112 +558,60 @@ fun SymptomCard(
     onSelect: () -> Unit = {}
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val p = ucPalette()
+    val levelColor = activityColor(symptom.activityLevel)
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(
-                if (selectable && selected) 2.dp else 1.dp,
-                if (selectable && selected) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
-                },
-                RoundedCornerShape(12.dp)
-            )
-            .then(
-                if (selectable) {
-                    Modifier.clickable(onClick = onSelect)
-                } else {
-                    Modifier.clickable(onClick = onOpen)
-                }
-            ),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    // 卡片整体点击：可筛选列表（首页当天记录）切换选中；其余场景直接打开编辑
+    val onCardClick: () -> Unit = if (selectable) onSelect else onOpen
+
+    RecordCardShell(
+        kind = RecordKind.BOWEL,
+        selected = selectable && selected,
+        onSelect = onCardClick
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            // 第一行：类型徽章 + 时间 + 活动度；选中后（或日历页）右侧出现编辑/删除图标
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TypeBadge(stringResource(R.string.type_bowel))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    // 优先用记录时间（补录可调），旧数据无时间时回退到保存时间
-                    text = symptom.time.ifEmpty { recordTime(symptom.createdAt) },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+        RecordHeadRow(
+            kind = RecordKind.BOWEL,
+            title = stringResource(R.string.type_bowel),
+            // 优先用记录时间（补录可调），旧数据无时间时回退到保存时间
+            time = symptom.time.ifEmpty { recordTime(symptom.createdAt) },
+            onEdit = onOpen,
+            onDelete = { showDeleteDialog = true },
+            editLabel = stringResource(R.string.symptom_edit),
+            deleteLabel = stringResource(R.string.symptom_delete),
+            badge = {
+                ActivityBadgeText(
+                    text = stringResource(
+                        R.string.activity_badge,
+                        stringResource(symptom.activityLevel.labelRes),
+                        activityScore(symptom)
+                    ),
+                    color = levelColor
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(activityColor(symptom.activityLevel).copy(alpha = 0.15f))
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = stringResource(
-                            R.string.activity_badge,
-                            stringResource(symptom.activityLevel.labelRes),
-                            activityScore(symptom)
-                        ),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = activityColor(symptom.activityLevel)
-                    )
-                }
-                if (!selectable || selected) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    IconButton(
-                        onClick = onOpen,
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = stringResource(R.string.symptom_edit),
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    IconButton(
-                        onClick = { showDeleteDialog = true },
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Delete,
-                            contentDescription = stringResource(R.string.symptom_delete),
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = symptomSummary(symptom),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
+        )
+        Spacer(modifier = Modifier.height(7.dp))
+        Text(
+            text = symptomSummary(symptom),
+            fontSize = 12.5.sp,
+            color = p.text
+        )
     }
 
     if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text(stringResource(R.string.symptom_delete)) },
-            text = { Text(stringResource(R.string.symptom_delete_message)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showDeleteDialog = false
-                    onDelete()
-                }) {
-                    Text(stringResource(R.string.common_delete), color = MaterialTheme.colorScheme.error)
-                }
+        UcDialog(
+            icon = Icons.Filled.Delete,
+            iconBg = p.redSoft,
+            iconTint = p.redText,
+            title = stringResource(R.string.symptom_delete),
+            message = stringResource(R.string.symptom_delete_message),
+            confirmLabel = stringResource(R.string.common_delete),
+            confirmIsDanger = true,
+            onConfirm = {
+                showDeleteDialog = false
+                onDelete()
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text(stringResource(R.string.common_cancel))
-                }
-            }
+            dismissLabel = stringResource(R.string.common_cancel),
+            onDismiss = { showDeleteDialog = false }
         )
     }
 }

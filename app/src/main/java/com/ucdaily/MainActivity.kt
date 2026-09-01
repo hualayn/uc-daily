@@ -15,7 +15,9 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +30,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -59,7 +62,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -69,6 +74,14 @@ import com.ucdaily.play.AppUpdateController
 import com.ucdaily.ui.DailyManagementScreen
 import com.ucdaily.ui.FontScaledContent
 import com.ucdaily.ui.HomeScreen
+import com.ucdaily.ui.LocalDarkTheme
+import com.ucdaily.ui.RecordKind
+import com.ucdaily.ui.UcDialog
+import com.ucdaily.ui.primaryBtnBrush
+import com.ucdaily.ui.recordKindEmoji
+import com.ucdaily.ui.recordTypeColors
+import com.ucdaily.ui.softShadow
+import com.ucdaily.ui.ucPalette
 import com.ucdaily.ui.HomeSloganScreen
 import com.ucdaily.ui.MedSettingsScreen
 import com.ucdaily.ui.MealLogViewModel
@@ -302,20 +315,18 @@ class MainActivity : ComponentActivity() {
                     }
 
                     if (showExitDialog) {
-                        AlertDialog(
-                            onDismissRequest = { showExitDialog = false },
-                            title = { Text(stringResource(R.string.exit_dialog_title)) },
-                            text = { Text(stringResource(R.string.exit_dialog_message)) },
-                            confirmButton = {
-                                TextButton(onClick = { finish() }) {
-                                    Text(stringResource(R.string.exit_dialog_confirm), color = MaterialTheme.colorScheme.error)
-                                }
-                            },
-                            dismissButton = {
-                                TextButton(onClick = { showExitDialog = false }) {
-                                    Text(stringResource(R.string.common_cancel))
-                                }
-                            }
+                        val p = ucPalette()
+                        UcDialog(
+                            icon = Icons.Filled.Home,
+                            iconBg = p.surface2,
+                            iconTint = p.text2,
+                            title = stringResource(R.string.exit_dialog_title),
+                            message = stringResource(R.string.exit_dialog_message),
+                            confirmLabel = stringResource(R.string.exit_dialog_confirm),
+                            confirmIsDanger = true,
+                            onConfirm = { finish() },
+                            dismissLabel = stringResource(R.string.common_cancel),
+                            onDismiss = { showExitDialog = false }
                         )
                     }
 
@@ -617,86 +628,121 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/** 底部功能菜单：首页 / 耐受 / ＋ / 日历 / 我的，中间为凸起的快捷添加按钮 */
+/** 底部导航（设计稿 .nav）：顶部圆角 + 上投影；选中项文字套 primary-soft 胶囊；中间凸起渐变 ＋ 按钮 */
 @Composable
 private fun BottomTabs(
     selectedTab: Int,
     onSelect: (Int) -> Unit,
     onCenterAdd: () -> Unit
 ) {
+    val p = ucPalette()
     val tabs = listOf(
         TabItem(stringResource(R.string.tab_home), Icons.Filled.Home),
         TabItem(stringResource(R.string.tab_tolerance), Icons.Filled.CheckCircle),
         TabItem(stringResource(R.string.tab_daily_management), Icons.Filled.MenuBook),
         TabItem(stringResource(R.string.tab_profile), Icons.Filled.Person)
     )
-    Box(modifier = Modifier.fillMaxWidth()) {
-        // 主栏：左 2 项 + 中间留白(放 ＋ 按钮) + 右 2 项
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface)
-                .navigationBarsPadding()
-                .padding(top = 16.dp)
-                .padding(horizontal = 8.dp)
-        ) {
-            NavSlot(tabs[0], selected = selectedTab == 0, onClick = { onSelect(0) }, Modifier.weight(1f))
-            NavSlot(tabs[1], selected = selectedTab == 1, onClick = { onSelect(1) }, Modifier.weight(1f))
-            Spacer(modifier = Modifier.weight(1f))
-            NavSlot(tabs[2], selected = selectedTab == 2, onClick = { onSelect(2) }, Modifier.weight(1f))
-            NavSlot(tabs[3], selected = selectedTab == 3, onClick = { onSelect(3) }, Modifier.weight(1f))
-        }
-        // 中间凸起的 ＋ 快捷添加按钮
+    val navShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+    // 外层不裁剪：＋ 按钮需凸出导航栏顶部 22dp，不能被导航栏的圆角裁剪吃掉
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // 导航栏主体（圆角裁剪只作用于主体本身）
         Box(
             modifier = Modifier
-                .align(Alignment.Center)
-                .size(60.dp)
-                .offset(y = (-18).dp)
+                .fillMaxWidth()
+                .shadow(
+                    10.dp,
+                    navShape,
+                    ambientColor = Color.Black.copy(alpha = if (LocalDarkTheme.current) 0.45f else 0.10f),
+                    spotColor = Color.Black.copy(alpha = if (LocalDarkTheme.current) 0.45f else 0.10f)
+                )
+                .clip(navShape)
+                .background(p.surface)
+        ) {
+            // 主栏：左 2 项 + 中间留白(放 ＋ 按钮) + 右 2 项
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                NavSlot(tabs[0], selected = selectedTab == 0, onClick = { onSelect(0) })
+                NavSlot(tabs[1], selected = selectedTab == 1, onClick = { onSelect(1) })
+                Spacer(modifier = Modifier.weight(1f))
+                NavSlot(tabs[2], selected = selectedTab == 2, onClick = { onSelect(2) })
+                NavSlot(tabs[3], selected = selectedTab == 3, onClick = { onSelect(3) })
+            }
+        }
+        // 中间凸起的 ＋ 快捷添加按钮（54dp 渐变圆 + 页面底色描边）
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .offset(y = (-22).dp)
+                .size(54.dp)
+                .shadow(
+                    6.dp,
+                    CircleShape,
+                    ambientColor = Color(0xFF2563EB).copy(alpha = 0.4f),
+                    spotColor = Color(0xFF2563EB).copy(alpha = 0.4f)
+                )
                 .clip(CircleShape)
-                .shadow(6.dp, CircleShape)
-                .background(MaterialTheme.colorScheme.primary)
+                .background(primaryBtnBrush())
+                .border(4.dp, p.bg, CircleShape)
                 .clickable(onClick = onCenterAdd),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Filled.Add,
                 contentDescription = stringResource(R.string.quick_add_title),
-                tint = MaterialTheme.colorScheme.onPrimary
+                modifier = Modifier.size(26.dp),
+                tint = Color.White
             )
         }
     }
 }
 
-/** 底部栏单个 Tab（自绘，配合中间凸起按钮使用） */
+/** 底部栏单个 Tab：图标 + 文字（选中时文字套 primary-soft 胶囊） */
 @Composable
 private fun NavSlot(
     tab: TabItem,
     selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit
 ) {
+    val p = ucPalette()
     Column(
-        modifier = modifier
+        modifier = Modifier
+            .clip(RoundedCornerShape(50.dp))
             .clickable(onClick = onClick)
-            .padding(vertical = 4.dp),
+            .padding(horizontal = 10.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
             imageVector = tab.icon,
             contentDescription = tab.label,
-            tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+            modifier = Modifier.size(16.dp),
+            tint = if (selected) p.primary else p.text2
         )
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = tab.label,
-            style = MaterialTheme.typography.labelSmall,
-            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Spacer(modifier = Modifier.height(1.5.dp))
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(50.dp))
+                .then(if (selected) Modifier.background(p.primarySoft) else Modifier)
+                .padding(horizontal = 8.dp, vertical = 1.dp)
+        ) {
+            Text(
+                text = tab.label,
+                fontSize = 10.sp,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                color = if (selected) p.primaryText else p.text2
+            )
+        }
     }
 }
 
-/** ＋ 按钮弹出的快捷添加菜单：饮食 / 便便 / 服药 / 笔记 */
+/** ＋ 按钮弹出的快捷添加菜单（设计稿 .qadd）：居中 2×2 彩色磁贴（饮食/便便/服药/感受） */
 @Composable
 private fun QuickAddPopup(
     onMeal: () -> Unit,
@@ -705,60 +751,72 @@ private fun QuickAddPopup(
     onNote: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        // 半透明遮罩，点击关闭
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.35f))
-                .clickable(onClick = onDismiss)
-        )
-        // 居中的选项卡片
+    val p = ucPalette()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.45f))
+            .clickable(
+                onClick = onDismiss,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ),
+        contentAlignment = Alignment.Center
+    ) {
         Column(
             modifier = Modifier
-                .align(Alignment.Center)
-                .padding(horizontal = 56.dp)
-                .clip(RoundedCornerShape(22.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp)
+                .width(268.dp)
+                .softShadow(elevation = 14.dp, shape = RoundedCornerShape(24.dp))
+                .clip(RoundedCornerShape(24.dp))
+                .background(p.surface)
+                .padding(horizontal = 16.dp, vertical = 18.dp)
         ) {
             Text(
                 text = stringResource(R.string.quick_add_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = p.text,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(14.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                QuickAddItem("🍚", stringResource(R.string.type_meal), onMeal, Modifier.weight(1f))
-                QuickAddItem("💩", stringResource(R.string.type_bowel), onSymptom, Modifier.weight(1f))
+                QuickAddTile(RecordKind.MEAL, stringResource(R.string.type_meal), onMeal, Modifier.weight(1f))
+                QuickAddTile(RecordKind.BOWEL, stringResource(R.string.type_bowel), onSymptom, Modifier.weight(1f))
             }
             Spacer(modifier = Modifier.height(10.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                QuickAddItem("💊", stringResource(R.string.type_med), onMed, Modifier.weight(1f))
-                QuickAddItem("📝", stringResource(R.string.type_note), onNote, Modifier.weight(1f))
+                QuickAddTile(RecordKind.MED, stringResource(R.string.type_med), onMed, Modifier.weight(1f))
+                QuickAddTile(RecordKind.NOTE, stringResource(R.string.type_note), onNote, Modifier.weight(1f))
             }
         }
     }
 }
 
-/** 快捷添加菜单中的单个选项 */
+/** 快捷添加菜单中的单个磁贴：柔和色底 + 彩色 emoji + 同色文字（设计稿 .qt） */
 @Composable
-private fun QuickAddItem(
-    emoji: String,
+private fun QuickAddTile(
+    kind: RecordKind,
     label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val tc = recordTypeColors(kind)
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(14.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .clip(RoundedCornerShape(16.dp))
+            .background(tc.soft)
             .clickable(onClick = onClick)
             .padding(vertical = 14.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = emoji, style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(text = label, style = MaterialTheme.typography.labelMedium)
+        Text(text = recordKindEmoji(kind), fontSize = 22.sp)
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = tc.text
+        )
     }
 }

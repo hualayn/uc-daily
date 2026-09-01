@@ -127,6 +127,8 @@
     <string name="home_prev_week">上一周</string>
     <string name="home_next_month">下一月</string>
     <string name="home_next_week">下一周</string>
+    <string name="home_cal_hint_week">⌄ 下滑展开整月</string>
+    <string name="home_cal_hint_month">⌃ 上滑收起回周视图</string>
     <string name="home_month_header">%1$d年%2$d月</string>
     <string name="home_date_header">%1$d月%2$d日</string>
     <string name="home_year_week_header">%1$d年，第%2$d周</string>
@@ -277,6 +279,17 @@
     <string name="profile_menu_about">关于</string>
     <string name="profile_menu_about_trailing">v%1$s</string>
     <string name="profile_menu_update_trailing">v%1$s</string>
+    <string name="profile_menu_stats_sub">记录天数 / 活动度 / 耐受分布</string>
+    <string name="profile_menu_med_settings_sub">提醒次数与时间</string>
+    <string name="profile_menu_export_sub">给医生看 · TXT / CSV</string>
+    <string name="profile_menu_restore_sub">从导出的 CSV 文件恢复</string>
+    <string name="profile_menu_settings_sub">寄语 / 主题 / 字体 / 语言</string>
+    <string name="settings_menu_slogans_sub">欢迎卡横幅轮播内容</string>
+    <string name="settings_menu_theme_sub">浅色 / 深色 / 跟随系统</string>
+    <string name="settings_menu_font_sub">首页 / 耐受 / 日常管理</string>
+    <string name="settings_menu_language_sub">界面 / 通知，12 种语言</string>
+    <string name="settings_menu_update_sub">Google Play 应用内更新</string>
+    <string name="settings_menu_about_sub">应用说明与免责声明</string>
     <string name="profile_font_desc">调整首页记录、耐受页和日常管理页的文字大小</string>
     <string name="profile_font_sample">文字</string>
     <string name="profile_about_title">关于溃结日常记录</string>
@@ -380,6 +393,7 @@
     <string name="list_level_day">日</string>
     <string name="list_year_header">%1$d年</string>
     <string name="list_total_count">共 %1$d 条</string>
+    <string name="list_all_time_count">全时段 · %1$d 条</string>
     <string name="list_month_header">%1$d月</string>
     <string name="list_day_header">%1$d月%2$d日 %3$s</string>
 

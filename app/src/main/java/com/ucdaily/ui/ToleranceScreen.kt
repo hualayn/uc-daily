@@ -63,18 +63,27 @@ import com.ucdaily.data.FoodTolerance
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-/** 耐受状态对应颜色（绿=可耐受 红=不耐受 黄=尝试）；首页饮食标签也复用 */
+/** 耐受状态对应颜色（绿=可耐受 琥珀=尝试 红=不耐受，随主题深浅令牌）；首页饮食标签也复用 */
+@Composable
 internal fun toleranceColor(t: FoodTolerance): Color = when (t) {
-    FoodTolerance.OK -> Color(0xFF4CAF50)
-    FoodTolerance.CAUTION -> Color(0xFFF9A825)
-    FoodTolerance.BAD -> Color(0xFFE53935)
+    FoodTolerance.OK -> ucPalette().green
+    FoodTolerance.CAUTION -> ucPalette().amber
+    FoodTolerance.BAD -> ucPalette().red
+}
+
+/** 耐受状态浅色底（分区卡背景 / 落点预览槽，设计稿 .tsec） */
+@Composable
+internal fun toleranceSoft(t: FoodTolerance): Color = when (t) {
+    FoodTolerance.OK -> ucPalette().greenSoft
+    FoodTolerance.CAUTION -> ucPalette().amberSoft
+    FoodTolerance.BAD -> ucPalette().redSoft
 }
 
 /** 耐受说明（页面顶部提示卡，多语言文案资源） */
 private val TOLERANCE_NOTE_RES: Int = R.string.tolerance_note
 
-/** 分组展示顺序：可耐受 → 不耐受 → 尝试 */
-private val TOLERANCE_ORDER = listOf(FoodTolerance.OK, FoodTolerance.BAD, FoodTolerance.CAUTION)
+/** 分组展示顺序：可耐受 → 不耐受 → 尝试（统计页耐受情况分布复用） */
+internal val TOLERANCE_ORDER = listOf(FoodTolerance.OK, FoodTolerance.BAD, FoodTolerance.CAUTION)
 
 /** 长按进入拖动的等待时长（ms） */
 private const val DRAG_LONG_PRESS_MS = 400L
@@ -288,23 +297,24 @@ fun ToleranceScreen(
             ) {
                 // 耐受说明卡（琥珀色提示）：默认折叠，点击展开/收起
                 var expanded by remember { mutableStateOf(false) }
-                Card(
+                // 耐受说明卡（设计稿 .note-card）：琥珀色描边 + 浅琥珀底，默认折叠
+                val p = ucPalette()
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .border(1.dp, Color(0xFFF9A825).copy(alpha = 0.35f), RoundedCornerShape(12.dp))
-                        .clickable { expanded = !expanded },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFF9A825).copy(alpha = 0.10f)
-                    )
+                        .softShadow(elevation = 2.dp, shape = RoundedCornerShape(14.dp))
+                        .clip(RoundedCornerShape(14.dp))
+                        .border(1.dp, p.amber, RoundedCornerShape(14.dp))
+                        .background(p.amberSoft)
+                        .clickable { expanded = !expanded }
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Row {
                             Text(
                                 text = stringResource(R.string.tolerance_note_title),
-                                style = MaterialTheme.typography.labelMedium,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFFB26A00),
+                                color = p.amberText,
                                 modifier = Modifier.weight(1f)
                             )
                             Icon(
@@ -313,7 +323,8 @@ fun ToleranceScreen(
                                     if (expanded) R.string.tolerance_note_collapse
                                     else R.string.tolerance_note_expand
                                 ),
-                                tint = Color(0xFFB26A00)
+                                modifier = Modifier.size(16.dp),
+                                tint = p.amberText
                             )
                         }
                         if (expanded) {
@@ -322,7 +333,7 @@ fun ToleranceScreen(
                                 text = stringResource(TOLERANCE_NOTE_RES),
                                 style = MaterialTheme.typography.bodyLarge,
                                 lineHeight = 24.sp,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = p.text
                             )
                         }
                     }
@@ -498,27 +509,31 @@ private fun ToleranceSection(
     onDragStart: (String, Offset, PointerId) -> Unit
 ) {
     val color = toleranceColor(tolerance)
+    val p = ucPalette()
+    val shape = RoundedCornerShape(16.dp)
     /**
      * 本分区卡片的 LayoutCoordinates（实例稳定、位置就地更新）——
      * tag 重排动画以它为参照系（分区整体移动时 chip 相对位置不变，不误触发动画）。
      * 存实例而非坐标值：chip 在布局回调里直接读它的最新位置，不经过组合期状态。
      */
     val sectionCard = remember { mutableStateOf<LayoutCoordinates?>(null) }
-    Card(
+    // 分区卡（设计稿 .tsec）：状态色浅色底 + 同色 1px 描边；拖动悬停时描边加粗
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .softShadow(elevation = 2.dp, shape = shape)
+            .clip(shape)
+            .background(toleranceSoft(tolerance))
+            .border(if (isDropTarget) 1.5.dp else 1.dp, color, shape)
             .onGloballyPositioned { coords ->
                 sectionCard.value = coords
                 onSectionPositioned(coords)
-            },
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = color.copy(alpha = if (isDropTarget) 0.14f else 0.06f)
-        ),
-        border = BorderStroke(1.dp, color.copy(alpha = if (isDropTarget) 0.9f else 0.45f))
+            }
     ) {
         Column(
-            modifier = Modifier.padding(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             // 分区标题：色点 + 名称 + 数量
@@ -532,15 +547,15 @@ private fun ToleranceSection(
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = stringResource(tolerance.labelRes),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.ExtraBold,
                     color = color
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = stringResource(R.string.tolerance_types_count, tags.size),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    fontSize = 10.5.sp,
+                    color = p.text2
                 )
             }
             if (tags.isEmpty()) {
@@ -698,7 +713,9 @@ private fun FoodTagChipVisual(
     modifier: Modifier = Modifier,
     placeholder: Boolean = false
 ) {
-    val shape = RoundedCornerShape(50.dp)
+    // 设计稿 .tchip：12px 圆角 + 1.5px 状态色描边 + 白底 + 同色文字 + ×N 计数
+    val p = ucPalette()
+    val shape = RoundedCornerShape(12.dp)
     Row(
         modifier = modifier
             .clip(shape)
@@ -706,9 +723,9 @@ private fun FoodTagChipVisual(
                 if (placeholder) {
                     // 落点预览槽：淡底色 + 虚线边框
                     Modifier.drawWithContent {
-                        val radius = size.minDimension / 2f
+                        val r = 12.dp.toPx()
                         val pill = Path().apply {
-                            addRoundRect(RoundRect(0f, 0f, size.width, size.height, radius, radius))
+                            addRoundRect(RoundRect(0f, 0f, size.width, size.height, r, r))
                         }
                         drawPath(pill, color = color.copy(alpha = 0.10f))
                         drawContent()
@@ -725,19 +742,20 @@ private fun FoodTagChipVisual(
                 } else {
                     Modifier
                         .border(1.5.dp, color, shape)
-                        .background(MaterialTheme.colorScheme.surface)
+                        .background(p.surface)
                 }
             )
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = 12.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = name, style = MaterialTheme.typography.bodyMedium)
+        Text(text = name, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = color)
         if (count > 0) {
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "·$count",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = "×$count",
+                fontSize = 9.5.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = color.copy(alpha = 0.65f)
             )
         }
     }
@@ -830,7 +848,7 @@ private fun DragOverlay(dragInfo: DragInfo?) {
             val overlayTopLeft = oc.localToRoot(Offset.Zero)
             val topLeft = d.fingerRoot - overlayTopLeft - d.grabOffset
             val shadowPx = with(LocalDensity.current) { 10.dp.toPx() }
-            val floatShape = RoundedCornerShape(50.dp)
+            val floatShape = RoundedCornerShape(12.dp)
             FoodTagChipVisual(
                 name = d.name,
                 count = d.count,
@@ -868,6 +886,7 @@ internal fun AddFoodSection(onAddFood: (String, FoodTolerance) -> Unit) {
             value = input,
             onValueChange = { input = it },
             modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(12.dp),
             placeholder = { Text(stringResource(R.string.tolerance_add_placeholder)) },
             singleLine = true
         )

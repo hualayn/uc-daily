@@ -4,26 +4,35 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.ucdaily.R
 
 /**
- * 我的→首页寄语：管理首页顶部欢迎卡的横幅轮播列表。
- * 每条寄语可点行修改；右侧图标删除；底部可添加、可恢复内置默认；
+ * 我的→首页寄语（设计稿 .srow）：管理首页顶部欢迎卡的横幅轮播列表。
+ * 每条寄语：序号圆点 + 文案 + 修改/删除小按钮；底部添加（描边按钮）+ 恢复内置默认。
  * 列表删空时首页自动回退轮播内置默认寄语。
  */
 @Composable
@@ -39,6 +48,7 @@ fun HomeSloganScreen(
     var dialogIndex by remember { mutableStateOf<Int?>(null) }
     var showResetConfirm by remember { mutableStateOf(false) }
     val slogans = state.homeSlogans
+    val p = ucPalette()
     // 内置默认寄语（按当前语言解析）：用于判断列表是否仍为默认
     val defaultSlogans = DEFAULT_HOME_SLOGANS_RES.map { stringResource(it) }
 
@@ -48,26 +58,8 @@ fun HomeSloganScreen(
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
-        // 顶部标题栏（与服药设置页同款）
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowLeft,
-                    contentDescription = stringResource(R.string.common_back),
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-            Text(
-                text = stringResource(R.string.slogan_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        // 顶部标题栏（统一样式）
+        SecondaryTopBar(onBack = onBack, title = stringResource(R.string.slogan_title))
 
         Column(
             modifier = Modifier
@@ -85,34 +77,33 @@ fun HomeSloganScreen(
 
             if (slogans.isEmpty()) {
                 // 列表为空：首页将轮播内置默认寄语
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-                    )
-                ) {
+                UcCard {
                     Column(
-                        modifier = Modifier.padding(20.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
                             text = stringResource(R.string.slogan_empty),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = p.text2
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         TextButton(onClick = onReset) {
-                            Text(stringResource(R.string.slogan_reset))
+                            Text(stringResource(R.string.slogan_reset), color = p.primary)
                         }
                     }
                 }
             } else {
-                // 寄语列表：序号 + 文案 + 修改/删除
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-                    )
+                // 寄语列表：序号 + 文案 + 修改/删除（设计稿 .srow）
+                val cardShape = RoundedCornerShape(16.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .softShadow(elevation = 2.dp, shape = cardShape)
+                        .clip(cardShape)
+                        .background(p.surface)
                 ) {
                     Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
                         slogans.forEachIndexed { i, s ->
@@ -120,56 +111,71 @@ fun HomeSloganScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { dialogIndex = i }
-                                    .padding(vertical = 10.dp),
+                                    .padding(vertical = 9.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = "${i + 1}",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.width(26.dp)
-                                )
+                                // 序号：20dp 圆形 surface2 底
+                                Box(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .clip(CircleShape)
+                                        .background(p.surface2),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "${i + 1}",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = p.text2
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
                                 Text(
                                     text = s,
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontSize = 12.5.sp,
+                                    color = p.text,
                                     modifier = Modifier.weight(1f)
                                 )
-                                IconButton(onClick = { dialogIndex = i }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Edit,
-                                        contentDescription = stringResource(R.string.common_edit),
-                                        modifier = Modifier.size(20.dp),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                                IconButton(onClick = { onDelete(i) }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Delete,
-                                        contentDescription = stringResource(R.string.common_delete),
-                                        modifier = Modifier.size(20.dp),
-                                        tint = MaterialTheme.colorScheme.error
-                                    )
-                                }
+                                SloganOpButton(
+                                    icon = Icons.Filled.Edit,
+                                    contentDescription = stringResource(R.string.common_edit),
+                                    tint = p.text2,
+                                    onClick = { dialogIndex = i }
+                                )
+                                SloganOpButton(
+                                    icon = Icons.Filled.Delete,
+                                    contentDescription = stringResource(R.string.common_delete),
+                                    tint = p.redText,
+                                    onClick = { onDelete(i) }
+                                )
                             }
                             if (i < slogans.size - 1) {
-                                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+                                HorizontalDivider(color = p.surface2)
                             }
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
-                OutlinedButton(
-                    onClick = { dialogIndex = ADD_SLOGAN_INDEX },
-                    modifier = Modifier.fillMaxWidth()
+                // 添加寄语（设计稿 .btn.out：白底 + 描边）
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .softShadow(elevation = 1.dp, shape = RoundedCornerShape(14.dp))
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(p.surface)
+                        .clickable { dialogIndex = ADD_SLOGAN_INDEX }
+                        .padding(vertical = 12.dp),
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Add,
                         contentDescription = null,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(16.dp),
+                        tint = p.text
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(stringResource(R.string.slogan_add))
+                    Text(stringResource(R.string.slogan_add), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = p.text)
                 }
             }
 
@@ -180,7 +186,7 @@ fun HomeSloganScreen(
                     onClick = { showResetConfirm = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(stringResource(R.string.slogan_reset))
+                    Text(stringResource(R.string.slogan_reset), color = p.primary, textAlign = TextAlign.Center)
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
@@ -193,12 +199,15 @@ fun HomeSloganScreen(
         var text by remember { mutableStateOf(if (isAdd) "" else slogans.getOrNull(index) ?: "") }
         AlertDialog(
             onDismissRequest = { dialogIndex = null },
+            shape = RoundedCornerShape(22.dp),
+            containerColor = p.surface,
             title = { Text(stringResource(if (isAdd) R.string.slogan_add else R.string.slogan_edit)) },
             text = {
                 OutlinedTextField(
                     value = text,
                     onValueChange = { text = it.take(MAX_HOME_SLOGAN_LEN) },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
                     label = { Text(stringResource(R.string.slogan_field, text.length, MAX_HOME_SLOGAN_LEN)) },
                     maxLines = 3
                 )
@@ -229,6 +238,8 @@ fun HomeSloganScreen(
     if (showResetConfirm) {
         AlertDialog(
             onDismissRequest = { showResetConfirm = false },
+            shape = RoundedCornerShape(22.dp),
+            containerColor = p.surface,
             title = { Text(stringResource(R.string.slogan_reset)) },
             text = {
                 Text(
@@ -248,6 +259,33 @@ fun HomeSloganScreen(
                     Text(stringResource(R.string.common_cancel))
                 }
             }
+        )
+    }
+}
+
+/** 寄语行的操作小按钮（26dp 圆角方块 + 13dp 图标） */
+@Composable
+private fun SloganOpButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
+    tint: Color,
+    onClick: () -> Unit
+) {
+    val p = ucPalette()
+    Box(
+        modifier = Modifier
+            .padding(start = 4.dp)
+            .size(26.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(p.surface2)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            modifier = Modifier.size(13.dp),
+            tint = tint
         )
     }
 }

@@ -33,22 +33,18 @@
     <string name="tab_daily_management">Soins</string>
     <string name="tab_profile">Profil</string>
     <string name="quick_add_title">Ajouter un enregistrement</string>
-
     <string name="type_meal">Repas</string>
     <string name="type_bowel">Selle</string>
     <string name="type_med">Médicament</string>
     <string name="type_note">Ressenti</string>
     <string name="type_tolerance">Tolérance</string>
-
     <string name="meal_breakfast">Petit-déjeuner</string>
     <string name="meal_lunch">Déjeuner</string>
     <string name="meal_dinner">Dîner</string>
     <string name="meal_snack">Collation</string>
-
     <string name="tolerance_ok">Toléré</string>
     <string name="tolerance_try">À essayer</string>
     <string name="tolerance_bad">À éviter</string>
-
     <string name="bristol_1">Grumeaux durs séparés</string>
     <string name="bristol_2">En forme de saucisse mais grumeleux</string>
     <string name="bristol_3">En forme de saucisse avec fissures</string>
@@ -56,23 +52,19 @@
     <string name="bristol_5">Masses molles</string>
     <string name="bristol_6">Pâteux</string>
     <string name="bristol_7">Liquide</string>
-
     <string name="blood_none">Aucun</string>
     <string name="blood_little">Léger</string>
     <string name="blood_clear">Marqué</string>
     <string name="blood_clots">Caillots</string>
-
     <string name="pain_loc_none">Aucune</string>
     <string name="pain_loc_right_lower">Fosse iliaque droite</string>
     <string name="pain_loc_left_lower">Fosse iliaque gauche</string>
     <string name="pain_loc_periumbilical">Péri-ombilical</string>
     <string name="pain_loc_whole">Abdomen entier</string>
-
     <string name="activity_remission">Rémission</string>
     <string name="activity_mild">Activité légère</string>
     <string name="activity_moderate">Activité modérée</string>
     <string name="activity_severe">Activité sévère</string>
-
     <string name="week_mon">lundi</string>
     <string name="week_tue">mardi</string>
     <string name="week_wed">mercredi</string>
@@ -109,18 +101,18 @@
     <string name="home_prev_week">Semaine précédente</string>
     <string name="home_next_month">Mois suivant</string>
     <string name="home_next_week">Semaine suivante</string>
+    <string name="home_cal_hint_week">⌄ Glisser vers le bas : mois entier</string>
+    <string name="home_cal_hint_month">⌃ Glisser vers le haut : vue semaine</string>
     <string name="home_month_header">%2$d/%1$d</string>
     <string name="home_date_header">%1$d/%2$d</string>
     <string name="home_year_week_header">%1$d, semaine %2$d</string>
     <string name="home_med_no_due_time">Aucun horaire de prise n\'est encore atteint aujourd\'hui. Pensez à prendre vos médicaments à l\'heure.</string>
     <string name="home_med_all_done">Toutes les prises dues ont été enregistrées (%1$d/%2$d).</string>
     <string name="home_med_go">Prendre mes médicaments</string>
-
     <string name="day_records_title">Enregistrements du jour</string>
     <string name="day_records_empty_filtered">Aucun enregistrement de %1$s pour ce jour</string>
     <string name="day_records_empty">Aucun enregistrement pour ce jour</string>
     <string name="day_records_empty_hint">Mangez bien, prenez vos médicaments à l\'heure et notez quelque chose pour vous</string>
-
     <string name="record_edit">Modifier l\'enregistrement</string>
     <string name="record_delete">Supprimer l\'enregistrement</string>
     <string name="record_meal_photo">Photo du repas</string>
@@ -256,15 +248,24 @@
     <string name="profile_menu_about">À propos</string>
     <string name="profile_menu_about_trailing">v%1$s</string>
     <string name="profile_menu_update_trailing">v%1$s</string>
+    <string name="profile_menu_stats_sub">Jours / activité / tolérance</string>
+    <string name="profile_menu_med_settings_sub">Rappels et horaires</string>
+    <string name="profile_menu_export_sub">Pour le médecin · TXT / CSV</string>
+    <string name="profile_menu_restore_sub">Depuis un fichier CSV exporté</string>
+    <string name="profile_menu_settings_sub">Messages / thème / police / langue</string>
+    <string name="settings_menu_slogans_sub">"Contenu du carrousel de la carte d'accueil"</string>
+    <string name="settings_menu_theme_sub">Clair / sombre / suivre le système</string>
+    <string name="settings_menu_font_sub">Accueil / tolérance / suivi quotidien</string>
+    <string name="settings_menu_language_sub">Interface et notifications, 12 langues</string>
+    <string name="settings_menu_update_sub">Mises à jour via Google Play</string>
+    <string name="settings_menu_about_sub">À propos et avertissement</string>
     <string name="profile_font_desc">Ajuste la taille du texte des pages Accueil, Tolérance et Soins</string>
     <string name="profile_font_sample">Texte</string>
     <string name="profile_about_title">À propos d\'UC Quotidien</string>
     <string name="profile_about_version">UC Daily · v%1$s</string>
     <string name="profile_about_desc">Un journal quotidien conçu pour les personnes atteintes de rectocolite hémorragique (RCH) :\n· Photos de repas + étiquettes de tolérance alimentaire\n· Journal de médicaments et réglage des heures de prise\n· Journal des selles (échelle de Bristol) et auto-évaluation de l\'activité\n· Ressenti quotidien et retour sur le calendrier\n· Manuel de soins quotidiens : conseils de référence fondés sur les données probantes (alimentation / mode de vie / médicaments et soins médicaux / bien-être psychologique) — pour référence personnelle uniquement</string>
     <string name="profile_about_disclaimer">L\'activité est un UCDAI simplifié (0~8 pts) pour l\'auto-surveillance uniquement. Les données et photos sont stockées uniquement dans le dossier de l\'application sur votre appareil et ne sont jamais téléversées.</string>
-
     <string name="language_system">Suivre la langue du système</string>
-
     <string name="theme_system">Suivre le système</string>
     <string name="theme_light">Clair</string>
     <string name="theme_dark">Sombre</string>
@@ -355,6 +356,7 @@
     <string name="list_level_day">Jour</string>
     <string name="list_year_header">%1$d</string>
     <string name="list_total_count">%1$d élément(s) au total</string>
+    <string name="list_all_time_count">Toute période · %1$d</string>
     <string name="list_month_header">%1$d</string>
     <string name="list_day_header">%1$d/%2$d %3$s</string>
 

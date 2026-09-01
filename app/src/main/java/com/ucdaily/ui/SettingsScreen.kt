@@ -58,26 +58,11 @@ fun SettingsScreen(
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
-        // 顶部标题栏
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowLeft,
-                    contentDescription = stringResource(R.string.common_back),
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-            Text(
-                text = stringResource(R.string.profile_menu_settings),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        // 顶部标题栏（统一样式）
+        SecondaryTopBar(
+            onBack = onBack,
+            title = stringResource(R.string.profile_menu_settings)
+        )
 
         Column(
             modifier = Modifier
@@ -85,78 +70,76 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
         ) {
-            // 设置菜单卡：首页寄语 / 主题 / 字体大小 / 语言 / 软件更新 / 关于
-            Card(
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-                Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-                    ProfileMenuItem(
+            // 设置菜单卡（设计稿 .menu）：首页寄语 / 主题 / 字体大小 / 语言 / 软件更新 / 关于
+            val p = ucPalette()
+            UcCard {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    MenuItemRow(
                         icon = Icons.Filled.EditNote,
+                        iconBg = p.purpleSoft,
+                        iconTint = p.purpleText,
                         label = stringResource(R.string.profile_menu_slogans),
+                        sub = stringResource(R.string.settings_menu_slogans_sub),
                         // 已自定义时显示条数，未修改过提示"默认寄语"
-                        trailing = if (state.homeSlogans == defaultSlogans) {
+                        value = if (state.homeSlogans == defaultSlogans) {
                             stringResource(R.string.profile_menu_slogans_default_trailing)
                         } else {
                             stringResource(R.string.common_items_count, state.homeSlogans.size)
                         },
                         onClick = onOpenHomeSlogans
                     )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 52.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                    ProfileMenuItem(
+                    SettingsDivider()
+                    MenuItemRow(
                         icon = Icons.Filled.DarkMode,
+                        iconBg = p.surface2,
+                        iconTint = p.text2,
                         label = stringResource(R.string.profile_menu_theme),
-                        trailing = stringResource(state.themeMode.labelRes),
+                        sub = stringResource(R.string.settings_menu_theme_sub),
+                        value = stringResource(state.themeMode.labelRes),
                         onClick = { showThemeDialog = true }
                     )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 52.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                    ProfileMenuItem(
+                    SettingsDivider()
+                    MenuItemRow(
                         icon = Icons.Filled.TextFields,
+                        iconBg = p.surface2,
+                        iconTint = p.text2,
                         label = stringResource(R.string.profile_menu_font),
+                        sub = stringResource(R.string.settings_menu_font_sub),
                         // 当前档位（作用于首页记录 / 耐受 / 日常管理）
-                        trailing = stringResource(state.fontLevel.labelRes),
+                        value = stringResource(state.fontLevel.labelRes),
                         onClick = { showFontSizeDialog = true }
                     )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 52.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                    SettingsDivider()
                     // 语言：跟随系统 + 11 种语言（切换后 recreate 即时生效）
-                    ProfileMenuItem(
+                    MenuItemRow(
                         icon = Icons.Filled.Language,
+                        iconBg = p.greenSoft,
+                        iconTint = p.greenText,
                         label = stringResource(R.string.profile_menu_language),
-                        trailing = AppLocale.endonymOf(state.languageTag)
+                        sub = stringResource(R.string.settings_menu_language_sub),
+                        value = AppLocale.endonymOf(state.languageTag)
                             ?: stringResource(R.string.language_system),
                         onClick = { showLanguageDialog = true }
                     )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 52.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                    SettingsDivider()
                     // 软件更新（Google Play Core 应用内更新）
-                    ProfileMenuItem(
+                    MenuItemRow(
                         icon = Icons.Filled.SystemUpdateAlt,
+                        iconBg = p.primarySoft,
+                        iconTint = p.primaryText,
                         label = stringResource(R.string.profile_menu_update),
-                        trailing = stringResource(R.string.profile_menu_update_trailing, versionName),
+                        sub = stringResource(R.string.settings_menu_update_sub),
+                        value = stringResource(R.string.profile_menu_update_trailing, versionName),
                         onClick = onCheckUpdate
                     )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 52.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                    ProfileMenuItem(
+                    SettingsDivider()
+                    MenuItemRow(
                         icon = Icons.Filled.Info,
+                        iconBg = p.surface2,
+                        iconTint = p.text2,
                         label = stringResource(R.string.profile_menu_about),
-                        trailing = stringResource(R.string.profile_menu_about_trailing, versionName),
+                        sub = stringResource(R.string.settings_menu_about_sub),
+                        value = stringResource(R.string.profile_menu_about_trailing, versionName),
                         onClick = { showAboutDialog = true }
                     )
                 }
@@ -383,6 +366,18 @@ private fun FontSizeOptionRow(
             )
         }
     }
+}
+
+/** 菜单卡内的分隔线（缩进对齐图标后） */
+@Composable
+private fun SettingsDivider() {
+    val p = ucPalette()
+    HorizontalDivider(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 60.dp),
+        color = p.surface2
+    )
 }
 
 /** 语言选项行：单选圆点 + 语言自称（跟随系统/中文/English/日本語…） */

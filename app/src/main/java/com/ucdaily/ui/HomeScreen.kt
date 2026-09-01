@@ -29,7 +29,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.shadow
 import com.ucdaily.R
 import com.ucdaily.data.ActivityLevel
 import com.ucdaily.data.DailySymptom
@@ -49,12 +53,10 @@ private val WEEK_RES = listOf(
     R.string.week_fri, R.string.week_sat, R.string.week_sun
 )
 
-/** 统计卡主题色：饮食 / 便便 / 服药 */
-private val MEAL_ACCENT = Color(0xFF43A047)
-private val BOWEL_ACCENT = Color(0xFFF9A825)
-private val MED_ACCENT = Color(0xFF1E88E5)
-
-/** 欢迎卡：渐变底 + 头像（点击进入"我的"）+ 按时段问候 + 今日寄语 + 右上角服药提醒铃铛（未到剂量时亮红点）+ 齿轮（进入设置） */
+/**
+ * 欢迎卡（设计稿 .hero）：蓝色渐变底 + 半透明白底头像（点击进入"我的"）
+ * + 按时段问候 + 今日寄语 + 右上角服药提醒铃铛（未到剂量时亮红点）与齿轮（进入设置）。
+ */
 @Composable
 private fun WelcomeCard(
     state: MealUiState,
@@ -72,70 +74,75 @@ private fun WelcomeCard(
     }
     // 内置默认寄语（按当前语言解析，列表为空时回退轮播）
     val defaultSlogans = DEFAULT_HOME_SLOGANS_RES.map { stringResource(it) }
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+    val heroShape = RoundedCornerShape(20.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                10.dp,
+                heroShape,
+                ambientColor = Color(0xFF2563EB).copy(alpha = if (LocalDarkTheme.current) 0.4f else 0.25f),
+                spotColor = Color(0xFF2563EB).copy(alpha = if (LocalDarkTheme.current) 0.4f else 0.25f)
+            )
+            .clip(heroShape)
+            .background(heroBrush())
     ) {
-        Box(
+        Row(
             modifier = Modifier
-                .size(56.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surface)
-                .clickable(onClick = onAvatarClick),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = avatarIcon(state.avatar),
-                contentDescription = stringResource(R.string.home_avatar_content_desc),
-                modifier = Modifier.size(34.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-        Spacer(modifier = Modifier.width(12.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = "$greeting，${state.nickname}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                // 横幅轮播：每天按日期取一条（"我的→首页寄语"可修改/增删；列表为空时回退内置默认）
-                text = state.homeSlogans
-                    .ifEmpty { defaultSlogans }
-                    .let { it[state.today.dayOfYear % it.size] },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        // 右上角服药提醒铃铛：今天实际服药数 < 已到点的应服药数时亮红点
-        Box {
-            IconButton(onClick = onBellClick) {
+            // 头像：半透明白底 + 白描边，点击进入"我的"
+            Box(
+                modifier = Modifier
+                    .size(46.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.22f))
+                    .border(2.dp, Color.White.copy(alpha = 0.45f), CircleShape)
+                    .clickable(onClick = onAvatarClick),
+                contentAlignment = Alignment.Center
+            ) {
                 Icon(
-                    imageVector = Icons.Filled.Notifications,
-                    contentDescription = stringResource(R.string.med_reminder_notification_title),
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    imageVector = avatarIcon(state.avatar),
+                    contentDescription = stringResource(R.string.home_avatar_content_desc),
+                    modifier = Modifier.size(26.dp),
+                    tint = Color.White.copy(alpha = 0.95f)
                 )
             }
-            if (medMissing) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .offset(x = -8.dp, y = 8.dp)
-                        .size(9.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFE53935))
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "$greeting，${state.nickname}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(3.dp))
+                Text(
+                    // 横幅轮播：每天按日期取一条（"我的→首页寄语"可修改/增删；列表为空时回退内置默认）
+                    text = state.homeSlogans
+                        .ifEmpty { defaultSlogans }
+                        .let { it[state.today.dayOfYear % it.size] },
+                    fontSize = 11.5.sp,
+                    color = Color.White.copy(alpha = 0.85f),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-        }
-        // 铃铛右侧齿轮：直接进入设置页
-        IconButton(onClick = onSettingsClick) {
-            Icon(
-                imageVector = Icons.Filled.Settings,
-                contentDescription = stringResource(R.string.profile_menu_settings),
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            // 右上角服药提醒铃铛：今天实际服药数 < 已到点的应服药数时亮红点
+            HeroIconButton(
+                emoji = "🔔",
+                onClick = onBellClick,
+                contentDescription = stringResource(R.string.med_reminder_notification_title),
+                badge = medMissing
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            // 铃铛右侧齿轮：直接进入设置页
+            HeroIconButton(
+                emoji = "⚙️",
+                onClick = onSettingsClick,
+                contentDescription = stringResource(R.string.profile_menu_settings)
             )
         }
     }
@@ -214,18 +221,20 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // ② 今日卡片：日期头 + 周历 + 当日统计（统一容器）
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                // 天蓝色填充（深色主题自动切藏蓝）
-                containerColor = blueCardBackground()
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        // ② 今日卡片（设计稿 .card）：白底圆角卡，日期头 + 周历 + 当日统计（统一容器）
+        val p = ucPalette()
+        val calShape = RoundedCornerShape(18.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .softShadow()
+                .clip(calShape)
+                .background(p.surface)
         ) {
             Column(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 14.dp)
             ) {
                 // 日期头：左右箭头——周视图换周，整月视图换月；
                 // 第一行居中 "X月X日 周X"（周几蓝色高亮），第二行灰色小字 "X年，第X周"
@@ -233,15 +242,13 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { if (expanded) onPrevMonth() else onPrevWeek() }) {
-                        Icon(
-                            imageVector = Icons.Filled.KeyboardArrowLeft,
-                            contentDescription = stringResource(
-                                if (expanded) R.string.home_prev_month else R.string.home_prev_week
-                            ),
-                            modifier = Modifier.size(20.dp)
+                    CalArrowButton(
+                        icon = Icons.Filled.KeyboardArrowLeft,
+                        onClick = { if (expanded) onPrevMonth() else onPrevWeek() },
+                        contentDescription = stringResource(
+                            if (expanded) R.string.home_prev_month else R.string.home_prev_week
                         )
-                    }
+                    )
                     Column(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -254,8 +261,9 @@ fun HomeScreen(
                                     state.homeWeekAnchor.year,
                                     state.homeWeekAnchor.monthValue
                                 ),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = p.text
                             )
                         } else {
                             Row(
@@ -268,15 +276,16 @@ fun HomeScreen(
                                         state.selectedDate.monthValue,
                                         state.selectedDate.dayOfMonth
                                     ),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = p.text
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = stringResource(weekLabelRes(state.selectedDate)),
-                                    style = MaterialTheme.typography.titleMedium,
+                                    fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = p.primary
                                 )
                             }
                             Text(
@@ -285,20 +294,18 @@ fun HomeScreen(
                                     state.selectedDate.year,
                                     isoWeek(state.selectedDate)
                                 ),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                fontSize = 11.sp,
+                                color = p.text2
                             )
                         }
                     }
-                    IconButton(onClick = { if (expanded) onNextMonth() else onNextWeek() }) {
-                        Icon(
-                            imageVector = Icons.Filled.KeyboardArrowRight,
-                            contentDescription = stringResource(
-                                if (expanded) R.string.home_next_month else R.string.home_next_week
-                            ),
-                            modifier = Modifier.size(20.dp)
+                    CalArrowButton(
+                        icon = Icons.Filled.KeyboardArrowRight,
+                        onClick = { if (expanded) onNextMonth() else onNextWeek() },
+                        contentDescription = stringResource(
+                            if (expanded) R.string.home_next_month else R.string.home_next_week
                         )
-                    }
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -316,36 +323,46 @@ fun HomeScreen(
                     onNextMonth = onNextMonth
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-                // 当日统计（按类型着色，点击筛选当天记录）：饮食 / 服药 / 便便
+                // 展开/收起提示（周视图：下滑展开整月；整月视图：上滑收起回周视图）
+                Text(
+                    text = stringResource(
+                        if (expanded) R.string.home_cal_hint_month else R.string.home_cal_hint_week
+                    ),
+                    fontSize = 9.5.sp,
+                    color = p.text2,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 当日统计（彩色图标底 + 柔和色底；点击筛选当天记录，选中态主色描边）：饮食 / 服药 / 便便
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     StatCard(
-                        emoji = "🍚",
+                        kind = RecordKind.MEAL,
                         value = "${state.selectedDateRecords.size}",
                         label = stringResource(R.string.type_meal),
-                        accent = MEAL_ACCENT,
                         active = state.dayRecordFilter == DayFilter.MEAL,
                         onClick = { onFilterToggle(DayFilter.MEAL) },
                         modifier = Modifier.weight(1f)
                     )
                     StatCard(
-                        emoji = "💊",
+                        kind = RecordKind.MED,
                         value = "${state.selectedDateMeds.size}/${state.medReminderTimes.size}",
                         label = stringResource(R.string.type_med),
-                        accent = MED_ACCENT,
                         active = state.dayRecordFilter == DayFilter.MED,
                         onClick = { onFilterToggle(DayFilter.MED) },
                         modifier = Modifier.weight(1f)
                     )
                     StatCard(
-                        emoji = "💩",
+                        kind = RecordKind.BOWEL,
                         value = if (symptoms.isEmpty()) "—" else "${symptoms.sumOf { it.bowelCount }}",
                         label = stringResource(R.string.type_bowel),
-                        accent = BOWEL_ACCENT,
                         active = state.dayRecordFilter == DayFilter.BOWEL,
                         onClick = { onFilterToggle(DayFilter.BOWEL) },
                         modifier = Modifier.weight(1f)
@@ -381,53 +398,38 @@ fun HomeScreen(
 
     // 点铃铛：未达剂量时显示未服次数 + "去服药"入口
     if (showMedReminder) {
-        AlertDialog(
-            onDismissRequest = { showMedReminder = false },
-            icon = {
-                Icon(
-                    imageVector = Icons.Filled.Notifications,
-                    contentDescription = null,
-                    tint = MED_ACCENT
+        val p = ucPalette()
+        UcDialog(
+            icon = Icons.Filled.Notifications,
+            iconBg = p.primarySoft,
+            iconTint = p.primaryText,
+            title = stringResource(R.string.med_reminder_notification_title),
+            message = if (medStatus.missing) {
+                // 与系统通知同一文案
+                stringResource(
+                    R.string.med_reminder_missed,
+                    medStatus.dueTimes.size - state.todayMedTimes.size
+                )
+            } else if (medStatus.dueTimes.isEmpty()) {
+                stringResource(R.string.home_med_no_due_time)
+            } else {
+                stringResource(
+                    R.string.home_med_all_done,
+                    state.todayMedTimes.size,
+                    medStatus.dueTimes.size
                 )
             },
-            title = { Text(stringResource(R.string.med_reminder_notification_title)) },
-            text = {
-                Text(
-                    if (medStatus.missing) {
-                        // 与系统通知同一文案
-                        stringResource(
-                            R.string.med_reminder_missed,
-                            medStatus.dueTimes.size - state.todayMedTimes.size
-                        )
-                    } else if (medStatus.dueTimes.isEmpty()) {
-                        stringResource(R.string.home_med_no_due_time)
-                    } else {
-                        stringResource(
-                            R.string.home_med_all_done,
-                            state.todayMedTimes.size,
-                            medStatus.dueTimes.size
-                        )
-                    }
-                )
+            confirmLabel = if (medStatus.missing) {
+                stringResource(R.string.home_med_go)
+            } else {
+                stringResource(R.string.common_got_it)
             },
-            confirmButton = {
-                TextButton(onClick = {
-                    showMedReminder = false
-                    if (medStatus.missing) onAddMed()
-                }) {
-                    Text(
-                        if (medStatus.missing) stringResource(R.string.home_med_go)
-                        else stringResource(R.string.common_got_it)
-                    )
-                }
+            onConfirm = {
+                showMedReminder = false
+                if (medStatus.missing) onAddMed()
             },
-            dismissButton = {
-                if (medStatus.missing) {
-                    TextButton(onClick = { showMedReminder = false }) {
-                        Text(stringResource(R.string.common_later))
-                    }
-                }
-            }
+            dismissLabel = if (medStatus.missing) stringResource(R.string.common_later) else null,
+            onDismiss = { showMedReminder = false }
         )
     }
 }
@@ -646,6 +648,7 @@ private fun HomeCalendarDayCell(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val p = ucPalette()
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -653,27 +656,42 @@ private fun HomeCalendarDayCell(
     ) {
         Box(
             modifier = Modifier
-                .size(40.dp)
+                .size(30.dp)
+                .then(
+                    if (selected) {
+                        Modifier.shadow(
+                            3.dp,
+                            CircleShape,
+                            ambientColor = Color(0xFF2563EB).copy(alpha = 0.4f),
+                            spotColor = Color(0xFF2563EB).copy(alpha = 0.4f)
+                        )
+                    } else {
+                        Modifier
+                    }
+                )
                 .clip(CircleShape)
                 .then(
                     when {
-                        selected -> Modifier.background(MaterialTheme.colorScheme.primary)
-                        isToday -> Modifier.border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                        // 选中 = 主色渐变填充（设计稿 .day.sel）
+                        selected -> Modifier.background(primaryBtnBrush())
+                        isToday -> Modifier.border(1.5.dp, p.primary, CircleShape)
                         else -> Modifier
                     }
                 )
                 .clickable(onClick = onClick)
-                .alpha(if (dimmed) 0.35f else 1f),
+                .alpha(if (dimmed) 0.32f else 1f),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = day.dayOfMonth.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = if (selected || isToday) FontWeight.Bold else FontWeight.Normal,
+                fontSize = 11.sp,
+                fontWeight = if (selected) FontWeight.ExtraBold
+                else if (isToday) FontWeight.Bold
+                else FontWeight.Normal,
                 color = when {
-                    selected -> MaterialTheme.colorScheme.onPrimary
-                    isToday -> MaterialTheme.colorScheme.primary
-                    else -> MaterialTheme.colorScheme.onSurface
+                    selected -> Color.White
+                    isToday -> p.primary
+                    else -> p.text
                 }
             )
         }
@@ -695,44 +713,77 @@ private fun HomeCalendarDayCell(
     }
 }
 
-/** 当日统计卡片（柔和主题色底 + 同色大数字；点击筛选当天记录，选中态加深并描边） */
+/** 日历日期头箭头：26dp 圆形 primary-soft 底 + 主色箭头（设计稿 .arrow） */
+@Composable
+private fun CalArrowButton(
+    icon: ImageVector,
+    onClick: () -> Unit,
+    contentDescription: String
+) {
+    val p = ucPalette()
+    Box(
+        modifier = Modifier
+            .size(26.dp)
+            .clip(CircleShape)
+            .background(p.primarySoft)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            modifier = Modifier.size(14.dp),
+            tint = p.primaryText
+        )
+    }
+}
+
+/** 当日统计卡片（设计稿 .stat）：彩色图标底 + 柔和色底 + 同色大数字；选中态主色描边 */
 @Composable
 private fun StatCard(
-    emoji: String,
+    kind: RecordKind,
     value: String,
     label: String,
-    accent: Color,
     active: Boolean = false,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val p = ucPalette()
+    val tc = recordTypeColors(kind)
+    val shape = RoundedCornerShape(14.dp)
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(accent.copy(alpha = if (active) 0.28f else 0.12f))
-            .then(
-                if (active) {
-                    Modifier.border(1.dp, accent, RoundedCornerShape(12.dp))
-                } else {
-                    Modifier
-                }
+            .clip(shape)
+            .background(tc.soft)
+            .border(
+                if (active) 1.5.dp else 1.dp,
+                if (active) tc.main else Color.Transparent,
+                shape
             )
             .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
+            .padding(vertical = 10.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = emoji, style = MaterialTheme.typography.titleSmall)
-        Spacer(modifier = Modifier.height(2.dp))
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(tc.main),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = recordKindEmoji(kind), fontSize = 13.sp)
+        }
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = value,
-            style = MaterialTheme.typography.titleLarge,
+            fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
-            color = accent
+            color = tc.main
         )
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            fontSize = 10.sp,
+            color = p.text2
         )
     }
 }

@@ -13,86 +13,86 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 
 /**
- * 蓝色系浅色主题（替换 M3 默认紫色基线）。
- * primary 为深蓝，中性色（surface/outline 等）带轻微蓝调。
+ * 设计稿（docs/ui-mockup.html）浅色令牌：
+ * 品牌主色 #2563EB，页面背景 #F4F7FB，卡片 #FFFFFF，中性色带轻微蓝调。
  */
 private val LightBlueScheme = lightColorScheme(
-    primary = Color(0xFF0061A4),
+    primary = Color(0xFF2563EB),
     onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFD1E4FF),
-    onPrimaryContainer = Color(0xFF001D33),
-    inversePrimary = Color(0xFFA8CDFF),
-    secondary = Color(0xFF545F71),
+    primaryContainer = Color(0xFFE4EDFF),
+    onPrimaryContainer = Color(0xFF1E40AF),
+    inversePrimary = Color(0xFF5B9BFF),
+    secondary = Color(0xFF66748C),
     onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFFD8E3F7),
-    onSecondaryContainer = Color(0xFF111C2B),
-    tertiary = Color(0xFF6B5778),
+    secondaryContainer = Color(0xFFEDF1F7),
+    onSecondaryContainer = Color(0xFF1B2437),
+    tertiary = Color(0xFF7C3AED),
     onTertiary = Color(0xFFFFFFFF),
-    tertiaryContainer = Color(0xFFF2D9FF),
-    onTertiaryContainer = Color(0xFF251432),
-    error = Color(0xFFBA1A1A),
+    tertiaryContainer = Color(0xFFF0EAFE),
+    onTertiaryContainer = Color(0xFF6D28D9),
+    error = Color(0xFFDC2626),
     onError = Color(0xFFFFFFFF),
-    errorContainer = Color(0xFFFFDAD6),
-    onErrorContainer = Color(0xFF410002),
-    background = Color(0xFFF8F9FF),
-    onBackground = Color(0xFF181C20),
-    surface = Color(0xFFF8F9FF),
-    onSurface = Color(0xFF181C20),
-    surfaceVariant = Color(0xFFDFE2EC),
-    onSurfaceVariant = Color(0xFF43474F),
-    surfaceTint = Color(0xFF0061A4),
-    inverseSurface = Color(0xFF2D3136),
-    inverseOnSurface = Color(0xFFF0F0F7),
-    outline = Color(0xFF73777F),
-    outlineVariant = Color(0xFFC3C7D0),
+    errorContainer = Color(0xFFFDE9E9),
+    onErrorContainer = Color(0xFFB91C1C),
+    background = Color(0xFFF4F7FB),
+    onBackground = Color(0xFF1B2437),
+    surface = Color(0xFFFFFFFF),
+    onSurface = Color(0xFF1B2437),
+    surfaceVariant = Color(0xFFEDF1F7),
+    onSurfaceVariant = Color(0xFF66748C),
+    surfaceTint = Color(0xFF2563EB),
+    inverseSurface = Color(0xFF2E3A52),
+    inverseOnSurface = Color(0xFFF0F2F8),
+    outline = Color(0xFFD9E1EC),
+    outlineVariant = Color(0xFFE5EAF2),
     scrim = Color(0xFF000000),
-    surfaceBright = Color(0xFFF8F9FF),
-    surfaceDim = Color(0xFFD9DADE),
+    surfaceBright = Color(0xFFFFFFFF),
+    surfaceDim = Color(0xFFDCE3EC),
     surfaceContainerLowest = Color(0xFFFFFFFF),
-    surfaceContainerLow = Color(0xFFF2F2FA),
-    surfaceContainer = Color(0xFFEDEEF6),
-    surfaceContainerHigh = Color(0xFFE8E9EF),
-    surfaceContainerHighest = Color(0xFFE3E3E9),
+    surfaceContainerLow = Color(0xFFF9FBFD),
+    surfaceContainer = Color(0xFFF4F7FB),
+    surfaceContainerHigh = Color(0xFFEDF1F7),
+    surfaceContainerHighest = Color(0xFFE7ECF4),
 )
 
-/** 蓝色系深色主题 */
+/** 设计稿深色令牌：背景 #0E1420，卡片 #1A2334，主色 #5B9BFF */
 private val DarkBlueScheme = darkColorScheme(
-    primary = Color(0xFFA8CDFF),
-    onPrimary = Color(0xFF003352),
-    primaryContainer = Color(0xFF004973),
-    onPrimaryContainer = Color(0xFFD1E4FF),
-    inversePrimary = Color(0xFF0061A4),
-    secondary = Color(0xFFBCC8DD),
-    onSecondary = Color(0xFF263140),
-    secondaryContainer = Color(0xFF3C4757),
-    onSecondaryContainer = Color(0xFFD8E3F7),
-    tertiary = Color(0xFFD5BEE5),
-    onTertiary = Color(0xFF3B2A48),
-    tertiaryContainer = Color(0xFF524060),
-    onTertiaryContainer = Color(0xFFF2D9FF),
-    error = Color(0xFFFFB4AB),
+    primary = Color(0xFF5B9BFF),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFF1D2C49),
+    onPrimaryContainer = Color(0xFF9CC2FF),
+    inversePrimary = Color(0xFF2563EB),
+    secondary = Color(0xFF93A2BC),
+    onSecondary = Color(0xFF101826),
+    secondaryContainer = Color(0xFF232E44),
+    onSecondaryContainer = Color(0xFFE9EEF8),
+    tertiary = Color(0xFFA78BFA),
+    onTertiary = Color(0xFF241A36),
+    tertiaryContainer = Color(0xFF241A36),
+    onTertiaryContainer = Color(0xFFC4B0FB),
+    error = Color(0xFFF87171),
     onError = Color(0xFF690005),
-    errorContainer = Color(0xFF93000A),
-    onErrorContainer = Color(0xFFFFDAD6),
-    background = Color(0xFF101418),
-    onBackground = Color(0xFFE2E2E9),
-    surface = Color(0xFF101418),
-    onSurface = Color(0xFFE2E2E9),
-    surfaceVariant = Color(0xFF43474F),
-    onSurfaceVariant = Color(0xFFC4C6D0),
-    surfaceTint = Color(0xFFA8CDFF),
-    inverseSurface = Color(0xFFE2E2E9),
-    inverseOnSurface = Color(0xFF2D3136),
-    outline = Color(0xFF8D9199),
-    outlineVariant = Color(0xFF43474F),
+    errorContainer = Color(0xFF301518),
+    onErrorContainer = Color(0xFFFCA5A5),
+    background = Color(0xFF0E1420),
+    onBackground = Color(0xFFE9EEF8),
+    surface = Color(0xFF1A2334),
+    onSurface = Color(0xFFE9EEF8),
+    surfaceVariant = Color(0xFF232E44),
+    onSurfaceVariant = Color(0xFF93A2BC),
+    surfaceTint = Color(0xFF5B9BFF),
+    inverseSurface = Color(0xFFE9EEF8),
+    inverseOnSurface = Color(0xFF2E3A52),
+    outline = Color(0xFF2C3A55),
+    outlineVariant = Color(0xFF2C3A55),
     scrim = Color(0xFF000000),
-    surfaceBright = Color(0xFF36393E),
-    surfaceDim = Color(0xFF101418),
-    surfaceContainerLowest = Color(0xFF0B0E12),
-    surfaceContainerLow = Color(0xFF181C20),
-    surfaceContainer = Color(0xFF1C1F24),
-    surfaceContainerHigh = Color(0xFF26292E),
-    surfaceContainerHighest = Color(0xFF313439),
+    surfaceBright = Color(0xFF31405C),
+    surfaceDim = Color(0xFF0E1420),
+    surfaceContainerLowest = Color(0xFF161E2C),
+    surfaceContainerLow = Color(0xFF1A2334),
+    surfaceContainer = Color(0xFF1E2939),
+    surfaceContainerHigh = Color(0xFF232E44),
+    surfaceContainerHighest = Color(0xFF2A374E),
 )
 
 /** 主题模式：跟随系统 / 强制浅色 / 强制深色（"我的"页主题菜单可切换；labelRes 为多语言文案资源） */
@@ -142,13 +142,16 @@ fun FontScaledContent(
 /** 应用当前生效的深色模式（跟随系统 / 强制浅色 / 强制深色），供卡片等局部配色读取 */
 internal val LocalDarkTheme = staticCompositionLocalOf { false }
 
-/** 应用主题：蓝色系配色，深/浅由调用方按 ThemeMode 决定 */
+/** 应用主题：设计稿蓝色系配色 + 设计令牌（[LocalUcPalette]），深/浅由调用方按 ThemeMode 决定 */
 @Composable
 fun UcDailyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    CompositionLocalProvider(LocalDarkTheme provides darkTheme) {
+    CompositionLocalProvider(
+        LocalDarkTheme provides darkTheme,
+        LocalUcPalette provides if (darkTheme) DarkUcPalette else LightUcPalette
+    ) {
         MaterialTheme(
             colorScheme = if (darkTheme) DarkBlueScheme else LightBlueScheme,
             content = content
@@ -156,12 +159,10 @@ fun UcDailyTheme(
     }
 }
 
-/** 日历卡 / 首页"今日"卡背景：浅色主题淡蓝，深色主题藏蓝（跟随应用主题，而非系统深色模式） */
+/** 兼容旧引用：卡片背景跟随设计令牌（浅色 = 白色卡片，深色 = 深蓝卡片） */
 @Composable
-fun blueCardBackground(): Color =
-    if (LocalDarkTheme.current) Color(0xFF1A2A44) else Color(0xFFD6EAF8)
+fun blueCardBackground(): Color = ucPalette().surface
 
-/** 日历卡描边：浅色主题淡蓝，深色主题钢蓝 */
+/** 兼容旧引用：卡片描边 = 设计令牌 ring */
 @Composable
-fun blueCardBorder(): Color =
-    if (LocalDarkTheme.current) Color(0xFF3F5E8C) else Color(0xFF8FB8DA)
+fun blueCardBorder(): Color = ucPalette().ring

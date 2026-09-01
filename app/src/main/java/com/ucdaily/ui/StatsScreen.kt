@@ -8,19 +8,24 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.ucdaily.R
 import com.ucdaily.data.ActivityLevel
 import com.ucdaily.data.BRISTOL_LABELS
@@ -30,7 +35,11 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.time.format.DateTimeFormatter
 
-/** 详细统计页（我的→统计信息）：记录概览 + 数量统计 + 排便详情 + 耐受情况，全时段数据 */
+/**
+ * 详细统计页（我的→统计信息，设计稿 .ov / .t / .bar）：
+ * 渐变概览卡（记录天数 / 连续记录）+ 2×2 数量卡（点卡片打开对应全时段列表）
+ * + 排便详情（便级分布 / 症状天数 / 平均腹痛 / 活动度分布）+ 耐受情况，全时段数据。
+ */
 @Composable
 fun StatsScreen(
     state: MealUiState,
@@ -39,6 +48,7 @@ fun StatsScreen(
     onOpenRecords: (ExportType) -> Unit
 ) {
     val today = LocalDate.now()
+    val p = ucPalette()
 
     // 有记录的天（饮食 ∪ 排便）：算首次记录日期与连续天数
     val recordDaySet = remember(state.recordDates, state.symptomByDate) {
@@ -87,26 +97,8 @@ fun StatsScreen(
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
-        // 顶部标题栏
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowLeft,
-                    contentDescription = stringResource(R.string.common_back),
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-            Text(
-                text = stringResource(R.string.stats_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        // 顶部标题栏（统一样式）
+        SecondaryTopBar(onBack = onBack, title = stringResource(R.string.stats_title))
 
         Column(
             modifier = Modifier
@@ -115,31 +107,69 @@ fun StatsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
         ) {
-            // ① 记录概览（蓝底卡）
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = blueCardBackground()),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            // ① 记录概览（设计稿 .ov：渐变底 + 双大数字 + 中间分隔 + 首次记录行）
+            val heroShape = RoundedCornerShape(20.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(heroShape)
+                    .background(heroBrush())
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        StatsBigNumber(
-                            stringResource(R.string.stats_days_value, totalDays),
-                            stringResource(R.string.stats_days_label),
-                            Modifier.weight(1f)
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = totalDays.toString(),
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = stringResource(R.string.stats_days_label),
+                                fontSize = 11.sp,
+                                color = Color.White.copy(alpha = 0.85f)
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .width(1.dp)
+                                .fillMaxHeight()
+                                .background(Color.White.copy(alpha = 0.25f))
                         )
-                        StatsBigNumber(
-                            stringResource(R.string.stats_streak_value, streak),
-                            stringResource(R.string.stats_streak_label),
-                            Modifier.weight(1f)
-                        )
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = streak.toString(),
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = stringResource(R.string.stats_streak_label),
+                                fontSize = 11.sp,
+                                color = Color.White.copy(alpha = 0.85f)
+                            )
+                        }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(),
+                        thickness = 1.dp,
+                        color = Color.White.copy(alpha = 0.2f)
+                    )
                     Text(
                         text = firstDate?.let { stringResource(R.string.stats_first_record, it.format(monthDayFmt)) }
                             ?: stringResource(R.string.stats_empty),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        fontSize = 10.5.sp,
+                        color = Color.White.copy(alpha = 0.8f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp)
                     )
                 }
             }
@@ -147,37 +177,41 @@ fun StatsScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             // ② 数量统计（2×2；点击打开对应类别的全时段记录汇总列表）
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 StatsTile(
-                    stringResource(R.string.stats_meal_records),
-                    stringResource(R.string.common_items_count, state.totalRecords),
-                    Modifier.weight(1f)
+                    kind = RecordKind.MEAL,
+                    title = stringResource(R.string.stats_meal_records),
+                    value = stringResource(R.string.common_items_count, state.totalRecords),
+                    modifier = Modifier.weight(1f)
                 ) {
                     onOpenRecords(ExportType.MEAL)
                 }
                 StatsTile(
-                    stringResource(R.string.stats_bowel_records),
-                    stringResource(
+                    kind = RecordKind.BOWEL,
+                    title = stringResource(R.string.stats_bowel_records),
+                    value = stringResource(
                         R.string.stats_bowel_summary,
                         state.symptomByDate.size,
                         symptoms.sumOf { it.bowelCount }
                     ),
-                    Modifier.weight(1f)
+                    modifier = Modifier.weight(1f)
                 ) { onOpenRecords(ExportType.BOWEL) }
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 StatsTile(
-                    stringResource(R.string.stats_med_records),
-                    stringResource(R.string.common_items_count, state.totalMedRecords),
-                    Modifier.weight(1f)
+                    kind = RecordKind.MED,
+                    title = stringResource(R.string.stats_med_records),
+                    value = stringResource(R.string.common_items_count, state.totalMedRecords),
+                    modifier = Modifier.weight(1f)
                 ) {
                     onOpenRecords(ExportType.MED)
                 }
                 StatsTile(
-                    stringResource(R.string.stats_note_records),
-                    stringResource(R.string.common_days_count, state.totalNoteDays),
-                    Modifier.weight(1f)
+                    kind = RecordKind.NOTE,
+                    title = stringResource(R.string.stats_note_records),
+                    value = stringResource(R.string.common_days_count, state.totalNoteDays),
+                    modifier = Modifier.weight(1f)
                 ) {
                     onOpenRecords(ExportType.NOTE)
                 }
@@ -187,35 +221,34 @@ fun StatsScreen(
 
             // ③ 排便详情
             if (symptoms.isNotEmpty()) {
-                StatsSectionTitle(stringResource(R.string.stats_bowel_detail))
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-                    )
-                ) {
-                    Column(modifier = Modifier.padding(14.dp)) {
-                        // 布里斯托便级分布
+                SectionHead(stringResource(R.string.stats_bowel_detail))
+                UcCard {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(14.dp)
+                    ) {
+                        // 布里斯托便级分布（设计稿 .bar：8px 圆角轨道 + 渐变填充）
                         (1..7).forEach { t ->
                             val count = bristolCounts[t - 1]
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 3.dp),
+                                    .padding(vertical = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
                                     text = "$t ${stringResource(BRISTOL_LABELS[t - 1])}",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 11.sp,
+                                    color = p.text2,
                                     modifier = Modifier.width(96.dp)
                                 )
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .height(10.dp)
-                                        .clip(RoundedCornerShape(5.dp))
-                                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                                        .height(8.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(p.surface2)
                                 ) {
                                     Box(
                                         modifier = Modifier
@@ -223,15 +256,17 @@ fun StatsScreen(
                                             .fillMaxWidth(
                                                 if (maxBristol > 0) count.toFloat() / maxBristol else 0f
                                             )
-                                            .clip(RoundedCornerShape(5.dp))
-                                            .background(MaterialTheme.colorScheme.primary)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(primaryBtnBrush())
                                     )
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = "$count",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    modifier = Modifier.width(28.dp),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = p.text,
+                                    modifier = Modifier.width(24.dp),
                                     textAlign = TextAlign.End
                                 )
                             }
@@ -239,116 +274,84 @@ fun StatsScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // 症状出现天数
+                        // 症状出现天数（设计稿 .chip：数值在上 + 标签在下）
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             StatsChip(
-                                stringResource(R.string.panel_blood),
-                                stringResource(R.string.common_days_count, symptoms.count { it.blood > 0 }),
-                                Modifier.weight(1f)
+                                value = stringResource(
+                                    R.string.common_days_count,
+                                    symptoms.count { it.blood > 0 }
+                                ),
+                                label = stringResource(R.string.panel_blood),
+                                modifier = Modifier.weight(1f)
                             )
                             StatsChip(
-                                stringResource(R.string.panel_mucus),
-                                stringResource(R.string.common_days_count, symptoms.count { it.mucus }),
-                                Modifier.weight(1f)
+                                value = stringResource(
+                                    R.string.common_days_count,
+                                    symptoms.count { it.mucus }
+                                ),
+                                label = stringResource(R.string.panel_mucus),
+                                modifier = Modifier.weight(1f)
                             )
                             StatsChip(
-                                stringResource(R.string.panel_urgency),
-                                stringResource(R.string.common_days_count, symptoms.count { it.urgency }),
-                                Modifier.weight(1f)
+                                value = stringResource(
+                                    R.string.common_days_count,
+                                    symptoms.count { it.urgency }
+                                ),
+                                label = stringResource(R.string.panel_urgency),
+                                modifier = Modifier.weight(1f)
                             )
                             StatsChip(
-                                stringResource(R.string.symptom_night_diarrhea),
-                                stringResource(R.string.common_days_count, symptoms.count { it.nightDiarrhea }),
-                                Modifier.weight(1f)
+                                value = stringResource(
+                                    R.string.common_days_count,
+                                    symptoms.count { it.painScore > 0 }
+                                ),
+                                label = stringResource(R.string.panel_pain),
+                                modifier = Modifier.weight(1f)
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = stringResource(R.string.stats_avg_pain, "%.1f".format(avgPain)),
-                            style = MaterialTheme.typography.bodyMedium
+                            text = stringResource(
+                                R.string.stats_avg_pain,
+                                avgPain.toInt().toString()
+                            ),
+                            style = MaterialTheme.typography.bodySmall
                         )
 
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        // 活动度分布
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            ActivityLevel.entries.forEachIndexed { i, level ->
-                                Column(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(horizontal = 2.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(10.dp)
-                                            .clip(CircleShape)
-                                            .background(activityColor(level))
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = stringResource(level.labelRes),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.common_times_count, activityCounts[i]),
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            // ④ 耐受情况
-            if (state.foodTags.isNotEmpty()) {
-                StatsSectionTitle(stringResource(R.string.stats_tolerance_title))
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val counts = state.foodTags.groupingBy { it.tolerance }.eachCount()
-                        listOf(
-                            FoodTolerance.OK to Color(0xFF43A047),
-                            FoodTolerance.CAUTION to Color(0xFFF9A825),
-                            FoodTolerance.BAD to Color(0xFFE53935)
-                        ).forEach { (tolerance, color) ->
+                        Spacer(modifier = Modifier.height(14.dp))
+                        // 活动度分布（设计稿 .act-row：色点 + 名称 + 计数）
+                        ActivityLevel.entries.forEachIndexed { i, level ->
                             Row(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .padding(horizontal = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    .fillMaxWidth()
+                                    .padding(vertical = 3.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(10.dp)
+                                        .size(8.dp)
                                         .clip(CircleShape)
-                                        .background(color)
+                                        .background(activityColor(level))
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = stringResource(level.labelRes),
+                                    fontSize = 12.sp,
+                                    color = p.text2,
+                                    modifier = Modifier.weight(1f)
                                 )
                                 Text(
                                     text = stringResource(
-                                        R.string.stats_tolerance_value,
-                                        stringResource(tolerance.labelRes),
-                                        counts[tolerance.ordinal] ?: 0
+                                        R.string.common_days_count,
+                                        activityCounts[i]
                                     ),
-                                    style = MaterialTheme.typography.bodyMedium
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = p.text
                                 )
                             }
                         }
@@ -356,89 +359,143 @@ fun StatsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ④ 耐受情况（设计稿 .tol-row：色点 + 名称 + 计数）
+            SectionHead(stringResource(R.string.stats_tolerance_title))
+            UcCard {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp)
+                ) {
+                    val toleranceCount: (FoodTolerance) -> Int =
+                        { t -> state.foodTags.count { FoodTolerance.fromValue(it.tolerance) == t } }
+                    TOLERANCE_ORDER.forEach { tol ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(toleranceColor(tol))
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(tol.labelRes),
+                                fontSize = 12.sp,
+                                color = p.text2,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                text = toleranceCount(tol).toString(),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = p.text
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 底部免责说明（居中灰字）
             Text(
                 text = stringResource(R.string.stats_disclaimer),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp)
             )
-            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
 
-/** 概览卡内的大数字（标题 + 数值） */
-@Composable
-private fun StatsBigNumber(title: String, value: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = value,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-/** 数量统计小块（可点击跳转对应记录列表） */
+/** 数量统计小块（设计稿 .t：白卡 + emoji + 大数字 + 说明 + 右箭头，点击打开对应列表） */
 @Composable
 private fun StatsTile(
+    kind: RecordKind,
     title: String,
     value: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    Column(
+    val p = ucPalette()
+    val shape = RoundedCornerShape(16.dp)
+    Box(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+            .shadow(
+                2.dp,
+                shape,
+                ambientColor = Color.Black.copy(alpha = if (LocalDarkTheme.current) 0.35f else 0.05f),
+                spotColor = Color.Black.copy(alpha = if (LocalDarkTheme.current) 0.35f else 0.06f)
+            )
+            .clip(shape)
+            .background(p.surface)
             .clickable(onClick = onClick)
-            .padding(vertical = 14.dp, horizontal = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(14.dp)
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = recordKindEmoji(kind),
+                    fontSize = 15.sp,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp),
+                    tint = p.ring
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = value,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = p.text,
+                maxLines = 1
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = title,
+                fontSize = 10.5.sp,
+                color = p.text2,
+                maxLines = 1
+            )
+        }
     }
 }
 
-/** 小节标题 */
+/** 症状天数小标签（设计稿 .chip：surface2 底，数值在上 + 标签在下） */
 @Composable
-private fun StatsSectionTitle(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleSmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
-    )
-}
-
-/** 症状天数小标签（调用方在 Row 内传 weight） */
-@Composable
-private fun StatsChip(label: String, value: String, modifier: Modifier = Modifier) {
-    Row(
+private fun StatsChip(value: String, label: String, modifier: Modifier = Modifier) {
+    val p = ucPalette()
+    Column(
         modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .clip(RoundedCornerShape(10.dp))
+            .background(p.surface2)
             .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "$label $value",
-            style = MaterialTheme.typography.labelMedium
+            text = value,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = p.text
+        )
+        Text(
+            text = label,
+            fontSize = 9.5.sp,
+            color = p.text2
         )
     }
 }
