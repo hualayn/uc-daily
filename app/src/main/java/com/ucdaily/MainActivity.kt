@@ -439,10 +439,8 @@ class MainActivity : ComponentActivity() {
 
                     Box(modifier = Modifier.fillMaxSize()) {
                         Column(modifier = Modifier.fillMaxSize()) {
-                        // Tab 内容
-                        // clipToBounds：面板打开时本 Box 会被压缩为 0 高，但内容
-                        // （如耐受页顶部分隔线这类固定高度的元素）仍会绘制并溢出到
-                        // 面板之下，在面板顶部形成一条多余的分割线；裁剪掉该溢出
+                        // Tab 内容（面板层已移出其外层 Box，本 Box 高度不再被压缩）
+                        // clipToBounds：裁剪内容不越出本区域，防止固定高度元素绘制溢出
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -515,40 +513,6 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        // 全局面板层：任何 Tab 都能打开记录面板 / 全屏照片
-                        RecordOverlays(
-                            state = state,
-                            onAddPhotoByCamera = { onCameraClick() },
-                            onAddPhotoByGallery = {
-                                // 相册选择器 = 临时外部页面：先标记，onStop 才不会误判为退后台
-                                MedReminder.setTransientExternalOpen(true)
-                                galleryLauncher.launch(
-                                    PickVisualMediaRequest(
-                                        ActivityResultContracts.PickVisualMedia.ImageOnly
-                                    )
-                                )
-                            },
-                            onRemoveDraftPhoto = { viewModel.removeDraftPhoto(it) },
-                            onToggleTag = { viewModel.toggleDraftTag(it) },
-                            onAddFood = { name, tol -> viewModel.addFoodTag(name, tol) },
-                            onDraftMealTypeChange = { viewModel.setDraftMealType(it) },
-                            onDraftNoteChange = { viewModel.setDraftNote(it) },
-                            onDraftTimeChange = { viewModel.setDraftTime(it) },
-                            onSaveRecord = { viewModel.saveRecord() },
-                            onCancelAdd = { viewModel.cancelAdd() },
-                            onCloseSymptom = { viewModel.cancelSymptomPanel() },
-                            onSymptomDraftChange = { viewModel.setSymptomDraft(it) },
-                            onSaveSymptom = { viewModel.saveSymptom() },
-                            onMedDraftChange = { viewModel.setMedDraft(it) },
-                            onSaveMed = { viewModel.saveMed() },
-                            onCancelMed = { viewModel.cancelMedPanel() },
-                            onRemoveCommonMed = { viewModel.removeCommonMed(it) },
-                            onNoteDraftChange = { viewModel.setNoteDraft(it) },
-                            onSaveNote = { viewModel.saveNote() },
-                            onCancelNote = { viewModel.cancelNotePanel() },
-                            onDismissPhoto = { viewModel.hidePhoto() }
-                        )
-
                         // 底部导航
                         BottomTabs(
                             selectedTab = state.selectedTab,
@@ -556,6 +520,40 @@ class MainActivity : ComponentActivity() {
                             onCenterAdd = { showQuickAdd = true }
                         )
                         }
+                    // 全局面板层：浮在原页面之上（不参与 Column 布局，不再把 Tab 压缩成 0 高）——
+                    // 记录面板 / 全屏照片打开时，原页面 + 底部导航在遮罩下仍可见
+                    RecordOverlays(
+                        state = state,
+                        onAddPhotoByCamera = { onCameraClick() },
+                        onAddPhotoByGallery = {
+                            // 相册选择器 = 临时外部页面：先标记，onStop 才不会误判为退后台
+                            MedReminder.setTransientExternalOpen(true)
+                            galleryLauncher.launch(
+                                PickVisualMediaRequest(
+                                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                                )
+                            )
+                        },
+                        onRemoveDraftPhoto = { viewModel.removeDraftPhoto(it) },
+                        onToggleTag = { viewModel.toggleDraftTag(it) },
+                        onAddFood = { name, tol -> viewModel.addFoodTag(name, tol) },
+                        onDraftMealTypeChange = { viewModel.setDraftMealType(it) },
+                        onDraftNoteChange = { viewModel.setDraftNote(it) },
+                        onDraftTimeChange = { viewModel.setDraftTime(it) },
+                        onSaveRecord = { viewModel.saveRecord() },
+                        onCancelAdd = { viewModel.cancelAdd() },
+                        onCloseSymptom = { viewModel.cancelSymptomPanel() },
+                        onSymptomDraftChange = { viewModel.setSymptomDraft(it) },
+                        onSaveSymptom = { viewModel.saveSymptom() },
+                        onMedDraftChange = { viewModel.setMedDraft(it) },
+                        onSaveMed = { viewModel.saveMed() },
+                        onCancelMed = { viewModel.cancelMedPanel() },
+                        onRemoveCommonMed = { viewModel.removeCommonMed(it) },
+                        onNoteDraftChange = { viewModel.setNoteDraft(it) },
+                        onSaveNote = { viewModel.saveNote() },
+                        onCancelNote = { viewModel.cancelNotePanel() },
+                        onDismissPhoto = { viewModel.hidePhoto() }
+                    )
                     if (showQuickAdd) {
                         QuickAddPopup(
                             onMeal = { showQuickAdd = false; viewModel.startAdd() },
@@ -647,20 +645,24 @@ private fun BottomTabs(
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // 导航栏主体（圆角裁剪只作用于主体本身）
+        // 导航栏主体（圆角裁剪只作用于主体本身）：上投影突出栏体（10dp，α0.3/0.4）——
+        // α0.8 太深，会在栏体上方形成一条暗带挡住页面内容，故降档
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .shadow(
                     10.dp,
                     navShape,
-                    ambientColor = Color.Black.copy(alpha = if (LocalDarkTheme.current) 0.45f else 0.10f),
-                    spotColor = Color.Black.copy(alpha = if (LocalDarkTheme.current) 0.45f else 0.10f)
+                    ambientColor = (if (LocalDarkTheme.current) Color.White else Color.Black)
+                        .copy(alpha = if (LocalDarkTheme.current) 0.4f else 0.3f),
+                    spotColor = (if (LocalDarkTheme.current) Color.White else Color.Black)
+                        .copy(alpha = if (LocalDarkTheme.current) 0.4f else 0.3f)
                 )
                 .clip(navShape)
                 .background(p.surface)
         ) {
-            // 主栏：左 2 项 + 中间留白(放 ＋ 按钮) + 右 2 项
+            // 主栏：4 个 tab 与中间留白各占 1/5 宽（与设计稿 .ni{flex:1} 一致）——
+            // tab 整体向中间靠拢：耐受/日常管理离 ＋ 按钮更近，首页/我的离屏幕边缘更远
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -668,11 +670,11 @@ private fun BottomTabs(
                     .padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                NavSlot(tabs[0], selected = selectedTab == 0, onClick = { onSelect(0) })
-                NavSlot(tabs[1], selected = selectedTab == 1, onClick = { onSelect(1) })
+                NavSlot(tabs[0], selected = selectedTab == 0, onClick = { onSelect(0) }, modifier = Modifier.weight(1f))
+                NavSlot(tabs[1], selected = selectedTab == 1, onClick = { onSelect(1) }, modifier = Modifier.weight(1f))
                 Spacer(modifier = Modifier.weight(1f))
-                NavSlot(tabs[2], selected = selectedTab == 2, onClick = { onSelect(2) })
-                NavSlot(tabs[3], selected = selectedTab == 3, onClick = { onSelect(3) })
+                NavSlot(tabs[2], selected = selectedTab == 2, onClick = { onSelect(2) }, modifier = Modifier.weight(1f))
+                NavSlot(tabs[3], selected = selectedTab == 3, onClick = { onSelect(3) }, modifier = Modifier.weight(1f))
             }
         }
         // 中间凸起的 ＋ 快捷添加按钮（54dp 渐变圆 + 页面底色描边）
@@ -682,10 +684,10 @@ private fun BottomTabs(
                 .offset(y = (-22).dp)
                 .size(54.dp)
                 .shadow(
-                    6.dp,
+                    10.dp,
                     CircleShape,
-                    ambientColor = Color(0xFF2563EB).copy(alpha = 0.4f),
-                    spotColor = Color(0xFF2563EB).copy(alpha = 0.4f)
+                    ambientColor = Color(0xFF2563EB).copy(alpha = 0.8f),
+                    spotColor = Color(0xFF2563EB).copy(alpha = 0.8f)
                 )
                 .clip(CircleShape)
                 .background(primaryBtnBrush())
@@ -703,16 +705,18 @@ private fun BottomTabs(
     }
 }
 
-/** 底部栏单个 Tab：图标 + 文字（选中时文字套 primary-soft 胶囊） */
+/** 底部栏单个 Tab：图标 + 文字（选中时文字套 primary-soft 胶囊）。
+ *  modifier 传入 weight(1f) 后占 1/5 栏宽，图标/胶囊在格内居中，整格可点 */
 @Composable
 private fun NavSlot(
     tab: TabItem,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val p = ucPalette()
     Column(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(50.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 10.dp, vertical = 4.dp),

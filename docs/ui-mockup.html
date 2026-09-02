@@ -90,7 +90,7 @@ html[data-theme="dark"] .phone{background:#05080F}
 .topbar .count{margin-left:auto;font-size:11px;color:var(--text2);background:var(--surface);border-radius:999px;padding:3px 10px;box-shadow:var(--shadow)}
 
 /* ============ 通用组件 ============ */
-.card{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);padding:12px}
+.card{background:var(--surface);border-radius:18px;box-shadow:var(--shadow-lg);padding:12px}
 .row{display:flex;align-items:center}
 .sp{flex:1}
 .mut{color:var(--text2)}
@@ -128,7 +128,8 @@ html[data-theme="dark"] .phone{background:#05080F}
 
 /* ============ 首页 Hero ============ */
 .hero{background:var(--grad-hero);border-radius:20px;padding:14px;display:flex;align-items:center;gap:12px;color:#fff;
-  box-shadow:0 8px 20px rgba(37,99,235,.3)}
+  box-shadow:0 10px 24px rgba(16,24,40,.8)}
+html[data-theme="dark"] .hero{box-shadow:0 10px 24px rgba(255,255,255,.8)}
 .hero .av{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;
   justify-content:center;font-size:22px;flex:none;border:2px solid rgba(255,255,255,.45)}
 .hero h3{font-size:16px}
@@ -162,9 +163,9 @@ html[data-theme="dark"] .phone{background:#05080F}
 .stat .e{width:24px;height:24px;margin:0 auto 3px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px}
 .stat b{display:block;font-size:15px}
 .stat span{font-size:10px;color:var(--text2)}
-.stat.meal{background:var(--green-soft)}.stat.meal b{color:var(--green-text)}.stat.meal .e{background:var(--green);color:#fff}
-.stat.bowel{background:var(--amber-soft)}.stat.bowel b{color:var(--amber-text)}.stat.bowel .e{background:var(--amber);color:#fff}
-.stat.med{background:var(--blue-soft)}.stat.med b{color:var(--blue-text)}.stat.med .e{background:var(--primary);color:#fff}
+.stat.meal{background:var(--green-soft)}.stat.meal b{color:var(--green-text)}
+.stat.bowel{background:var(--amber-soft)}.stat.bowel b{color:var(--amber-text)}
+.stat.med{background:var(--blue-soft)}.stat.med b{color:var(--blue-text)}
 .stat.on{border-color:currentColor}
 .stat.meal.on{border-color:var(--green)}
 
@@ -174,7 +175,8 @@ html[data-theme="dark"] .phone{background:#05080F}
 .rec{position:relative;background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:10px 12px 10px 16px;margin-bottom:8px;overflow:hidden}
 .rec::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:4px}
 .rec.meal::before{background:var(--green)}.rec.bowel::before{background:var(--amber)}.rec.med::before{background:var(--primary)}.rec.note::before{background:var(--purple)}
-.rec.sel{outline:2px solid var(--primary);outline-offset:-1px}
+.rec.sel{box-shadow:0 10px 24px rgba(16,24,40,.16),0 3px 8px rgba(16,24,40,.10);transform:translateY(-1px)}
+html[data-theme="dark"] .rec.sel{box-shadow:0 10px 24px rgba(0,0,0,.5),0 3px 8px rgba(0,0,0,.45);transform:translateY(-1px)}
 .rec-head{display:flex;align-items:center;gap:6px;font-size:11px}
 .rec-head .t{color:var(--text2);margin-left:2px}
 .rec-head .ico{width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
@@ -531,25 +533,25 @@ html[data-theme="dark"] .pgrid .ph{background:linear-gradient(135deg,#2A3A55,#1E
           <div class="sec-head"><b>当天记录</b><span class="badge">4 条</span></div>
 
           <div class="rec note">
-            <div class="rec-head"><span class="ico">📝</span>今日感受<span class="ops"><span class="op">✎</span><span class="op">🗑</span></span></div>
+            <div class="rec-head"><span class="ico">📝</span>今日感受</div>
             <p>睡眠一般，肚子比昨天舒服，今天少吃了点油。</p>
           </div>
-          <div class="rec meal">
+          <div class="rec meal sel">
             <div class="rec-head"><span class="ico">🍚</span>早餐<span class="t">07:30</span><span class="ops"><span class="op">✎</span><span class="op">🗑</span></span></div>
             <p>燕麦粥 + 蒸蛋，配半根香蕉</p>
             <div class="tags"><span class="tag g">燕麦</span><span class="tag g">鸡蛋</span><span class="tag g">香蕉</span></div>
             <div class="photos"><div class="photo">🥣<span class="n">1/2</span></div><div class="photo">🍌<span class="n"></span></div></div>
           </div>
           <div class="rec med">
-            <div class="rec-head"><span class="ico">💊</span>服药<span class="t">08:00</span><span class="ops"><span class="op">✎</span><span class="op">🗑</span></span></div>
+            <div class="rec-head"><span class="ico">💊</span>服药<span class="t">08:00</span></div>
             <div class="tags"><span class="tag n">美沙拉嗪</span><span class="tag n">2g</span></div>
           </div>
           <div class="rec bowel">
-            <div class="rec-head"><span class="ico">💩</span>大便<span class="t">12:50</span><span class="act-badge a">轻度 1分</span><span class="ops"><span class="op">✎</span><span class="op">🗑</span></span></div>
+            <div class="rec-head"><span class="ico">💩</span>大便<span class="t">12:50</span><span class="act-badge a">轻度 1分</span></div>
             <p>1 次 · 糊状 · 无便血 · 腹痛 3（左下腹）</p>
           </div>
           <div class="rec meal">
-            <div class="rec-head"><span class="ico">🍚</span>午餐<span class="t">13:10</span><span class="ops"><span class="op">✎</span><span class="op">🗑</span></span></div>
+            <div class="rec-head"><span class="ico">🍚</span>午餐<span class="t">13:10</span></div>
             <p>白粥 + 清炒鸡胸肉</p>
             <div class="tags"><span class="tag a">鸡胸肉</span></div>
           </div>
@@ -565,7 +567,7 @@ html[data-theme="dark"] .pgrid .ph{background:linear-gradient(135deg,#2A3A55,#1E
       </div>
     </div></div>
     <figcaption>首页（今天 · 周视图）</figcaption>
-    <p class="note">欢迎卡升级为渐变 Hero；记录卡改左侧类型色条 + 彩色图标；统计卡彩色图标底，选中态描边（筛选）；导航改胶囊高亮。</p>
+    <p class="note">欢迎卡升级为渐变 Hero；记录卡改左侧类型色条 + 彩色图标，选中时抬升阴影（不描边）并显示编辑/删除按钮（未选中不显示）；统计卡彩色图标底，选中态描边（筛选）；导航改胶囊高亮。</p>
   </figure>
 
   <!-- ============ 2 首页 · 整月 ============ -->

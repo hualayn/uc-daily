@@ -473,7 +473,8 @@ fun RecordCard(
             onEdit = { onEdit(record) },
             onDelete = { showDeleteDialog = true },
             editLabel = stringResource(R.string.record_edit),
-            deleteLabel = stringResource(R.string.record_delete)
+            deleteLabel = stringResource(R.string.record_delete),
+            showOps = selectable && selected
         )
 
         if (record.note.isNotBlank()) {
@@ -578,6 +579,7 @@ fun SymptomCard(
             onDelete = { showDeleteDialog = true },
             editLabel = stringResource(R.string.symptom_edit),
             deleteLabel = stringResource(R.string.symptom_delete),
+            showOps = selectable && selected,
             badge = {
                 ActivityBadgeText(
                     text = stringResource(

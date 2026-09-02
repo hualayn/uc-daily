@@ -1,5 +1,8 @@
 package com.ucdaily.ui
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -9,6 +12,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,12 +35,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -64,6 +70,7 @@ import java.io.File
 import java.time.format.DateTimeFormatter
 import kotlin.math.hypot
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 /**
  * 全局记录面板层：渲染在 Tab 内容之上，任何 Tab 都可以打开面板。
@@ -144,6 +151,8 @@ fun RecordOverlays(
 /**
  * 记录面板容器（设计稿 .sheet）：半透明遮罩 + 底部抽屉（顶部 26dp 圆角 + 拖拽条 + 标题行 + 关闭按钮）。
  * 内容高度自适应：内容短时抽屉跟着变矮（服药/感受面板），最高 88% 视区高度。
+ * 抽屉交互：入场从屏幕底部滑上（遮罩同步淡入）；按住标题区（拖拽条/标题行）下滑，
+ * 超过 120dp 松手即关闭，未超过则弹簧回弹。
  * 点遮罩或关闭按钮 = 取消（系统返回键由 MainActivity 的 BackHandler 走同一回调）。
  */
 @Composable
@@ -155,17 +164,29 @@ private fun RecordSheet(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val p = ucPalette()
+    // 入场动画：抽屉从屏幕底部滑上 + 淡入
+    var shown by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { shown = true }
+    val enter by animateFloatAsState(
+        targetValue = if (shown) 1f else 0f,
+        animationSpec = spring(dampingRatio = 0.85f, stiffness = 300f),
+        label = "recordSheetEnter"
+    )
+    // 下滑关闭：拖动偏移（px），松手超过阈值关闭，否则回弹到 0
+    val dragOffset = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+    val dismissThresholdPx = with(LocalDensity.current) { 120.dp.toPx() }
     Box(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
-        // 遮罩：点击取消
+        // 遮罩：点击取消（随入场淡入）
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.45f))
+                .background(Color.Black.copy(alpha = 0.45f * enter))
                 .clickable(
                     onClick = onCancel,
                     indication = null,
@@ -181,6 +202,11 @@ private fun RecordSheet(
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .heightIn(max = maxSheetHeight)
+                    .graphicsLayer {
+                        // 上滑入场 + 下滑拖动的实时偏移（叠加）
+                        translationY = (1f - enter) * size.height + dragOffset.value
+                        alpha = enter
+                    }
                     .shadow(
                         14.dp,
                         shape,
@@ -191,57 +217,93 @@ private fun RecordSheet(
                     .background(p.surface)
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    // 顶部拖拽条
-                    Row(
+                    // 顶部拖拽区：拖拽条 + 标题行（按住下滑 = 收起抽屉）
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp),
-                        horizontalArrangement = Arrangement.Center
+                            .pointerInput(Unit) {
+                                detectVerticalDragGestures(
+                                    onDragEnd = {
+                                        if (dragOffset.value > dismissThresholdPx) {
+                                            onCancel()
+                                        } else {
+                                            scope.launch {
+                                                dragOffset.animateTo(
+                                                    0f,
+                                                    spring(dampingRatio = 0.85f, stiffness = 400f)
+                                                )
+                                            }
+                                        }
+                                    },
+                                    onDragCancel = {
+                                        scope.launch {
+                                            dragOffset.animateTo(
+                                                0f,
+                                                spring(dampingRatio = 0.85f, stiffness = 400f)
+                                            )
+                                        }
+                                    },
+                                    onVerticalDrag = { change, amount ->
+                                        change.consume()
+                                        scope.launch {
+                                            dragOffset.snapTo((dragOffset.value + amount).coerceAtLeast(0f))
+                                        }
+                                    }
+                                )
+                            }
                     ) {
-                        Box(
+                        // 顶部拖拽条
+                        Row(
                             modifier = Modifier
-                                .width(38.dp)
-                                .height(4.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(p.ring)
-                        )
-                    }
-                    // 标题行：标题 + 记录日期 + 关闭按钮
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, end = 8.dp, top = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = title,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = p.text
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = subtitle,
-                            fontSize = 10.5.sp,
-                            color = p.text2,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        Box(
-                            modifier = Modifier
-                                .size(28.dp)
-                                .clip(CircleShape)
-                                .background(p.surface2)
-                                .clickable(onClick = onCancel),
-                            contentAlignment = Alignment.Center
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            horizontalArrangement = Arrangement.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Filled.Close,
-                                contentDescription = stringResource(R.string.common_cancel),
-                                modifier = Modifier.size(16.dp),
-                                tint = p.text2
+                            Box(
+                                modifier = Modifier
+                                    .width(38.dp)
+                                    .height(4.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(p.ring)
                             )
+                        }
+                        // 标题行：标题 + 记录日期 + 关闭按钮
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, end = 8.dp, top = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = title,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = p.text
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = subtitle,
+                                fontSize = 10.5.sp,
+                                color = p.text2,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Box(
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .clip(CircleShape)
+                                    .background(p.surface2)
+                                    .clickable(onClick = onCancel),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = stringResource(R.string.common_cancel),
+                                    modifier = Modifier.size(16.dp),
+                                    tint = p.text2
+                                )
+                            }
                         }
                     }
                     // 可滚动内容区
@@ -844,7 +906,15 @@ private fun MedRecordPanel(
                             name = name,
                             selected = draft.name == name,
                             showDelete = editingMedName == name,
-                            onClick = { onDraftChange(draft.copy(name = name)) },
+                            onClick = {
+                                if (draft.name == name) {
+                                    // 已选中再点 = 取消选中，同时清除该标签的删除角标
+                                    if (editingMedName == name) editingMedName = null
+                                    onDraftChange(draft.copy(name = ""))
+                                } else {
+                                    onDraftChange(draft.copy(name = name))
+                                }
+                            },
                             onLongClick = { editingMedName = name },
                             onDelete = {
                                 editingMedName = null
@@ -884,8 +954,8 @@ private fun MedRecordPanel(
 }
 
 /**
- * 常用药物快捷标签：点击选中该药名；长按在右上角显示删除角标，
- * 点击角标移除该标签（只移除快捷标签，不影响已保存的服药记录）。
+ * 常用药物快捷标签：点击选中该药名，已选中时再点一次取消选中（并清除其删除角标）；
+ * 长按在右上角显示删除角标，点击角标移除该标签（只移除快捷标签，不影响已保存的服药记录）。
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -1025,7 +1095,8 @@ private fun MedRecordCard(
             onEdit = { onEdit(med) },
             onDelete = { showDeleteDialog = true },
             editLabel = stringResource(R.string.med_edit),
-            deleteLabel = stringResource(R.string.med_delete)
+            deleteLabel = stringResource(R.string.med_delete),
+            showOps = selectable && selected
         )
         // 服用药品标签（药名 + 剂量）
         Spacer(modifier = Modifier.height(7.dp))
@@ -1086,7 +1157,8 @@ private fun NoteCard(
             onEdit = onOpen,
             onDelete = { showDeleteDialog = true },
             editLabel = stringResource(R.string.note_edit),
-            deleteLabel = stringResource(R.string.note_delete)
+            deleteLabel = stringResource(R.string.note_delete),
+            showOps = selectable && selected
         )
         Spacer(modifier = Modifier.height(7.dp))
         Text(

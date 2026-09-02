@@ -1,5 +1,8 @@
 package com.ucdaily.ui
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,7 +12,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -28,13 +30,17 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -45,6 +51,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ucdaily.R
@@ -477,7 +484,12 @@ fun MenuItemRow(
 // 记录卡片（设计稿 .rec：左侧类型色条 + 彩色图标头 + 选中描边）
 // ---------------------------------------------------------------------------
 
-/** 记录卡外壳：surface 底 + 16dp 圆角 + 柔阴影 + 左侧 4dp 类型色条；选中时 2dp 主色描边 */
+/**
+ * 记录卡外壳：surface 底 + 16dp 圆角 + 左侧 4dp 类型色条（设计稿 .rec::before）。
+ * 选中态：不加描边，阴影抬升（2dp → 8dp，弹簧动画）形成"凸出来"的感觉。
+ * 色条用 drawBehind 画在卡面自身坐标上——若做成子节点 fillMaxHeight，
+ * 在 LazyColumn（item 高度无界）里会塌成 0 高而不显示。
+ */
 @Composable
 fun RecordCardShell(
     kind: RecordKind,
@@ -489,30 +501,63 @@ fun RecordCardShell(
     val p = ucPalette()
     val tc = recordTypeColors(kind)
     val shape = RoundedCornerShape(16.dp)
+    val dark = LocalDarkTheme.current
+    // 阴影：浅色模式用黑影，选中时加深，"抬升"更明显；
+    // 深色模式改用浅色（白）影，抬升时形成亮边光晕。
+    // animation-core 没有 animateColorAsState，用 0~1 的 Float 插值阴影深浅；
+    // spring<T> 的 T 需显式给出（Dp / Float 各自一份）
+    val elevation by animateDpAsState(
+        targetValue = if (selected) 8.dp else 2.dp,
+        animationSpec = spring<Dp>(dampingRatio = 0.6f, stiffness = 400f),
+        label = "recordCardElevation"
+    )
+    val shadowStrength by animateFloatAsState(
+        targetValue = if (selected) 1f else 0f,
+        animationSpec = spring<Float>(dampingRatio = 0.6f, stiffness = 400f),
+        label = "recordCardShadow"
+    )
+    // 选中态阴影透明度提到 0.6，抬升感更明显（未选中保持淡影）
+    val (ambientFrom, ambientTo) = if (dark) 0.05f to 0.6f else 0.08f to 0.6f
+    val (spotFrom, spotTo) = if (dark) 0.06f to 0.6f else 0.1f to 0.6f
+    val shadowBase = if (dark) Color.White else Color.Black
+    // 左侧类型色条：未选中稍短稍细（3dp 宽 + 上下 14dp 留白），
+    // 选中后动画变长变粗（5dp 宽 + 上下 8dp 留白），与抬升联动
+    val barWidth by animateDpAsState(
+        targetValue = if (selected) 5.dp else 3.dp,
+        animationSpec = spring<Dp>(dampingRatio = 0.6f, stiffness = 400f),
+        label = "recordCardBarWidth"
+    )
+    val barInset by animateDpAsState(
+        targetValue = if (selected) 8.dp else 14.dp,
+        animationSpec = spring<Dp>(dampingRatio = 0.6f, stiffness = 400f),
+        label = "recordCardBarInset"
+    )
     Box(
         modifier = modifier
             .fillMaxWidth()
             .shadow(
-                2.dp,
+                elevation,
                 shape,
-                ambientColor = Color.Black.copy(alpha = if (LocalDarkTheme.current) 0.35f else 0.05f),
-                spotColor = Color.Black.copy(alpha = if (LocalDarkTheme.current) 0.35f else 0.06f)
+                ambientColor = shadowBase.copy(alpha = ambientFrom + (ambientTo - ambientFrom) * shadowStrength),
+                spotColor = shadowBase.copy(alpha = spotFrom + (spotTo - spotFrom) * shadowStrength)
             )
             .clip(shape)
             .background(p.surface)
-            .then(if (selected) Modifier.border(2.dp, p.primary, shape) else Modifier)
+            .drawBehind {
+                // 左侧类型色条：宽度/留白随选中状态动画（见上方 barWidth/barInset），胶囊端头
+                val barTop = barInset.toPx()
+                val barHeight = (size.height - 2f * barTop).coerceAtLeast(0f)
+                if (barHeight > 0f) {
+                    drawRoundRect(
+                        color = tc.main,
+                        topLeft = Offset(0f, barTop),
+                        size = Size(barWidth.toPx(), barHeight),
+                        cornerRadius = CornerRadius(barWidth.toPx() / 2f)
+                    )
+                }
+            }
             .clickable(onClick = onSelect)
     ) {
-        // 左侧类型色条（上下各留 10dp）
-        Box(
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .fillMaxHeight()
-                .padding(vertical = 10.dp)
-                .width(4.dp)
-                .clip(RoundedCornerShape(4.dp))
-                .background(tc.main)
-        )
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -522,7 +567,7 @@ fun RecordCardShell(
     }
 }
 
-/** 记录卡头部行：类型图标 + 标题 + 时间 + 可选徽章 + 编辑/删除按钮 */
+/** 记录卡头部行：类型图标 + 标题 + 时间 + 可选徽章 +（选中时）编辑/删除按钮 */
 @Composable
 fun RecordHeadRow(
     kind: RecordKind,
@@ -532,6 +577,7 @@ fun RecordHeadRow(
     onDelete: () -> Unit,
     editLabel: String,
     deleteLabel: String,
+    showOps: Boolean = false,
     badge: @Composable (() -> Unit)? = null
 ) {
     val p = ucPalette()
@@ -557,9 +603,12 @@ fun RecordHeadRow(
             badge()
         }
         Spacer(modifier = Modifier.weight(1f))
-        RecordOpButton(Icons.Filled.Edit, editLabel, onEdit)
-        Spacer(modifier = Modifier.width(2.dp))
-        RecordOpButton(Icons.Filled.Delete, deleteLabel, onDelete)
+        // 编辑/删除只在卡片选中时出现（未选中保持简洁）
+        if (showOps) {
+            RecordOpButton(Icons.Filled.Edit, editLabel, onEdit)
+            Spacer(modifier = Modifier.width(2.dp))
+            RecordOpButton(Icons.Filled.Delete, deleteLabel, onDelete)
+        }
     }
 }
 
@@ -600,21 +649,26 @@ fun ListRowCard(
             .shadow(
                 1.5.dp,
                 shape,
-                ambientColor = Color.Black.copy(alpha = if (LocalDarkTheme.current) 0.3f else 0.04f),
-                spotColor = Color.Black.copy(alpha = if (LocalDarkTheme.current) 0.3f else 0.05f)
+                // 深色模式下同样用浅色（白）影：深底上黑影几乎不可见
+                ambientColor = if (LocalDarkTheme.current) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.04f),
+                spotColor = if (LocalDarkTheme.current) Color.White.copy(alpha = 0.06f) else Color.Black.copy(alpha = 0.05f)
             )
             .clip(shape)
             .background(p.surface)
+            .drawBehind {
+                // 左侧类型色条：上下各留 9dp（同样用 drawBehind，避免 LazyColumn 内塌成 0 高）
+                val barTop = 9.dp.toPx()
+                val barHeight = (size.height - 2f * barTop).coerceAtLeast(0f)
+                if (barHeight > 0f) {
+                    drawRoundRect(
+                        color = tc.main,
+                        topLeft = Offset(0f, barTop),
+                        size = Size(4.dp.toPx(), barHeight),
+                        cornerRadius = CornerRadius(4.dp.toPx())
+                    )
+                }
+            }
     ) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .fillMaxHeight()
-                .padding(vertical = 9.dp)
-                .width(4.dp)
-                .clip(RoundedCornerShape(4.dp))
-                .background(tc.main)
-        )
         Row(
             modifier = Modifier
                 .fillMaxWidth()

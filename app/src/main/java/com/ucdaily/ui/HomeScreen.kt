@@ -78,11 +78,12 @@ private fun WelcomeCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            // 中性色投影（浅色黑影、深色白影，α0.8），14dp
             .shadow(
-                10.dp,
+                14.dp,
                 heroShape,
-                ambientColor = Color(0xFF2563EB).copy(alpha = if (LocalDarkTheme.current) 0.4f else 0.25f),
-                spotColor = Color(0xFF2563EB).copy(alpha = if (LocalDarkTheme.current) 0.4f else 0.25f)
+                ambientColor = (if (LocalDarkTheme.current) Color.White else Color.Black).copy(alpha = 0.8f),
+                spotColor = (if (LocalDarkTheme.current) Color.White else Color.Black).copy(alpha = 0.8f)
             )
             .clip(heroShape)
             .background(heroBrush())
@@ -227,7 +228,14 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .softShadow()
+                .shadow(
+                    12.dp,
+                    calShape,
+                    ambientColor = (if (LocalDarkTheme.current) Color.White else Color.Black)
+                        .copy(alpha = if (LocalDarkTheme.current) 0.6f else 0.4f),
+                    spotColor = (if (LocalDarkTheme.current) Color.White else Color.Black)
+                        .copy(alpha = if (LocalDarkTheme.current) 0.6f else 0.4f)
+                )
                 .clip(calShape)
                 .background(p.surface)
         ) {
@@ -738,7 +746,7 @@ private fun CalArrowButton(
     }
 }
 
-/** 当日统计卡片（设计稿 .stat）：彩色图标底 + 柔和色底 + 同色大数字；选中态主色描边 */
+/** 当日统计卡片（设计稿 .stat）：emoji 直放（无图标底）+ 柔和色底 + 同色大数字；选中态主色描边 */
 @Composable
 private fun StatCard(
     kind: RecordKind,
@@ -765,10 +773,7 @@ private fun StatCard(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
-            modifier = Modifier
-                .size(24.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(tc.main),
+            modifier = Modifier.size(24.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(text = recordKindEmoji(kind), fontSize = 13.sp)
