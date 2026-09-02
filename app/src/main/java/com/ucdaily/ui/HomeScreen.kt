@@ -78,12 +78,14 @@ private fun WelcomeCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            // 中性色投影（浅色黑影、深色白影，α0.8），14dp
+            // 品牌蓝彩色投影（glow）：在浅色背景下远强于纯黑阴影，Hero 卡专属悬浮感
             .shadow(
-                14.dp,
+                20.dp,
                 heroShape,
-                ambientColor = (if (LocalDarkTheme.current) Color.White else Color.Black).copy(alpha = 0.8f),
-                spotColor = (if (LocalDarkTheme.current) Color.White else Color.Black).copy(alpha = 0.8f)
+                ambientColor = (if (LocalDarkTheme.current) Color(0xFF5B9BFF) else Color(0xFF2563EB))
+                    .copy(alpha = if (LocalDarkTheme.current) 0.65f else 0.30f),
+                spotColor = (if (LocalDarkTheme.current) Color(0xFF5B9BFF) else Color(0xFF2563EB))
+                    .copy(alpha = if (LocalDarkTheme.current) 0.65f else 0.30f)
             )
             .clip(heroShape)
             .background(heroBrush())

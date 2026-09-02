@@ -259,7 +259,7 @@ fun ToleranceScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(start = 16.dp, top = 16.dp, end = 16.dp)
         ) {
             // 标题（风格与日常管理手册页一致：图标 + 标题、副标题、分隔线）
             Row(verticalAlignment = Alignment.CenterVertically) {

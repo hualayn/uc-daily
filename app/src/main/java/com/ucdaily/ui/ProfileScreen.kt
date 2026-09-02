@@ -106,7 +106,7 @@ fun ProfileScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = state.nickname,
-                            fontSize = 17.sp,
+                            fontSize = 19.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
                             maxLines = 1,
@@ -127,7 +127,7 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(3.dp))
                     Text(
                         text = stringResource(R.string.profile_subtitle),
-                        fontSize = 11.sp,
+                        fontSize = 13.sp,
                         color = Color.White.copy(alpha = 0.8f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis

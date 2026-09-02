@@ -450,11 +450,11 @@ fun MenuItemRow(
         }
         Spacer(modifier = Modifier.width(11.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = label, fontSize = 13.sp, color = p.text)
+            Text(text = label, fontSize = 15.sp, color = p.text)
             if (sub != null) {
                 Text(
                     text = sub,
-                    fontSize = 10.sp,
+                    fontSize = 12.sp,
                     color = p.text2,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -464,7 +464,7 @@ fun MenuItemRow(
         if (value != null) {
             Text(
                 text = value,
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 color = p.text2,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -532,6 +532,12 @@ fun RecordCardShell(
         animationSpec = spring<Dp>(dampingRatio = 0.6f, stiffness = 400f),
         label = "recordCardBarInset"
     )
+    // 选中时上下内边距增大 → 卡片高度变大，取消选中后恢复
+    val vPad by animateDpAsState(
+        targetValue = if (selected) 14.dp else 10.dp,
+        animationSpec = spring<Dp>(dampingRatio = 0.6f, stiffness = 400f),
+        label = "recordCardVPad"
+    )
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -561,7 +567,7 @@ fun RecordCardShell(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 12.dp, top = 10.dp, bottom = 10.dp),
+                .padding(start = 16.dp, end = 12.dp, top = vPad, bottom = vPad),
             content = content
         )
     }

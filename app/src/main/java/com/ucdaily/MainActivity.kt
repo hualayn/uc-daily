@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -719,28 +720,30 @@ private fun NavSlot(
         modifier = modifier
             .clip(RoundedCornerShape(50.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 4.dp),
+            .padding(horizontal = 4.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
             imageVector = tab.icon,
             contentDescription = tab.label,
-            modifier = Modifier.size(16.dp),
+            modifier = Modifier.size(22.dp),
             tint = if (selected) p.primary else p.text2
         )
-        Spacer(modifier = Modifier.height(1.5.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(50.dp))
                 .then(if (selected) Modifier.background(p.primarySoft) else Modifier)
-                .padding(horizontal = 8.dp, vertical = 1.dp)
+                .padding(horizontal = 4.dp, vertical = 1.dp)
         ) {
             Text(
                 text = tab.label,
                 fontSize = 10.sp,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                color = if (selected) p.primaryText else p.text2
+                color = if (selected) p.primaryText else p.text2,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
