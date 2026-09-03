@@ -500,7 +500,12 @@ private fun HomeCalendar(
     val onNextMonthRef = rememberUpdatedState(onNextMonth)
     val expandedRef = rememberUpdatedState(expanded)
     val onExpandedChangeRef = rememberUpdatedState(onExpandedChange)
-    val thresholdPx = with(density) { 50.dp.toPx() }
+    // 换周/换月与展开/收起的滑动阈值取 100dp：
+    // 日期单元格很小（30dp 圆、50dp 列宽），真机上点按常带 50dp+ 的横向漂移，
+    // 若阈值只有 50dp，漂移点按会被 detectDragGestures 抢走、tap 失效并误切月份
+    // （切到 7/9 月后，同位置的 "25/26" 变成无记录日期，圆点"消失"）。
+    // 100dp 以上才是明确的滑动；40~100dp 之间的漂移点按 = 什么都不做（宁可不响应）。
+    val thresholdPx = with(density) { 100.dp.toPx() }
 
     // 展示周由 homeWeekAnchor 决定：滑动/箭头换周只移动 anchor，不改变选中日期
     val anchor = state.homeWeekAnchor
@@ -706,13 +711,15 @@ private fun HomeCalendarDayCell(
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
-        // 活动度热力点（无记录时占位保持对齐）
+        // 活动度热力点（无记录时占位保持对齐）。
+        // 纯数据指示：只取决于该日是否有记录，与选中态无关——
+        // 点击任意日期（含选中当日）都不影响圆点显示
         Box(
             modifier = Modifier
                 .size(6.dp)
                 .clip(CircleShape)
                 .then(
-                    if (activity != null && !selected) {
+                    if (activity != null) {
                         Modifier.background(activityColor(activity))
                     } else {
                         Modifier
