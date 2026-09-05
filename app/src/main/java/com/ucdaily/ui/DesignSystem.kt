@@ -169,6 +169,11 @@ fun heroBrush(): Brush =
 fun primaryBtnBrush(): Brush =
     Brush.linearGradient(listOf(Color(0xFF3B82F6), Color(0xFF2563EB)))
 
+/** 补录按钮渐变（琥珀 → 深琥珀，与主按钮蓝色明显区分） */
+@Composable
+fun backfillBtnBrush(): Brush =
+    Brush.linearGradient(listOf(Color(0xFFF59E0B), Color(0xFFD97706)))
+
 /** 卡片柔阴影（深色主题加深，对应设计稿 --shadow） */
 @Composable
 fun Modifier.softShadow(
@@ -235,24 +240,30 @@ fun UcCard(
     }
 }
 
-/** 渐变主按钮（设计稿 .btn.pri）：14dp 圆角 + 主色渐变 + 蓝色投影 */
+/**
+ * 渐变主按钮（设计稿 .btn.pri）：14dp 圆角 + 主色渐变 + 蓝色投影。
+ * backfill=true：补录样式——琥珀渐变 + 琥珀投影，
+ * 用于添加记录面板补录非今日记录时的保存按钮，提醒用户这不是记在今天。
+ */
 @Composable
 fun GradientButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    text: String
+    text: String,
+    backfill: Boolean = false
 ) {
+    val glow = if (backfill) Color(0xFFD97706) else Color(0xFF2563EB)
     Box(
         modifier = modifier
             .shadow(
                 6.dp,
                 RoundedCornerShape(14.dp),
-                ambientColor = Color(0xFF2563EB).copy(alpha = 0.35f),
-                spotColor = Color(0xFF2563EB).copy(alpha = 0.35f)
+                ambientColor = glow.copy(alpha = 0.35f),
+                spotColor = glow.copy(alpha = 0.35f)
             )
             .clip(RoundedCornerShape(14.dp))
-            .background(primaryBtnBrush())
+            .background(if (backfill) backfillBtnBrush() else primaryBtnBrush())
             .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
             .padding(vertical = 13.dp),
         contentAlignment = Alignment.Center
@@ -268,7 +279,15 @@ fun GradientButton(
     }
 }
 
-/** 次级按钮（设计稿 .btn.out）：surface 底 + 描边 + 柔阴影 */
+/**
+ * 次级按钮（设计稿 .btn.out）：surface 底 + 1dp 框线 + 柔阴影。
+ * 两个易错点（都会导致框线不完整 / 圆角丢失）：
+ * 1. Modifier.shadow 会把其包裹的内容裁剪到"阴影的 shape"——softShadow 默认 18dp 圆角，
+ *    而按钮框线是 14dp：14dp 圆弧在四角处位于 18dp 裁剪区域之外，框线的圆角段会被切掉，
+ *    表现为"圆角没有显示"。因此必须显式传入与按钮一致的 shape。
+ * 2. 1dp 描边居中于布局边界绘制（内、外各 0.5dp），必须把 border 放在 shadow 之外（最外层），
+ *    否则外半段会被阴影的内容裁剪切掉，框线只剩一半粗细。
+ */
 @Composable
 fun OutlineButton2(
     onClick: () -> Unit,
@@ -277,11 +296,12 @@ fun OutlineButton2(
     text: String
 ) {
     val p = ucPalette()
+    val shape = RoundedCornerShape(14.dp)
     Box(
         modifier = modifier
-            .softShadow(elevation = 1.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .border(1.dp, p.ring, RoundedCornerShape(14.dp))
+            .border(1.dp, p.ring, shape)
+            .softShadow(elevation = 1.dp, shape = shape)
+            .clip(shape)
             .background(p.surface)
             .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
             .padding(vertical = 11.dp),

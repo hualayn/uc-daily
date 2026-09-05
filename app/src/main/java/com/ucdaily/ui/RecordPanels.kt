@@ -83,6 +83,7 @@ fun RecordOverlays(
     onAddPhotoByGallery: () -> Unit,
     onRemoveDraftPhoto: (Int) -> Unit,
     onToggleTag: (String) -> Unit,
+    onSelectFood: (String) -> Unit,
     onAddFood: (String, FoodTolerance) -> Unit,
     onDraftMealTypeChange: (MealType) -> Unit,
     onDraftNoteChange: (String) -> Unit,
@@ -108,6 +109,7 @@ fun RecordOverlays(
             onAddPhotoByGallery = onAddPhotoByGallery,
             onRemoveDraftPhoto = onRemoveDraftPhoto,
             onToggleTag = onToggleTag,
+            onSelectFood = onSelectFood,
             onAddFood = onAddFood,
             onMealTypeChange = onDraftMealTypeChange,
             onNoteChange = onDraftNoteChange,
@@ -159,6 +161,8 @@ fun RecordOverlays(
 private fun RecordSheet(
     title: String,
     subtitle: String,
+    /** 是否补录非今日记录：true 时顶部日期说明用醒目琥珀色 + 加粗提示 */
+    backfill: Boolean = false,
     onCancel: () -> Unit,
     footer: @Composable () -> Unit,
     content: @Composable ColumnScope.() -> Unit
@@ -281,10 +285,13 @@ private fun RecordSheet(
                                 color = p.text
                             )
                             Spacer(modifier = Modifier.width(8.dp))
+                            // 日期说明：13sp 比原来的 10.5sp 更醒目；
+                            // 补录时改用琥珀色 + 加粗，提示用户这不是记在今天
                             Text(
                                 text = subtitle,
-                                fontSize = 10.5.sp,
-                                color = p.text2,
+                                fontSize = 13.sp,
+                                fontWeight = if (backfill) FontWeight.Bold else FontWeight.Normal,
+                                color = if (backfill) p.amber else p.text2,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -695,6 +702,7 @@ private fun AddRecordPanel(
     onAddPhotoByGallery: () -> Unit,
     onRemoveDraftPhoto: (Int) -> Unit,
     onToggleTag: (String) -> Unit,
+    onSelectFood: (String) -> Unit,
     onAddFood: (String, FoodTolerance) -> Unit,
     onMealTypeChange: (MealType) -> Unit,
     onNoteChange: (String) -> Unit,
@@ -704,6 +712,7 @@ private fun AddRecordPanel(
 ) {
     val isEditing = state.editingRecordId != null
     val isToday = state.selectedDate == state.today
+    val isBackfill = !isToday
     val dateText = panelDateText(state.selectedDate)
 
     val subtitle = if (isEditing) {
@@ -711,7 +720,7 @@ private fun AddRecordPanel(
     } else {
         buildString {
             append(stringResource(R.string.panel_record_to)).append(dateText)
-            if (!isToday) append(stringResource(R.string.panel_backfill))
+            if (isBackfill) append(stringResource(R.string.panel_backfill))
         }
     }
 
@@ -719,12 +728,15 @@ private fun AddRecordPanel(
         title = if (isEditing) stringResource(R.string.panel_edit_meal)
         else stringResource(R.string.panel_add_meal),
         subtitle = subtitle,
+        backfill = isBackfill,
         onCancel = onCancel,
         footer = {
+            val baseText = if (isEditing) stringResource(R.string.panel_save_changes)
+            else stringResource(R.string.panel_save_record)
             GradientButton(
                 onClick = onSave,
-                text = if (isEditing) stringResource(R.string.panel_save_changes)
-                else stringResource(R.string.panel_save_record),
+                text = if (isBackfill) baseText + stringResource(R.string.panel_backfill) else baseText,
+                backfill = isBackfill,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -805,7 +817,11 @@ private fun AddRecordPanel(
             Spacer(modifier = Modifier.height(20.dp))
             SectionLabel(stringResource(R.string.panel_add_food_tag))
             Spacer(modifier = Modifier.height(8.dp))
-            AddFoodSection(onAddFood = onAddFood)
+            AddFoodSection(
+                existingNames = state.foodTags.mapTo(mutableSetOf()) { it.name },
+                onSelectFood = onSelectFood,
+                onAddFood = onAddFood
+            )
 
             if (state.foodTags.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(20.dp))
@@ -864,6 +880,7 @@ private fun MedRecordPanel(
     val draft = state.medDraft
     val isEditing = state.editingMedId != null
     val isToday = state.selectedDate == state.today
+    val isBackfill = !isToday
     val dateText = panelDateText(state.selectedDate)
     /** 长按后显示删除角标的标签名（null = 无） */
     var editingMedName by remember { mutableStateOf<String?>(null) }
@@ -873,15 +890,18 @@ private fun MedRecordPanel(
         else stringResource(R.string.panel_add_med),
         subtitle = buildString {
             append(stringResource(R.string.panel_record_to)).append(dateText)
-            if (!isToday) append(stringResource(R.string.panel_backfill))
+            if (isBackfill) append(stringResource(R.string.panel_backfill))
         },
+        backfill = isBackfill,
         onCancel = onCancel,
         footer = {
+            val baseText = if (isEditing) stringResource(R.string.panel_save_changes)
+            else stringResource(R.string.panel_save_record)
             GradientButton(
                 onClick = onSave,
                 enabled = draft.name.isNotBlank(),
-                text = if (isEditing) stringResource(R.string.panel_save_changes)
-                else stringResource(R.string.panel_save_record),
+                text = if (isBackfill) baseText + stringResource(R.string.panel_backfill) else baseText,
+                backfill = isBackfill,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -1033,6 +1053,7 @@ private fun NotePanel(
     onCancel: () -> Unit
 ) {
     val isToday = state.selectedDate == state.today
+    val isBackfill = !isToday
     val dateText = panelDateText(state.selectedDate)
 
     // 感受面板内容少：抽屉高度自适应（内容 + 边距），最高 88% 视区
@@ -1040,14 +1061,17 @@ private fun NotePanel(
         title = stringResource(R.string.panel_note_title),
         subtitle = buildString {
             append(stringResource(R.string.panel_record_to)).append(dateText)
-            if (!isToday) append(stringResource(R.string.panel_backfill))
+            if (isBackfill) append(stringResource(R.string.panel_backfill))
         },
+        backfill = isBackfill,
         onCancel = onCancel,
         footer = {
+            val baseText = stringResource(R.string.panel_save_note)
             GradientButton(
                 onClick = onSave,
                 enabled = state.noteDraft.text.isNotBlank(),
-                text = stringResource(R.string.panel_save_note),
+                text = if (isBackfill) baseText + stringResource(R.string.panel_backfill) else baseText,
+                backfill = isBackfill,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -1200,6 +1224,7 @@ private fun BowelSymptomPanel(
 ) {
     val draft = state.symptomDraft
     val isToday = state.selectedDate == state.today
+    val isBackfill = !isToday
     val dateText = panelDateText(state.selectedDate)
     val isEditing = state.editingSymptomId != null
 
@@ -1211,8 +1236,9 @@ private fun BowelSymptomPanel(
                 if (isEditing) stringResource(R.string.panel_editing_label)
                 else stringResource(R.string.panel_record_to)
             ).append(dateText)
-            if (!isToday) append(stringResource(R.string.panel_backfill))
+            if (isBackfill) append(stringResource(R.string.panel_backfill))
         },
+        backfill = isBackfill,
         onCancel = onCancel,
         footer = {
             val p = ucPalette()
@@ -1229,10 +1255,12 @@ private fun BowelSymptomPanel(
                         color = p.text2
                     )
                 }
+                val baseText = if (isEditing) stringResource(R.string.panel_save_changes)
+                else stringResource(R.string.panel_save_record)
                 GradientButton(
                     onClick = onSave,
-                    text = if (isEditing) stringResource(R.string.panel_save_changes)
-                    else stringResource(R.string.panel_save_record),
+                    text = if (isBackfill) baseText + stringResource(R.string.panel_backfill) else baseText,
+                    backfill = isBackfill,
                     modifier = Modifier.fillMaxWidth()
                 )
             }

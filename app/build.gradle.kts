@@ -16,7 +16,7 @@ android {
         targetSdk = 35
         // 版本号可由 -PVERSION_CODE / -PVERSION_NAME 覆盖（GitHub Actions 按 tag 注入），本地构建用默认值
         versionCode = (project.findProperty("VERSION_CODE") as? String)?.toIntOrNull() ?: 1
-        versionName = (project.findProperty("VERSION_NAME") as? String) ?: "1.1.0"
+        versionName = (project.findProperty("VERSION_NAME") as? String) ?: "1.1.1"
     }
 
     buildFeatures {

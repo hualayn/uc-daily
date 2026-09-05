@@ -523,6 +523,15 @@ private fun HomeCalendar(
     }
     val anchorIndex = allWeekStarts.indexOfFirst { it == anchorWeekStart }
 
+    // 方案 B：整月日期扁平化为网格（每 7 天 = 一周行），按 anchor 周切三段。
+    // 每个日期格以"日期自身"为 Compose key（见 HomeCalendarFlatWeeks），
+    // 圆点只由该日数据决定、与 anchor 周分组解耦——点选跨周日期/换周/换月重组时不再丢格。
+    val allDays = allWeekStarts.flatMap { ws -> (0 until 7).map { ws.plusDays(it.toLong()) } }
+    val anchorDayIndex = anchorIndex * 7
+    val daysBefore = allDays.take(anchorDayIndex)
+    val daysAnchor = allDays.subList(anchorDayIndex, anchorDayIndex + 7)
+    val daysAfter = allDays.drop(anchorDayIndex + 7)
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -587,21 +596,17 @@ private fun HomeCalendar(
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    allWeekStarts.take(anchorIndex).forEach { weekStart ->
-                        HomeCalendarWeekRow(
-                            weekStart = weekStart,
-                            anchorMonth = anchorMonth,
-                            state = state,
-                            onDateSelected = onDateSelected
-                        )
-                    }
-                }
+                HomeCalendarFlatWeeks(
+                    days = daysBefore,
+                    anchorMonth = anchorMonth,
+                    state = state,
+                    onDateSelected = onDateSelected
+                )
             }
 
             // anchor 周：周视图 = 星期头 + 这一行
-            HomeCalendarWeekRow(
-                weekStart = anchorWeekStart,
+            HomeCalendarFlatWeeks(
+                days = daysAnchor,
                 anchorMonth = anchorMonth,
                 state = state,
                 onDateSelected = onDateSelected
@@ -613,41 +618,51 @@ private fun HomeCalendar(
                 enter = expandVertically(expandFrom = Alignment.Top),
                 exit = shrinkVertically(shrinkTowards = Alignment.Top)
             ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    allWeekStarts.drop(anchorIndex + 1).forEach { weekStart ->
-                        HomeCalendarWeekRow(
-                            weekStart = weekStart,
-                            anchorMonth = anchorMonth,
-                            state = state,
-                            onDateSelected = onDateSelected
-                        )
-                    }
-                }
+                HomeCalendarFlatWeeks(
+                    days = daysAfter,
+                    anchorMonth = anchorMonth,
+                    state = state,
+                    onDateSelected = onDateSelected
+                )
             }
         }
     }
 }
 
-/** 日历中的一行 7 天（其他月份的日期淡显，仍可点选） */
+/**
+ * 扁平渲染一段连续日期（每 7 天 = 一周行，其他月份的日期淡显，仍可点选）。
+ *
+ * 结构身份绑定到日期自身：每个周行 key = 该行起始日期，每个日期格 key = 该日期。
+ * 当 anchor 周变化（点选跨周日期 / 换周 / 换月）导致三段构成变化时，
+ * 格子按日期 key 保留/移除/新增，不会在重组中丢失或错位——
+ * 圆点是否显示只取决于该日期的 symptomByDate 数据，与周分组方式无关。
+ */
 @Composable
-private fun HomeCalendarWeekRow(
-    weekStart: LocalDate,
+private fun HomeCalendarFlatWeeks(
+    days: List<LocalDate>,
     anchorMonth: YearMonth,
     state: MealUiState,
     onDateSelected: (LocalDate) -> Unit
 ) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        (0 until 7).forEach { offset ->
-            val day = weekStart.plusDays(offset.toLong())
-            HomeCalendarDayCell(
-                day = day,
-                dimmed = YearMonth.from(day) != anchorMonth,
-                selected = day == state.selectedDate,
-                isToday = day == state.today,
-                activity = state.symptomByDate[day.toString()]?.activityLevel,
-                onClick = { onDateSelected(day) },
-                modifier = Modifier.weight(1f)
-            )
+    Column(modifier = Modifier.fillMaxWidth()) {
+        days.chunked(7).forEach { weekDays ->
+            key(weekDays.first()) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    weekDays.forEach { day ->
+                        key(day) {
+                            HomeCalendarDayCell(
+                                day = day,
+                                dimmed = YearMonth.from(day) != anchorMonth,
+                                selected = day == state.selectedDate,
+                                isToday = day == state.today,
+                                activity = state.symptomByDate[day.toString()]?.activityLevel,
+                                onClick = { onDateSelected(day) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

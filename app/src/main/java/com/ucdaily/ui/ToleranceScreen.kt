@@ -870,10 +870,16 @@ private fun DragOverlay(dragInfo: DragInfo?) {
 
 /**
  * 添加食物标签区块（「添加饮食」页面，照片区下方）：
- * 输入框 + 添加按钮（小圆角）；点按钮弹出下拉菜单选耐受状态，选中后添加
+ * 输入框 + 添加按钮（小圆角）。点"添加"：
+ * - 输入的食物标签已存在 → 直接选中该标签（不弹菜单，耐受状态沿用标签自身）；
+ * - 不存在 → 弹出下拉菜单选耐受状态，选中后添加新标签。
  */
 @Composable
-internal fun AddFoodSection(onAddFood: (String, FoodTolerance) -> Unit) {
+internal fun AddFoodSection(
+    existingNames: Set<String>,
+    onSelectFood: (String) -> Unit,
+    onAddFood: (String, FoodTolerance) -> Unit
+) {
     var input by remember { mutableStateOf("") }
     var showMenu by remember { mutableStateOf(false) }
 
@@ -890,10 +896,18 @@ internal fun AddFoodSection(onAddFood: (String, FoodTolerance) -> Unit) {
             placeholder = { Text(stringResource(R.string.tolerance_add_placeholder)) },
             singleLine = true
         )
-        // 添加按钮：点击弹出下拉菜单选择耐受状态，选中后才添加
+        // 添加按钮：标签已存在 → 直接选中；新标签 → 弹出下拉菜单选耐受状态后添加
         Box {
             Button(
-                onClick = { showMenu = true },
+                onClick = {
+                    val name = input.trim()
+                    if (name in existingNames) {
+                        onSelectFood(name)
+                        input = ""
+                    } else {
+                        showMenu = true
+                    }
+                },
                 enabled = input.isNotBlank(),
                 modifier = Modifier
                     .width(100.dp)

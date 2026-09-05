@@ -204,21 +204,23 @@ private fun ManualCard(
         animationSpec = tween(300),
         label = "arrow"
     )
-    // 设计稿 .mcard：表面底 + 描边；展开 = 主色描边 + 阴影
+    // 设计稿 .mcard：表面底 + 描边；展开 = 主色描边 + 阴影。
+    // 注意：border 必须放在 softShadow 之外——shadow 会把包裹的内容裁剪到阴影 shape，
+    // 居中绘制的描边外半段会被裁掉，框线只剩一半粗细。
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .border(
+                if (expanded) 1.5.dp else 1.dp,
+                if (expanded) p.primary else p.ring,
+                shape
+            )
             .softShadow(
                 elevation = if (expanded) 4.dp else 2.dp,
                 shape = shape
             )
             .clip(shape)
             .background(p.surface)
-            .border(
-                if (expanded) 1.5.dp else 1.dp,
-                if (expanded) p.primary else p.ring,
-                shape
-            )
     ) {
         Column {
             // 卡片头：emoji 图标底 + 标题 … 箭头

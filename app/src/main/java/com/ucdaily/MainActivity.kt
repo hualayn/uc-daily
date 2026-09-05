@@ -537,6 +537,7 @@ class MainActivity : ComponentActivity() {
                         },
                         onRemoveDraftPhoto = { viewModel.removeDraftPhoto(it) },
                         onToggleTag = { viewModel.toggleDraftTag(it) },
+                        onSelectFood = { viewModel.selectDraftTag(it) },
                         onAddFood = { name, tol -> viewModel.addFoodTag(name, tol) },
                         onDraftMealTypeChange = { viewModel.setDraftMealType(it) },
                         onDraftNoteChange = { viewModel.setDraftNote(it) },

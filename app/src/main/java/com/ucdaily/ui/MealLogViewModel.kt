@@ -790,6 +790,16 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         _uiState.value = s.copy(draft = s.draft.copy(tags = tags))
     }
 
+    /**
+     * 直接选中已存在的食物标签（幂等：已选中则不变，不会取消选中）。
+     * 用于"添加饮食"页"添加"按钮输入已存在标签时——直接选中，不弹耐受状态菜单。
+     */
+    fun selectDraftTag(name: String) {
+        val s = _uiState.value
+        if (s.draft.tags.contains(name)) return
+        _uiState.value = s.copy(draft = s.draft.copy(tags = s.draft.tags + name))
+    }
+
     fun removeDraftPhoto(index: Int) {
         // 只从草稿移除，不动磁盘文件：若之后取消编辑，原记录仍引用该照片，
         // 不能提前删除（与删除记录"照片不会从设备中删除"的约定保持一致）
