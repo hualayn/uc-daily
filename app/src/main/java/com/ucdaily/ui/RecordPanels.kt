@@ -827,7 +827,9 @@ private fun AddRecordPanel(
                 Spacer(modifier = Modifier.height(20.dp))
                 SectionLabel(stringResource(R.string.panel_food_tags))
                 Spacer(modifier = Modifier.height(8.dp))
-                // 按类别摆放：可耐受 → 尝试 → 不耐受（稳定排序，组内顺序不变）
+                // 排序：已选中的标签整体排最前面（内部仍按 可耐受 → 尝试 → 不耐受 类别顺序）；
+                // 其后为未选中的，按类别分组（可耐受 → 尝试 → 不耐受，组内顺序不变），每类只显示前 25 个
+                val selectedNames = state.draft.tags.toSet()
                 val orderedTags = state.foodTags.sortedBy {
                     when (FoodTolerance.fromValue(it.tolerance)) {
                         FoodTolerance.OK -> 0
@@ -835,17 +837,45 @@ private fun AddRecordPanel(
                         FoodTolerance.BAD -> 2
                     }
                 }
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    orderedTags.forEach { tag ->
-                        ToleranceTagChip(
-                            tag = tag,
-                            selected = state.draft.tags.contains(tag.name),
-                            onClick = { onToggleTag(tag.name) }
+                // 选中的（orderedTags 已按类别稳定排序，filter 后顺序即 类别 → 组内顺序）
+                val selectedTags = orderedTags.filter { selectedNames.contains(it.name) }
+                // 未选中的按类别分组（groupBy 保留 key 首次出现顺序，即类别顺序）
+                val unselectedByCategory = orderedTags
+                    .filter { !selectedNames.contains(it.name) }
+                    .groupBy { FoodTolerance.fromValue(it.tolerance) }
+                val palette = ucPalette()
+                var firstBlock = true
+                // 选中的排最前（无标题：选中项自带 ✓ 高亮）
+                if (selectedTags.isNotEmpty()) {
+                    TagChipFlow(tags = selectedTags, selectedNames = selectedNames, onToggleTag = onToggleTag)
+                    firstBlock = false
+                }
+                // 每一类别：小标题（类别名 + 数量，超出上限时"显示数/总数"）+ 未选中前 25 个
+                unselectedByCategory.forEach { (tol, group) ->
+                    if (group.isEmpty()) return@forEach
+                    if (!firstBlock) Spacer(modifier = Modifier.height(8.dp))
+                    firstBlock = false
+                    val shownTags = group.take(TAG_MAX_UNSELECTED_COUNT)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(tol.labelRes),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = toleranceColor(tol)
+                        )
+                        Text(
+                            text = if (group.size > shownTags.size)
+                                "${shownTags.size}/${group.size}" else group.size.toString(),
+                            fontSize = 12.sp,
+                            color = palette.text2
                         )
                     }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    TagChipFlow(tags = shownTags, selectedNames = selectedNames, onToggleTag = onToggleTag)
                 }
             }
 
@@ -1392,6 +1422,30 @@ private fun BowelSymptomPanel(
             )
 
             Spacer(modifier = Modifier.height(4.dp))
+    }
+}
+
+/** 添加饮食页食物标签：每一类别未选中标签最多显示的数量（按组内顺序取前 N 个），选中的不受限 */
+private const val TAG_MAX_UNSELECTED_COUNT = 25
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TagChipFlow(
+    tags: List<FoodTag>,
+    selectedNames: Set<String>,
+    onToggleTag: (String) -> Unit
+) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        tags.forEach { tag ->
+            ToleranceTagChip(
+                tag = tag,
+                selected = selectedNames.contains(tag.name),
+                onClick = { onToggleTag(tag.name) }
+            )
+        }
     }
 }
 
