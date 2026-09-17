@@ -75,7 +75,7 @@ Four bottom tabs + a center raised **"+"** button (opens the quick-add panel fro
 - Avatar (default / male / female) and nickname (both editable)
 - Menu:
   - **Statistics**: record days / meal count / bowel-movement days / medication count, activity-level distribution, food-tolerance distribution; tapping a count block opens the full-period record list for that type (year → month → day hierarchy)
-  - **Medication settings**: set the daily reminder count and reminder times (drives the home-screen bell + system notification); includes a "on-time reminder (exact alarm)" permission status card that opens the system grant page when not granted
+  - **Medication settings**: set the daily reminder count and reminder times (drives the home-screen bell + system notification)
   - **Export records**: pick a date range + record types (meals / meds / bowel / notes), output as TXT / CSV (CSV also includes all food tolerance), save to clipboard or a file
   - **Restore records**: pick a CSV produced by "Export records" to restore daily records and food tolerance (identical rows on the same day are skipped automatically; daily notes are overwritten by date; food tags are added or updated by name)
   - **Settings**: sub-page with **Home Slogans** (manage the welcome-card carousel list: edit / add / delete / restore the built-in 8) · **Theme** (light / dark / follow system) · **Font Size** · **Language** (12 options, switches instantly — see "Multilingual") · **App Update** (Google Play Core, see "Multilingual") · **About**
@@ -86,7 +86,7 @@ Four bottom tabs + a center raised **"+"** button (opens the quick-add panel fro
 - **Bowel movement records**: multiple per day (one entry at a time, sorted by time); record count, nighttime diarrhea, stool consistency (Bristol Stool Scale 1–7), blood in stool, mucus, abdominal pain (0–10 score + location), urgency, other discomfort; backfilling a past date can adjust the recorded time
 - **Activity score**: a simplified patient-self-report UCDAI (bowel frequency 0–4 + blood in stool 0–4) automatically computes 0–8, classified as remission / mild / moderate / severe; drives the calendar dots and record cards (for self-monitoring only, not a substitute for diagnosis)
 - **Medication records**: medication name (with quick picks for frequent meds; long-press a tag to remove the quick pick) + dose, multiple per day, supports edit / delete
-- **Medication reminders**: set the reminder count / times under "Profile → Medication settings"; a dose counts as missed when "number of reminder times already due > number of med records today". When missed: the home bell shows a red dot (tap to go straight to add-medication) + a system notification (persistent red status-bar icon / launcher badge, text "You still have N missed doses, please take your medication soon!"). Sync is triggered at each reminder time by exact alarms (AlarmManager) — reminders fire even when the app is backgrounded or killed by the system, and re-register after reboot; requires the notification permission (runtime prompt on Android 13+) and the exact-alarm permission (Android 12+, grant entry on the med-settings page)
+- **Medication reminders**: set the reminder count / times under "Profile → Medication settings"; a dose counts as missed when "number of reminder times already due > number of med records today". When missed: the home bell shows a red dot (tap to go straight to add-medication) + a system notification (persistent red status-bar icon / launcher badge, text "You still have N missed doses, please take your medication soon!"). Sync is triggered at each reminder time by inexact alarms (AlarmManager, `setAndAllowWhileIdle`, no alarm permission needed) — reminders fire even when the app is backgrounded or killed by the system, and re-register after reboot; only the notification permission is required (runtime prompt on Android 13+)
 - **Daily note**: one free-form text entry per day (bowel, sleep, mood, discomfort…); also supported when backfilling past dates
 - **Record export**: TXT / CSV, filtered by date range and record type, output to clipboard or a file — handy for showing your doctor
 - **Edit / delete**: every record card is editable (deletion asks for confirmation)
@@ -147,7 +147,7 @@ app/src/main/java/com/ucdaily/
 │   ├── SettingsScreen.kt        # Settings page: home slogans / theme / font size / language / app update / about
 │   ├── HomeSloganScreen.kt      # Home Slogans page: welcome-card carousel list (edit / add / delete / restore default)
 │   ├── StatsScreen.kt           # Statistics page: record volume, activity-level distribution, food-tolerance distribution
-│   ├── MedSettingsScreen.kt     # Med settings page: reminder count, reminder times, exact-alarm permission card
+│   ├── MedSettingsScreen.kt     # Med settings page: reminder count, reminder times
 │   ├── RecordPanels.kt          # Global record panels: meal / bowel / med / note panels, fullscreen photo viewer
 │   ├── RecordListScreen.kt      # Record summary list: year → month → day hierarchy for a record type (opened from Statistics)
 │   ├── MealLogScreen.kt         # Shared components: meal / bowel record cards, export dialog, weekday / activity helpers
@@ -171,7 +171,7 @@ app/src/main/java/com/ucdaily/
 - Photos are stored in the app-private directory (`getExternalFilesDir`) and are cleaned up automatically on uninstall
 - Photos picked from the gallery are compressed (JPEG < 300 KB) and copied into the app-private directory, so they stay viewable until the app is uninstalled
 - Preferences (nickname / avatar / theme / font size / home slogans / frequent meds / med reminder times) are stored in SharedPreferences
-- Med reminders: the notification uses the system channel `med_reminder` (ongoing, tintable); on-time triggering uses system exact alarms (AlarmManager, one slot per reminder time, up to 6), re-registered on app launch / reminder-time change / boot complete
+- Med reminders: the notification uses the system channel `med_reminder` (ongoing, tintable); on-time triggering uses system inexact alarms (AlarmManager, `setAndAllowWhileIdle`, one slot per reminder time, up to 6, no exact-alarm permission needed), re-registered on app launch / reminder-time change / boot complete
 
 ## About the Activity Score
 

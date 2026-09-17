@@ -4840,7 +4840,7 @@
       </div>
     </div>
 
-    <script id="archify-guided-views-data" type="application/json">[{"id":"main-data-path","label":"主数据路径","focus":["ui","vm","db","photos"],"note":"Compose UI → ViewModel → Room → 私有照片存储，数据全部保存在本机。"},{"id":"reminder-chain","label":"服药提醒链路","focus":["vm","remind","notif"],"note":"提醒设置同步到 AlarmManager 精确闹钟，到点经系统通知渠道推送。"},{"id":"localization-update","label":"本地化与更新","focus":["locale","ui","export","playcore"],"note":"多语言上下文包装、TXT / CSV 导出恢复与 Google Play 应用内更新。"}]</script>
+    <script id="archify-guided-views-data" type="application/json">[{"id":"main-data-path","label":"主数据路径","focus":["ui","vm","db","photos"],"note":"Compose UI → ViewModel → Room → 私有照片存储，数据全部保存在本机。"},{"id":"reminder-chain","label":"服药提醒链路","focus":["vm","remind","notif"],"note":"提醒设置同步到 AlarmManager 普通闹钟，到点经系统通知渠道推送。"},{"id":"localization-update","label":"本地化与更新","focus":["locale","ui","export","playcore"],"note":"多语言上下文包装、TXT / CSV 导出恢复与 Google Play 应用内更新。"}]</script>
 
     <div class="guided-views no-print" id="guided-views" hidden aria-label="Guided diagram views">
       <button id="guided-view-prev" type="button" aria-label="Previous guided view" title="Previous guided view ([)">&#8592;</button>
@@ -4974,15 +4974,15 @@
         <text data-detail="fine" x="870" y="356" class="t-database" font-size="7" text-anchor="middle">v1 · 无迁移</text>
         </g>
 
-        <g id="node-remind" data-node-id="remind" data-node-label="服药提醒" tabindex="0" role="button" aria-label="Focus 服药提醒, AlarmManager 精确闹钟, Android 设备 · 离线本机（无账号 / 无云端 / 不联网）" aria-pressed="false" data-node-kind="backend" data-node-sublabel="AlarmManager 精确闹钟" data-node-context="Android 设备 · 离线本机（无账号 / 无云端 / 不联网）">
-          <title>服药提醒 · AlarmManager 精确闹钟 · Android 设备 · 离线本机（无账号 / 无云端 / 不联网）</title>
+        <g id="node-remind" data-node-id="remind" data-node-label="服药提醒" tabindex="0" role="button" aria-label="Focus 服药提醒, AlarmManager 普通闹钟, Android 设备 · 离线本机（无账号 / 无云端 / 不联网）" aria-pressed="false" data-node-kind="backend" data-node-sublabel="AlarmManager 普通闹钟" data-node-context="Android 设备 · 离线本机（无账号 / 无云端 / 不联网）">
+          <title>服药提醒 · AlarmManager 普通闹钟 · Android 设备 · 离线本机（无账号 / 无云端 / 不联网）</title>
           <rect x="1040" y="300" width="170" height="64" rx="6" class="c-mask"/>
           <rect x="1040" y="300" width="170" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(1046 306) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
           <text data-detail-anchor x="1125" y="330" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">服药提醒</text>
-        <text data-detail="context" x="1125" y="346" class="t-muted" font-size="9" text-anchor="middle">AlarmManager 精确闹钟</text>
+        <text data-detail="context" x="1125" y="346" class="t-muted" font-size="9" text-anchor="middle">AlarmManager 普通闹钟</text>
         </g>
 
         <g id="node-locale" data-node-id="locale" data-node-label="多语言 AppLocale" tabindex="0" role="button" aria-label="Focus 多语言 AppLocale, 12 语言 · RTL, Android 设备 · 离线本机（无账号 / 无云端 / 不联网）" aria-pressed="false" data-node-kind="backend" data-node-sublabel="12 语言 · RTL" data-node-context="Android 设备 · 离线本机（无账号 / 无云端 / 不联网）">
@@ -5303,7 +5303,7 @@
           <h3>系统集成</h3>
         </div>
         <ul>
-          <li>&bull; AlarmManager 精确闹钟 + med_reminder 通知渠道（后台可用）</li>
+          <li>&bull; AlarmManager 普通闹钟 + med_reminder 通知渠道（后台可用）</li>
           <li>&bull; Google Play Core 应用内 Flexible 更新</li>
           <li>&bull; TXT / CSV 导出、CSV 去重恢复；无账号、无云端、不联网</li>
         </ul>
