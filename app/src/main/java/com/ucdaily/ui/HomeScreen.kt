@@ -153,8 +153,8 @@ private fun WelcomeCard(
 
 /**
  * 首页：
- * 顶部（点击头像进入"我的" + 横幅）→ 日期 + 日历（默认周视图：左右滑动/箭头换周；下滑展开整月、整月上滑收起；
- * 整月视图下左右滑动/箭头换月）→ 当日统计 → 添加入口（饮食/便便/服药/笔记）→ 当天记录
+ * 顶部（点击头像进入"我的" + 横幅）→ 日期 + 日历（默认周视图：左右滑动/箭头换周；下滑或点按提示展开整月、
+ * 整月上滑或点按提示收起；整月视图下左右滑动/箭头换月）→ 当日统计 → 添加入口（饮食/便便/服药/笔记）→ 当天记录
  */
 @Composable
 fun HomeScreen(
@@ -320,8 +320,8 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // 日历（默认周视图：左右滑动/箭头换周，点击选日；下滑展开整月，整月视图上滑收起回周视图；
-                // 整月视图下左右滑动/箭头换月）
+                // 日历（默认周视图：左右滑动/箭头换周，点击选日；下滑或点按提示展开整月，
+                // 整月视图上滑或点按提示收起回周视图；整月视图下左右滑动/箭头换月）
                 HomeCalendar(
                     state = state,
                     expanded = expanded,
@@ -335,7 +335,8 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // 展开/收起提示（周视图：下滑展开整月；整月视图：上滑收起回周视图）
+                // 展开/收起提示（可点按）：周视图"下滑展开整月"点按 → 展开整月；
+                // 整月视图"上滑收起回周视图"点按 → 收起回周视图（与上下滑动手势等效）
                 Text(
                     text = stringResource(
                         if (expanded) R.string.home_cal_hint_month else R.string.home_cal_hint_week
@@ -343,7 +344,10 @@ fun HomeScreen(
                     fontSize = 9.5.sp,
                     color = p.text2,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .clickable(onClick = { expanded = !expanded })
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -477,8 +481,8 @@ private fun computeMedReminderStatus(
 
 /**
  * 首页日历：默认周视图（星期头 + anchor 周）；
- * 周视图上向下滑动 → 展开为 homeWeekAnchor 所在月的整月视图；
- * 整月视图上向上滑动 → 收起回周视图。
+ * 周视图上向下滑动（或点按下方"下滑展开整月"提示）→ 展开为 homeWeekAnchor 所在月的整月视图；
+ * 整月视图上向上滑动（或点按"上滑收起回周视图"提示）→ 收起回周视图。
  * 横向滑动：周视图换周，整月视图换月；只移动 homeWeekAnchor，不改变选中日期。
  * 展开状态（expanded）由父级持有，以便日期头箭头同步按周/月切换。
  */
