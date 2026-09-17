@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "DeepSeek Harness 系统架构",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "request-path",
+        "label": "主请求路径",
+        "focus": ["browser", "webserver", "kernel", "agent", "llm", "deepseek"],
+        "note": "从浏览器经认证 RPC 到 Cordis 内核、Agent Loop 与 DeepSeek API 的主链路。"
+      },
+      {
+        "id": "agent-side-branches",
+        "label": "工具与会话",
+        "focus": ["agent", "subagents", "sessions", "tools", "sandbox"],
+        "note": "Agent 的侧支：子代理委派、会话存储、工具调用与策略沙箱执行。"
+      },
+      {
+        "id": "multi-surface",
+        "label": "一核多面",
+        "focus": ["kernel", "surfaces"],
+        "note": "同一插件内核经 profile 输出 headless、TUI、SDK 与 ACP 表面。"
+      }
+    ]
+  },
+  "components": [
+    { "id": "browser", "type": "frontend", "label": "浏览器", "sublabel": "React + Vite SPA", "pos": [40, 300], "size": [150, 64], "tag": "DSH Web GUI" },
+    { "id": "webserver", "type": "backend", "label": "Web 服务", "sublabel": "dsh-host-webserver :3080", "pos": [270, 300], "size": [150, 64] },
+    { "id": "kernel", "type": "backend", "label": "Cordis 内核", "sublabel": "插件组合 · 依赖注入", "pos": [500, 300], "size": [160, 64] },
+    { "id": "agent", "type": "backend", "label": "Agent Loop", "sublabel": "goal · plan mode · 压缩", "pos": [740, 300], "size": [150, 64], "tag": "dsh-agent-loop" },
+    { "id": "llm", "type": "backend", "label": "LLM 接缝", "sublabel": "dsh-llm · typert", "pos": [970, 300], "size": [140, 64] },
+    { "id": "deepseek", "type": "cloud", "label": "DeepSeek API", "sublabel": "chat-completions", "pos": [1190, 300], "size": [140, 64] },
+    { "id": "surfaces", "type": "external", "label": "其他表面", "sublabel": "headless · TUI · SDK · ACP", "pos": [500, 110], "size": [160, 64] },
+    { "id": "subagents", "type": "backend", "label": "子代理与工作流", "sublabel": "spawn · fork · workflow", "pos": [480, 470], "size": [160, 64] },
+    { "id": "sessions", "type": "database", "label": "会话存储", "sublabel": "JSONL · SQLite FTS5", "pos": [740, 470], "size": [150, 64] },
+    { "id": "tools", "type": "backend", "label": "工具系统", "sublabel": "fs · shell · web · MCP", "pos": [970, 470], "size": [140, 64] },
+    { "id": "sandbox", "type": "security", "label": "沙箱与审批", "sublabel": "bwrap · landlock · ACL", "pos": [1190, 470], "size": [140, 64] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "DSH 宿主进程（Node 22 · ESM）", "wraps": ["webserver", "kernel", "agent", "llm", "subagents", "sessions", "tools", "sandbox"] }
+  ],
+  "connections": [
+    { "id": "browser-rpc", "from": "browser", "to": "webserver", "label": "认证 RPC · WebSocket / SSE", "variant": "emphasis", "labelDy": -26 },
+    { "id": "webserver-routes", "from": "webserver", "to": "kernel", "label": "路由 / 升级" },
+    { "id": "kernel-agent", "from": "kernel", "to": "agent", "label": "会话驱动" },
+    { "id": "agent-llm", "from": "agent", "to": "llm", "label": "类型化请求" },
+    { "id": "llm-deepseek", "from": "llm", "to": "deepseek", "label": "HTTPS" },
+    { "id": "kernel-surfaces", "from": "kernel", "to": "surfaces", "label": "profile 启动" },
+    { "id": "agent-subagents", "from": "agent", "to": "subagents", "label": "委派" },
+    { "id": "agent-sessions", "from": "agent", "to": "sessions", "label": "持久化 / 查询", "labelDy": 24 },
+    { "id": "agent-tools", "from": "agent", "to": "tools", "label": "工具调用" },
+    { "id": "tools-sandbox", "from": "tools", "to": "sandbox", "label": "策略执行" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "前端",
+      "items": [
+        "React + Vite SPA，vendor / app 分包，Shiki 语法高亮",
+        "约 40 个 dsh-client-ui-* 插件包组成界面",
+        "客户端 HMR：SSE 重建帧 → fiber 替换，免刷新"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Agent 核心",
+      "items": [
+        "Provider 中立 LLM 接缝（dsh-llm）+ typert 类型化协议",
+        "事件溯源 goal 状态机、plan mode、审批瀑布",
+        "token-meter 驱动的上下文压缩与工具结果裁剪"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "安全与存储",
+      "items": [
+        "多后端进程沙箱（bwrap / landlock / Seatbelt / Windows ACL），fail-closed",
+        "会话持久化 JSONL + SQLite FTS5 全文检索",
+        "一核多面：web / headless / TUI / SDK / ACP"
+      ]
+    }
+  ]
+}

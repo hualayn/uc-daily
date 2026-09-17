@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "溃结日常记录 UC Daily 系统架构",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "main-data-path",
+        "label": "主数据路径",
+        "focus": ["ui", "vm", "db", "photos"],
+        "note": "Compose UI → ViewModel → Room → 私有照片存储，数据全部保存在本机。"
+      },
+      {
+        "id": "reminder-chain",
+        "label": "服药提醒链路",
+        "focus": ["vm", "remind", "notif"],
+        "note": "提醒设置同步到 AlarmManager 精确闹钟，到点经系统通知渠道推送。"
+      },
+      {
+        "id": "localization-update",
+        "label": "本地化与更新",
+        "focus": ["locale", "ui", "export", "playcore"],
+        "note": "多语言上下文包装、TXT / CSV 导出恢复与 Google Play 应用内更新。"
+      }
+    ]
+  },
+  "components": [
+    { "id": "playcore", "type": "cloud", "label": "Google Play", "sublabel": "应用内更新 Flexible", "pos": [40, 300], "size": [170, 64], "tag": "Play Core" },
+    { "id": "ui", "type": "frontend", "label": "Compose UI 层", "sublabel": "MainActivity · 4 Tab + 快捷添加", "pos": [290, 300], "size": [170, 64], "tag": "Material 3" },
+    { "id": "vm", "type": "backend", "label": "MealLogViewModel", "sublabel": "MVVM · StateFlow", "pos": [540, 300], "size": [170, 64] },
+    { "id": "db", "type": "database", "label": "Room 数据库", "sublabel": "uc_daily_db · 5 表", "pos": [790, 300], "size": [160, 64], "tag": "v1 · 无迁移" },
+    { "id": "remind", "type": "backend", "label": "服药提醒", "sublabel": "AlarmManager 精确闹钟", "pos": [1040, 300], "size": [170, 64] },
+    { "id": "locale", "type": "backend", "label": "多语言 AppLocale", "sublabel": "12 语言 · RTL", "pos": [290, 110], "size": [170, 64] },
+    { "id": "export", "type": "backend", "label": "导出 / 恢复", "sublabel": "TXT / CSV · 去重恢复", "pos": [790, 110], "size": [170, 64] },
+    { "id": "photos", "type": "database", "label": "私有照片存储", "sublabel": "JPEG < 300 KB", "pos": [790, 470], "size": [160, 64] },
+    { "id": "notif", "type": "external", "label": "系统通知", "sublabel": "med_reminder 渠道", "pos": [1040, 470], "size": [170, 64] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Android 设备 · 离线本机（无账号 / 无云端 / 不联网）", "wraps": ["ui", "vm", "db", "remind", "locale", "export", "photos", "notif"] }
+  ],
+  "connections": [
+    { "id": "ui-playcore", "from": "ui", "to": "playcore", "label": "检查 / 下载 / 重启", "labelDy": -26 },
+    { "id": "ui-vm", "from": "ui", "to": "vm", "label": "StateFlow", "variant": "emphasis" },
+    { "id": "vm-db", "from": "vm", "to": "db", "label": "CRUD", "variant": "emphasis" },
+    { "id": "vm-photos", "from": "vm", "to": "photos", "label": "压缩存储", "fromSide": "bottom", "toSide": "top" },
+    { "id": "vm-remind", "from": "vm", "to": "remind", "label": "提醒设置", "fromSide": "bottom", "toSide": "bottom" },
+    { "id": "vm-export", "from": "vm", "to": "export", "label": "导出 / 恢复", "fromSide": "top", "toSide": "bottom" },
+    { "id": "locale-ui", "from": "locale", "to": "ui", "label": "本地化上下文", "variant": "dashed", "labelDy": 24 },
+    { "id": "remind-notif", "from": "remind", "to": "notif", "label": "推送 / 取消", "labelDy": 24, "labelDx": 40 }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "技术栈",
+      "items": [
+        "Kotlin 2.2.10 · AGP 9.3.0 · Gradle 9.5.0（KSP）",
+        "Jetpack Compose + Material 3，单 Activity 四 Tab 架构",
+        "Room 2.7.1 · Coil 2.7.0 · MVVM + StateFlow"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "本机数据",
+      "items": [
+        "Room uc_daily_db：饮食 / 排便 / 服药 / 感受 / 食物标签 5 表",
+        "照片压缩至 300 KB 以内，存应用私有目录",
+        "排便按简化 UCDAI 评分 0~8，驱动日历圆点与卡片颜色",
+        "12 语言 + 阿语 RTL；偏好存 SharedPreferences"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "系统集成",
+      "items": [
+        "AlarmManager 精确闹钟 + med_reminder 通知渠道（后台可用）",
+        "Google Play Core 应用内 Flexible 更新",
+        "TXT / CSV 导出、CSV 去重恢复；无账号、无云端、不联网"
+      ]
+    }
+  ]
+}
