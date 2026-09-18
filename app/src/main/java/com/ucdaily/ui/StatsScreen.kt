@@ -24,11 +24,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ucdaily.R
 import com.ucdaily.data.ActivityLevel
 import com.ucdaily.data.BRISTOL_LABELS
+import com.ucdaily.data.FoodTag
 import com.ucdaily.data.FoodTolerance
 import com.ucdaily.data.activityLevel
 import java.time.LocalDate
@@ -361,7 +363,7 @@ fun StatsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ④ 耐受情况（设计稿 .tol-row：色点 + 名称 + 计数）
+            // ④ 耐受情况（设计稿 .tol-row：色点 + 名称 + 计数）+ 耐受排行榜（前 10）
             SectionHead(stringResource(R.string.stats_tolerance_title))
             UcCard {
                 Column(
@@ -398,6 +400,25 @@ fun StatsScreen(
                                 color = p.text
                             )
                         }
+                    }
+
+                    // 耐受排行榜：食物标签按饮食记录引用次数降序取前 10（同次数 → 分组顺序 → 名称，保证稳定）
+                    if (state.foodTags.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(14.dp))
+                        HorizontalDivider(thickness = 1.dp, color = p.ring)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        ToleranceRankList(
+                            tags = remember(state.foodTags, state.foodTagCounts) {
+                                state.foodTags
+                                    .sortedWith(
+                                        compareByDescending<FoodTag> { state.foodTagCounts[it.name] ?: 0 }
+                                            .thenBy { TOLERANCE_ORDER.indexOf(FoodTolerance.fromValue(it.tolerance)) }
+                                            .thenBy { it.name }
+                                    )
+                                    .take(10)
+                            },
+                            counts = state.foodTagCounts
+                        )
                     }
                 }
             }
@@ -497,5 +518,91 @@ private fun StatsChip(value: String, label: String, modifier: Modifier = Modifie
             fontSize = 9.5.sp,
             color = p.text2
         )
+    }
+}
+
+/**
+ * 耐受排行榜（前 10）：标题行 + 名次行（奖牌名次徽标 + 耐受状态色点 + 食物名 + 饮食记录引用次数）。
+ * 前三名为金/银/铜奖牌，第 4 名起为中性底色名次；tags 由调用方按引用次数降序排好并截取前 10。
+ */
+@Composable
+private fun ToleranceRankList(tags: List<FoodTag>, counts: Map<String, Int>) {
+    val p = ucPalette()
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.stats_tolerance_rank_title),
+            fontSize = 12.5.sp,
+            fontWeight = FontWeight.Bold,
+            color = p.text,
+            modifier = Modifier.weight(1f)
+        )
+    }
+    if (tags.isEmpty()) {
+        Text(
+            text = stringResource(R.string.stats_tolerance_rank_empty),
+            fontSize = 11.sp,
+            color = p.text2,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            textAlign = TextAlign.Center
+        )
+    } else {
+        tags.forEachIndexed { i, tag ->
+            val tol = FoodTolerance.fromValue(tag.tolerance)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 名次徽标：1 金 / 2 银 / 3 铜，4 名起中性色
+                val (badgeBg, badgeFg) = when (i + 1) {
+                    1 -> Color(0xFFF59E0B) to Color.White
+                    2 -> Color(0xFF94A3B8) to Color.White
+                    3 -> Color(0xFFC2703D) to Color.White
+                    else -> p.surface2 to p.text2
+                }
+                Box(
+                    modifier = Modifier
+                        .size(18.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(badgeBg),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = (i + 1).toString(),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = badgeFg
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(toleranceColor(tol))
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = tag.name,
+                    fontSize = 12.sp,
+                    color = p.text,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = stringResource(R.string.common_times_count, counts[tag.name] ?: 0),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = p.text
+                )
+            }
+        }
     }
 }

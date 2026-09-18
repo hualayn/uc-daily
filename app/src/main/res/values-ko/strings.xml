@@ -340,6 +340,8 @@
     <string name="stats_avg_pain">평균 복통 %1$s점 (0~10)</string>
     <string name="stats_tolerance_title">내성 현황</string>
     <string name="stats_tolerance_value">%1$s %2$d</string>
+    <string name="stats_tolerance_rank_title">내성 랭킹</string>
+    <string name="stats_tolerance_rank_empty">아직 음식 태그가 없습니다</string>
     <string name="stats_disclaimer">위 통계는 이 기기의 데이터를 바탕으로 한 것으로, 자기 관찰 참고용이며 의학적 조언을 구성하지 않습니다.</string>
 
     <!-- ==================== 기록 목록 ==================== -->

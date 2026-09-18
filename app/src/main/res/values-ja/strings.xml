@@ -340,6 +340,8 @@
     <string name="stats_avg_pain">平均腹痛 %1$s 点（0~10）</string>
     <string name="stats_tolerance_title">耐性の状況</string>
     <string name="stats_tolerance_value">%1$s %2$d</string>
+    <string name="stats_tolerance_rank_title">耐性ランキング</string>
+    <string name="stats_tolerance_rank_empty">まだ食物タグがありません</string>
     <string name="stats_disclaimer">以上は端末内のデータに基づく統計で、自己観察の参考のみであり、医療アドバイスを構成するものではありません。</string>
 
     <!-- ==================== 記録一覧 ==================== -->

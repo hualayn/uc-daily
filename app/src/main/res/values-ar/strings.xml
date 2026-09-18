@@ -340,6 +340,8 @@
     <string name="stats_avg_pain">متوسط الألم %1$s نقاط (0~10)</string>
     <string name="stats_tolerance_title">التحمل</string>
     <string name="stats_tolerance_value">%1$s %2$d</string>
+    <string name="stats_tolerance_rank_title">ترتيب تحمل الأطعمة</string>
+    <string name="stats_tolerance_rank_empty">لا توجد وسوم أطعمة بعد</string>
     <string name="stats_disclaimer">هذه إحصائيات محلية للمراقبة الذاتية فقط ولا تشكّل نصيحة طبية.</string>
 
     <!-- ==================== قائمة السجلات ==================== -->

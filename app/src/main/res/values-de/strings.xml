@@ -340,6 +340,8 @@
     <string name="stats_avg_pain">Ø Schmerz %1$s Pkt. (0~10)</string>
     <string name="stats_tolerance_title">Verträglichkeit</string>
     <string name="stats_tolerance_value">%1$s %2$d</string>
+    <string name="stats_tolerance_rank_title">Verträglichkeits-Ranking</string>
+    <string name="stats_tolerance_rank_empty">Noch keine Lebensmitteltags</string>
     <string name="stats_disclaimer">Dies sind lokale Statistiken zur Selbstbeobachtung und stellen keine medizinische Beratung dar.</string>
 
     <!-- ==================== Eintragsliste ==================== -->

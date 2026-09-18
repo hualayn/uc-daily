@@ -377,6 +377,8 @@
     <string name="stats_avg_pain">平均腹痛 %1$s 分（0~10）</string>
     <string name="stats_tolerance_title">耐受情况</string>
     <string name="stats_tolerance_value">%1$s %2$d</string>
+    <string name="stats_tolerance_rank_title">耐受排行榜</string>
+    <string name="stats_tolerance_rank_empty">还没有食物标签</string>
     <string name="stats_disclaimer">以上为本地数据统计，仅供自我监测参考，不构成医疗建议。</string>
 
     <!-- ==================== 记录汇总列表 ==================== -->
