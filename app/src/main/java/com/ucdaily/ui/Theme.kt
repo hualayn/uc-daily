@@ -108,7 +108,8 @@ enum class ThemeMode(val key: String, @StringRes val labelRes: Int) {
 
 /**
  * 字体大小档位（"我的"页可切换，默认标准）：
- * 只影响首页（含当天记录）/ 耐受 / 日常管理 三个 Tab 的文字，"我的"页与全局面板保持原样。
+ * 影响首页（含当天记录）/ 耐受 / 日常管理 三个 Tab 与记录汇总页（统计信息点数量块进入的
+ * 全时段明细列表）的文字，"我的"页与全局面板保持原样。
  */
 enum class FontSizeLevel(val key: String, @StringRes val labelRes: Int, val scale: Float) {
     SMALL("small", com.ucdaily.R.string.font_size_small, 0.9f),

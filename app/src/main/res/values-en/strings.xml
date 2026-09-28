@@ -197,6 +197,10 @@
     <string name="tolerance_types_count">%1$d kinds</string>
     <string name="tolerance_empty_section">None yet</string>
     <string name="tolerance_add_placeholder">Add a food, e.g. milk</string>
+    <string name="tolerance_sort">Sort</string>
+    <string name="tolerance_sort_button">One-tap sort by count</string>
+    <string name="tolerance_sort_asc">Ascending by count</string>
+    <string name="tolerance_sort_desc">Descending by count</string>
 
     <!-- ==================== Home slogans ==================== -->
     <string name="slogan_title">Home Slogans</string>

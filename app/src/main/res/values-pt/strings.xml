@@ -197,6 +197,10 @@
     <string name="tolerance_types_count">%1$d tipos</string>
     <string name="tolerance_empty_section">Nenhum</string>
     <string name="tolerance_add_placeholder">Adicionar um alimento, ex.: leite</string>
+    <string name="tolerance_sort">Ordenar</string>
+    <string name="tolerance_sort_button">Ordenar por contagem</string>
+    <string name="tolerance_sort_asc">Crescente (por contagem)</string>
+    <string name="tolerance_sort_desc">Decrescente (por contagem)</string>
 
     <!-- ==================== Frases do início ==================== -->
     <string name="slogan_title">Frases do início</string>

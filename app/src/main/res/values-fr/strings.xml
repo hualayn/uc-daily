@@ -197,6 +197,10 @@
     <string name="tolerance_types_count">%1$d type(s)</string>
     <string name="tolerance_empty_section">Aucun</string>
     <string name="tolerance_add_placeholder">Ajouter un aliment, ex. lait</string>
+    <string name="tolerance_sort">Trier</string>
+    <string name="tolerance_sort_button">Trier par nombre</string>
+    <string name="tolerance_sort_asc">Croissant (par nombre)</string>
+    <string name="tolerance_sort_desc">Décroissant (par nombre)</string>
 
     <!-- ==================== Messages d\'accueil ==================== -->
     <string name="slogan_title">Messages d\'accueil</string>

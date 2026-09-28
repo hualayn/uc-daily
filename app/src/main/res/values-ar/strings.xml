@@ -197,6 +197,10 @@
     <string name="tolerance_types_count">%1$d أنواع</string>
     <string name="tolerance_empty_section">لا يوجد</string>
     <string name="tolerance_add_placeholder">أضف طعامًا، مثل: الحليب</string>
+    <string name="tolerance_sort">فرز</string>
+    <string name="tolerance_sort_button">فرز حسب العدد</string>
+    <string name="tolerance_sort_asc">تصاعدي (حسب العدد)</string>
+    <string name="tolerance_sort_desc">تنازلي (حسب العدد)</string>
 
     <!-- ==================== عبارات الرئيسية ==================== -->
     <string name="slogan_title">عبارات الرئيسية</string>

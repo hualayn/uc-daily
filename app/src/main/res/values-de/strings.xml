@@ -197,6 +197,10 @@
     <string name="tolerance_types_count">%1$d Arten</string>
     <string name="tolerance_empty_section">Noch keine</string>
     <string name="tolerance_add_placeholder">Lebensmittel hinzufügen, z. B. Milch</string>
+    <string name="tolerance_sort">Sortieren</string>
+    <string name="tolerance_sort_button">Nach Anzahl sortieren</string>
+    <string name="tolerance_sort_asc">Aufsteigend (nach Anzahl)</string>
+    <string name="tolerance_sort_desc">Absteigend (nach Anzahl)</string>
 
     <!-- ==================== Start-Motto ==================== -->
     <string name="slogan_title">Start-Motto</string>

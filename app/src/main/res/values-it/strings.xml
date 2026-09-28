@@ -197,6 +197,10 @@
     <string name="tolerance_types_count">%1$d tipi</string>
     <string name="tolerance_empty_section">Nessuno</string>
     <string name="tolerance_add_placeholder">Aggiungi un alimento, es. latte</string>
+    <string name="tolerance_sort">Ordina</string>
+    <string name="tolerance_sort_button">Ordina per conteggio</string>
+    <string name="tolerance_sort_asc">Crescente (per conteggio)</string>
+    <string name="tolerance_sort_desc">Decrescente (per conteggio)</string>
 
     <!-- ==================== Messaggi della home ==================== -->
     <string name="slogan_title">Messaggi della home</string>

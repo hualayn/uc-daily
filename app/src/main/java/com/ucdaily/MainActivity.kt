@@ -438,6 +438,8 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
+                    // 字体大小档位（我的→字体大小）：首页/耐受/日常管理三个 Tab 与记录汇总页按档位缩放文字
+                    val fontScale = state.fontLevel.scale
                     Box(modifier = Modifier.fillMaxSize()) {
                         Column(modifier = Modifier.fillMaxSize()) {
                         // Tab 内容（面板层已移出其外层 Box，本 Box 高度不再被压缩）
@@ -448,8 +450,6 @@ class MainActivity : ComponentActivity() {
                                 .weight(1f)
                                 .clipToBounds()
                         ) {
-                            // 首页 / 耐受 / 日常管理三个 Tab 按"我的→字体大小"档位缩放文字
-                            val fontScale = state.fontLevel.scale
                             when (state.selectedTab) {
                                 0 -> FontScaledContent(scale = fontScale) {
                                     HomeScreen(
@@ -483,6 +483,9 @@ class MainActivity : ComponentActivity() {
                                         onDeleteFood = { viewModel.deleteFoodTag(it) },
                                         onMoveFood = { name, tolerance, before ->
                                             viewModel.moveFoodTag(name, tolerance, before)
+                                        },
+                                        onSortSection = { tolerance, reverse ->
+                                            viewModel.sortFoodTagsByCount(tolerance, reverse)
                                         }
                                     )
                                 }
@@ -574,13 +577,15 @@ class MainActivity : ComponentActivity() {
                             onOpenRecords = { recordListType = it }
                         )
                     }
-                    // 记录汇总列表（统计页数量块 → 全时段明细，返回回统计页）
+                    // 记录汇总列表（统计页数量块 → 全时段明细，返回回统计页），文字按字体大小档位缩放
                     recordListType?.let { type ->
-                        RecordListScreen(
-                            state = state,
-                            type = type,
-                            onBack = { recordListType = null }
-                        )
+                        FontScaledContent(scale = fontScale) {
+                            RecordListScreen(
+                                state = state,
+                                type = type,
+                                onBack = { recordListType = null }
+                            )
+                        }
                     }
                     if (showMedSettings) {
                         MedSettingsScreen(

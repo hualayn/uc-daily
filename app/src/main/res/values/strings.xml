@@ -227,6 +227,10 @@
     <string name="tolerance_types_count">%1$d 种</string>
     <string name="tolerance_empty_section">暂无</string>
     <string name="tolerance_add_placeholder">添加食物，如：牛奶</string>
+    <string name="tolerance_sort">排序</string>
+    <string name="tolerance_sort_button">按次数一键排序</string>
+    <string name="tolerance_sort_asc">正向排序（次数从少到多）</string>
+    <string name="tolerance_sort_desc">逆向排序（次数从多到少）</string>
 
     <!-- ==================== 首页寄语 ==================== -->
     <string name="slogan_title">首页寄语</string>

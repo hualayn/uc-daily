@@ -197,6 +197,10 @@
     <string name="tolerance_types_count">видов: %1$d</string>
     <string name="tolerance_empty_section">Нет</string>
     <string name="tolerance_add_placeholder">Добавить продукт, напр.: молоко</string>
+    <string name="tolerance_sort">Сортировка</string>
+    <string name="tolerance_sort_button">Сортировка по числу</string>
+    <string name="tolerance_sort_asc">По возрастанию (по числу)</string>
+    <string name="tolerance_sort_desc">По убыванию (по числу)</string>
 
     <!-- ==================== Девизы главной ==================== -->
     <string name="slogan_title">Девизы главной</string>

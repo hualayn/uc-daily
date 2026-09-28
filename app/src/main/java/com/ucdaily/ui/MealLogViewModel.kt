@@ -1383,6 +1383,38 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    /**
+     * 分区一键排序：按标签次数对指定分区内的标签排序。
+     * reverse = false → 正向（次数从少到多）；reverse = true → 逆向（次数从多到少）。
+     * 次数相同的标签保持原有相对顺序（稳定排序）。
+     * 实现：只改变本分区内相对顺序——分区标签排序后回填全局顺序中本分区原先占位的位置
+     * （其它分区位置不动）→ 逐项写回 sortOrder → 刷新列表。
+     */
+    fun sortFoodTagsByCount(tolerance: FoodTolerance, reverse: Boolean) {
+        val s = _uiState.value
+        val current = s.foodTags
+        val section = current.filter { FoodTolerance.fromValue(it.tolerance) == tolerance }
+        if (section.size < 2) return
+        val counts = s.foodTagCounts
+        val sorted = if (reverse) section.sortedByDescending { counts[it.name] ?: 0 }
+        else section.sortedBy { counts[it.name] ?: 0 }
+        if (sorted.map { it.name } == section.map { it.name }) return
+        // 排序后的标签按原顺序回填全局中本分区占位（其它分区相对位置不变）
+        val sortedIt = sorted.iterator()
+        val ordered = current.map {
+            if (FoodTolerance.fromValue(it.tolerance) == tolerance) sortedIt.next() else it
+        }
+        // 乐观更新：先同步更新内存顺序，展示顺序直接落到最终顺序
+        _uiState.value = s.copy(foodTags = ordered)
+        // 异步落库
+        viewModelScope.launch {
+            ordered.forEachIndexed { index, tag ->
+                if (tag.sortOrder != index) foodTagDao.setSortOrder(tag.name, index)
+            }
+            refreshFoodTags()
+        }
+    }
+
     fun deleteFoodTag(name: String) {
         viewModelScope.launch {
             foodTagDao.deleteByName(name)

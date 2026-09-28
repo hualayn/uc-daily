@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -85,6 +86,9 @@ private val TOLERANCE_NOTE_RES: Int = R.string.tolerance_note
 /** 分组展示顺序：可耐受 → 不耐受 → 尝试（统计页耐受情况分布复用） */
 internal val TOLERANCE_ORDER = listOf(FoodTolerance.OK, FoodTolerance.BAD, FoodTolerance.CAUTION)
 
+/** 分区一键排序方向：正向（次数从少到多）/ 逆向（次数从多到少） */
+private enum class SectionSort { FORWARD, REVERSE }
+
 /** 长按进入拖动的等待时长（ms） */
 private const val DRAG_LONG_PRESS_MS = 400L
 
@@ -127,8 +131,11 @@ fun ToleranceScreen(
     state: MealUiState,
     onCycleTolerance: (String) -> Unit,
     onDeleteFood: (String) -> Unit,
-    onMoveFood: (String, FoodTolerance, String?) -> Unit
+    onMoveFood: (String, FoodTolerance, String?) -> Unit,
+    onSortSection: (FoodTolerance, Boolean) -> Unit
 ) {
+    /** 各分区的一键排序方向（null = 未排序过）——正向/逆向由按钮点击切换 */
+    var sortDirections by remember { mutableStateOf<Map<FoodTolerance, SectionSort>>(emptyMap()) }
     /** 当前"待删除"tag（点名称后右上角出现 X） */
     var armedName by remember { mutableStateOf<String?>(null) }
     /** 正在拖动的标签（null = 未拖动） */
@@ -156,6 +163,7 @@ fun ToleranceScreen(
     val curRootCoords = rememberUpdatedState(rootBoxCoords)
     val curOnDelete = rememberUpdatedState(onDeleteFood)
     val curOnMove = rememberUpdatedState(onMoveFood)
+    val curOnSort = rememberUpdatedState(onSortSection)
 
     fun rectOf(coords: LayoutCoordinates): Rect {
         val p = coords.localToRoot(Offset.Zero)
@@ -229,6 +237,8 @@ fun ToleranceScreen(
         val insertIdx = if (before == null) rest.size
         else rest.indexOfFirst { it.name == before }.let { if (it == -1) rest.size else it }
         if (FoodTolerance.fromValue(current.tolerance) == preview.section && insertIdx == curIdx) return
+        // 手动重排后该分区不再是"已排序"状态，清掉方向标记（按钮回到中性态）
+        sortDirections = sortDirections - preview.section
         curOnMove.value(d.name, preview.section, before)
     }
 
@@ -393,6 +403,20 @@ fun ToleranceScreen(
                             armedName = armedName,
                             dragName = drag?.name,
                             isDropTarget = preview != null && preview.section == tol,
+                            sortDirection = sortDirections[tol],
+                            onSortClick = {
+                                // 拖动中不响应（避免拖动时被误触）
+                                if (dragInfo == null) {
+                                    // 点击切换：未排序 → 正向；正向 → 逆向；逆向 → 正向
+                                    val next = when (sortDirections[tol]) {
+                                        null -> SectionSort.FORWARD
+                                        SectionSort.FORWARD -> SectionSort.REVERSE
+                                        SectionSort.REVERSE -> SectionSort.FORWARD
+                                    }
+                                    sortDirections = sortDirections + (tol to next)
+                                    curOnSort.value(tol, next == SectionSort.REVERSE)
+                                }
+                            },
                             onTagTap = { name ->
                                 // 拖动中不响应轻点（避免点到预览槽标记删除）
                                 if (dragInfo == null) {
@@ -502,6 +526,9 @@ private fun ToleranceSection(
     armedName: String?,
     dragName: String?,
     isDropTarget: Boolean,
+    /** 当前一键排序方向（null = 未排序过） */
+    sortDirection: SectionSort?,
+    onSortClick: () -> Unit,
     onTagTap: (String) -> Unit,
     onTagDelete: (String) -> Unit,
     onChipPositioned: (String, LayoutCoordinates) -> Unit,
@@ -536,7 +563,7 @@ private fun ToleranceSection(
                 .padding(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            // 分区标题：色点 + 名称 + 数量
+            // 分区标题：色点 + 名称 + 数量 + 右侧一键排序按钮
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
@@ -556,6 +583,12 @@ private fun ToleranceSection(
                     text = stringResource(R.string.tolerance_types_count, tags.size),
                     fontSize = 10.5.sp,
                     color = p.text2
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                SectionSortButton(
+                    direction = sortDirection,
+                    color = color,
+                    onClick = onSortClick
                 )
             }
             if (tags.isEmpty()) {
@@ -586,6 +619,59 @@ private fun ToleranceSection(
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * 分区右上角"一键排序"小按钮：
+ * 点击一次按标签次数正向排序（次数从少到多），再次点击切换为逆向（从多到少），
+ * 如此循环；排序后按钮以分区状态色高亮，箭头指示当前方向（↑ 正向 / ↓ 逆向），
+ * 未排序时显示中性的"排序"图标。
+ */
+@Composable
+private fun SectionSortButton(
+    direction: SectionSort?,
+    color: Color,
+    onClick: () -> Unit
+) {
+    val p = ucPalette()
+    val active = direction != null
+    val tint = if (active) color else p.text2
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (active) color.copy(alpha = 0.12f) else p.surface2)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = when (direction) {
+                    SectionSort.FORWARD -> Icons.Filled.KeyboardArrowUp
+                    SectionSort.REVERSE -> Icons.Filled.KeyboardArrowDown
+                    null -> Icons.Filled.Sort
+                },
+                contentDescription = stringResource(
+                    when (direction) {
+                        SectionSort.FORWARD -> R.string.tolerance_sort_asc
+                        SectionSort.REVERSE -> R.string.tolerance_sort_desc
+                        null -> R.string.tolerance_sort_button
+                    }
+                ),
+                modifier = Modifier.size(11.dp),
+                tint = tint
+            )
+            Spacer(modifier = Modifier.width(3.dp))
+            Text(
+                text = stringResource(R.string.tolerance_sort),
+                fontSize = 10.5.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = tint
+            )
         }
     }
 }

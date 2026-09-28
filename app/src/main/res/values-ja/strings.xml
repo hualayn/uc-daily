@@ -197,6 +197,10 @@
     <string name="tolerance_types_count">%1$d 種類</string>
     <string name="tolerance_empty_section">まだありません</string>
     <string name="tolerance_add_placeholder">食品を追加（例：牛乳）</string>
+    <string name="tolerance_sort">並び替え</string>
+    <string name="tolerance_sort_button">回数で並び替え</string>
+    <string name="tolerance_sort_asc">昇順（回数が少ない順）</string>
+    <string name="tolerance_sort_desc">降順（回数が多い順）</string>
 
     <!-- ==================== ホームのメッセージ ==================== -->
     <string name="slogan_title">ホームメッセージ</string>

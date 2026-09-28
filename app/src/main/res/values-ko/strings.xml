@@ -197,6 +197,10 @@
     <string name="tolerance_types_count">%1$d종</string>
     <string name="tolerance_empty_section">아직 없음</string>
     <string name="tolerance_add_placeholder">음식 추가 (예: 우유)</string>
+    <string name="tolerance_sort">정렬</string>
+    <string name="tolerance_sort_button">횟수별로 정렬</string>
+    <string name="tolerance_sort_asc">오름차순 (횟수 기준)</string>
+    <string name="tolerance_sort_desc">내림차순 (횟수 기준)</string>
 
     <!-- ==================== 홈 문구 ==================== -->
     <string name="slogan_title">홈 문구</string>
