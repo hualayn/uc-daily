@@ -115,7 +115,7 @@ fun MedSettingsScreen(
                             icon = Icons.Filled.Add,
                             contentDescription = stringResource(R.string.med_settings_increase_one),
                             onClick = { onTimesChange(times.size + 1) },
-                            enabled = times.size < 6
+                            enabled = times.size < 9
                         )
                     }
                 }

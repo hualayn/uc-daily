@@ -170,7 +170,7 @@ fun defaultHomeSlogans(app: Application): List<String> =
 
 /** 服药提醒时间的默认值与扩充池（次数增加时按序补位） */
 val DEFAULT_MED_REMINDER_TIMES = listOf("08:00", "14:00", "20:00")
-val MED_REMINDER_TIME_POOL = listOf("08:00", "12:00", "16:00", "20:00", "22:00", "23:00")
+val MED_REMINDER_TIME_POOL = listOf("08:00", "12:00", "16:00", "20:00", "22:00", "23:00", "06:00", "10:00", "18:00")
 
 data class MealUiState(
     val loading: Boolean = true,
@@ -1505,7 +1505,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
 
     // endregion
 
-    // region 服药设置（每天次数 = 提醒时间条数，1~6 次）
+    // region 服药设置（每天次数 = 提醒时间条数，1~9 次）
 
     private fun loadMedReminderTimes(): List<String> {
         val raw = prefs.getString(PREF_MED_REMINDER_TIMES, null) ?: return DEFAULT_MED_REMINDER_TIMES
@@ -1515,7 +1515,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
 
     /** 调整每天服药次数：收缩截断；扩充时按 MED_REMINDER_TIME_POOL 顺序补位 */
     fun setMedTimesPerDay(n: Int) {
-        val count = n.coerceIn(1, 6)
+        val count = n.coerceIn(1, 9)
         val current = _uiState.value.medReminderTimes
         val times = (current + MED_REMINDER_TIME_POOL.drop(current.size)).take(count)
         persistMedReminderTimes(times)

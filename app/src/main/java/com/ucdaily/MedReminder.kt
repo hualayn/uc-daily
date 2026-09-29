@@ -84,11 +84,11 @@ object MedReminder {
     private const val PREF_NOTIFY_COUNT = "med_notify_count"
 
     /** 闹钟广播动作与 PendingIntent 请求码基址。
-     * 每个提醒时间占一个请求码槽位（最多 6 个）：系统会按 PendingIntent 去重，
+     * 每个提醒时间占一个请求码槽位（最多 9 个）：系统会按 PendingIntent 去重，
      * 共用同一个 PendingIntent 时后设置的闹钟会顶掉先设置的，必须逐槽区分。 */
     private const val ALARM_ACTION = "com.ucdaily.MED_ALARM"
     private const val ALARM_REQUEST_CODE_BASE = 1000
-    private const val MAX_MED_TIMES = 6
+    private const val MAX_MED_TIMES = 9
 
     // region 通知 id / 已发次数状态（持久化，跨进程重建保持；lastPostedMissed = -1 表示面板无本应用通知）
 

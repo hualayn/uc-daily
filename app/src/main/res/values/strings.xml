@@ -316,7 +316,7 @@
     <!-- ==================== 服药设置 ==================== -->
     <string name="med_settings_title">服药设置</string>
     <string name="med_settings_daily_count">每天服药次数</string>
-    <string name="med_settings_times_hint">最多 6 次，与提醒时间一一对应</string>
+    <string name="med_settings_times_hint">最多 9 次，与提醒时间一一对应</string>
     <string name="med_settings_decrease_one">减少一次</string>
     <string name="med_settings_increase_one">增加一次</string>
     <string name="med_settings_nth">第 %1$d 次</string>
