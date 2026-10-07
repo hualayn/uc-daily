@@ -83,6 +83,7 @@ import com.ucdaily.ui.recordKindEmoji
 import com.ucdaily.ui.recordTypeColors
 import com.ucdaily.ui.softShadow
 import com.ucdaily.ui.ucPalette
+import com.ucdaily.ui.FullscreenPhoto
 import com.ucdaily.ui.HomeSloganScreen
 import com.ucdaily.ui.MedSettingsScreen
 import com.ucdaily.ui.MealLogViewModel
@@ -556,8 +557,7 @@ class MainActivity : ComponentActivity() {
                         onRemoveCommonMed = { viewModel.removeCommonMed(it) },
                         onNoteDraftChange = { viewModel.setNoteDraft(it) },
                         onSaveNote = { viewModel.saveNote() },
-                        onCancelNote = { viewModel.cancelNotePanel() },
-                        onDismissPhoto = { viewModel.hidePhoto() }
+                        onCancelNote = { viewModel.cancelNotePanel() }
                     )
                     if (showQuickAdd) {
                         QuickAddPopup(
@@ -583,7 +583,11 @@ class MainActivity : ComponentActivity() {
                             RecordListScreen(
                                 state = state,
                                 type = type,
-                                onBack = { recordListType = null }
+                                onBack = { recordListType = null },
+                                onOpenPhotos = { photos ->
+                                    // 打开该条饮食记录的全屏照片查看（第一张起，左右滑动切换）
+                                    viewModel.showPhoto(photos.first(), photos)
+                                }
                             )
                         }
                     }
@@ -624,6 +628,15 @@ class MainActivity : ComponentActivity() {
                             onDelete = { viewModel.deleteHomeSlogan(it) },
                             onReset = { viewModel.resetHomeSlogans() },
                             onBack = { showHomeSlogans = false }
+                        )
+                    }
+                    // 全屏照片查看：最顶层（首页照片缩略图 / 记录汇总页 📷 徽标打开，
+                    // 需盖住统计信息、记录汇总等二级全屏页）
+                    if (state.fullscreenPhotos.isNotEmpty()) {
+                        FullscreenPhoto(
+                            photos = state.fullscreenPhotos,
+                            initialIndex = state.fullscreenPhotoIndex,
+                            onDismiss = { viewModel.hidePhoto() }
                         )
                     }
                     }

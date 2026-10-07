@@ -37,6 +37,7 @@ import com.ucdaily.data.DailySymptom
 import com.ucdaily.data.MealRecord
 import com.ucdaily.data.MedRecord
 import com.ucdaily.data.PAIN_LOCATION_LABELS
+import java.io.File
 import java.time.LocalDate
 
 /**
@@ -54,7 +55,9 @@ import java.time.LocalDate
 fun RecordListScreen(
     state: MealUiState,
     type: ExportType,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    /** 点击饮食明细行的 📷 徽标：打开全屏照片查看（照片集 = 该条记录的照片） */
+    onOpenPhotos: (List<String>) -> Unit
 ) {
     val title = when (type) {
         ExportType.MEAL -> stringResource(R.string.list_title_meal)
@@ -91,7 +94,9 @@ fun RecordListScreen(
                     ),
                     { it.date }
                 )
-                RecordHierarchy(groups, stringResource(R.string.list_empty_meal)) { MealRow(it) }
+                RecordHierarchy(groups, stringResource(R.string.list_empty_meal)) { record ->
+                    MealRow(record) { onOpenPhotos(it) }
+                }
             }
             ExportType.BOWEL -> {
                 val groups = groupByDate(
@@ -464,9 +469,12 @@ private fun weekdayRes(dayOfWeekValue: Int): Int = when (dayOfWeekValue) {
     else -> R.string.week_sun
 }
 
-/** 饮食明细行（设计稿 .rrow：左色条 + 时间列 + 内容） */
+/** 饮食明细行（设计稿 .rrow：左色条 + 时间列 + 内容；📷 徽标可点击打开全屏照片查看） */
 @Composable
-private fun MealRow(r: MealRecord) {
+private fun MealRow(
+    r: MealRecord,
+    onPhotoClick: (List<String>) -> Unit
+) {
     val p = ucPalette()
     ListRowCard(kind = RecordKind.MEAL, time = r.time.ifEmpty { "—" }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -478,11 +486,23 @@ private fun MealRow(r: MealRecord) {
                 modifier = Modifier.weight(1f)
             )
             if (r.photos.isNotEmpty()) {
-                Text(
-                    text = "📷 ${r.photos.size}",
-                    fontSize = 10.5.sp,
-                    color = p.text2
-                )
+                // 照片徽标：点击弹出全屏查看（左右滑动切换 / 双击放大缩小）；
+                // 只把仍存在的照片传给查看器（文件被系统清理后徽标不可点）
+                val existing = r.photos.filter { File(it).exists() }
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .clickable(
+                            enabled = existing.isNotEmpty()
+                        ) { onPhotoClick(existing) }
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "📷 ${r.photos.size}",
+                        fontSize = 10.5.sp,
+                        color = if (existing.isNotEmpty()) p.primary else p.text2
+                    )
+                }
             }
         }
         if (r.tags.isNotEmpty()) {

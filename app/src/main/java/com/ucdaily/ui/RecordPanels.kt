@@ -75,6 +75,7 @@ import kotlinx.coroutines.launch
 /**
  * 全局记录面板层：渲染在 Tab 内容之上，任何 Tab 都可以打开面板。
  * 面板互斥（状态机保证同一时间至多打开一个）。
+ * 注意：全屏照片不在本层渲染（MainActivity 顶层渲染，才能盖住记录汇总等二级全屏页）。
  */
 @Composable
 fun RecordOverlays(
@@ -99,8 +100,7 @@ fun RecordOverlays(
     onRemoveCommonMed: (String) -> Unit,
     onNoteDraftChange: (NoteDraft) -> Unit,
     onSaveNote: () -> Unit,
-    onCancelNote: () -> Unit,
-    onDismissPhoto: () -> Unit
+    onCancelNote: () -> Unit
 ) {
     when {
         state.isAdding -> AddRecordPanel(
@@ -140,13 +140,6 @@ fun RecordOverlays(
             onCancel = onCancelNote
         )
 
-        else -> state.fullscreenPhotos.takeIf { it.isNotEmpty() }?.let { photos ->
-            FullscreenPhoto(
-                photos = photos,
-                initialIndex = state.fullscreenPhotoIndex,
-                onDismiss = onDismissPhoto
-            )
-        }
     }
 }
 
@@ -1590,9 +1583,10 @@ private fun ActivityBadge(level: ActivityLevel, score: Int) {
  * - 双指捏合缩放（1x–4x），双指移动微调位置；缩回 1x 自动归位
  * - 放大后：单指拖动平移（不切换图片），双击恢复原大小
  * - 点照片不再关闭，仅右上角 X 关闭
+ * 供首页照片缩略图与记录汇总页 📷 徽标共用（MainActivity 顶层渲染，盖住二级全屏页）。
  */
 @Composable
-private fun FullscreenPhoto(
+internal fun FullscreenPhoto(
     photos: List<String>,
     initialIndex: Int,
     onDismiss: () -> Unit
