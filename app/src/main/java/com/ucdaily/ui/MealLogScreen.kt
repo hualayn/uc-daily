@@ -45,9 +45,7 @@ import java.io.File
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 import java.time.temporal.WeekFields
 import kotlinx.coroutines.launch
 
@@ -384,13 +382,6 @@ fun activityColor(level: ActivityLevel): Color = when (level) {
     ActivityLevel.MODERATE -> ucPalette().orange
     ActivityLevel.SEVERE -> ucPalette().red
 }
-
-/** 记录创建时间（HH:mm）：排便卡片展示 + 当日列表排序共用（RecordPanels 也引用） */
-fun recordTime(millis: Long): String =
-    Instant.ofEpochMilli(millis)
-        .atZone(ZoneId.systemDefault())
-        .toLocalTime()
-        .format(DateTimeFormatter.ofPattern("HH:mm"))
 
 /** 排便记录摘要文案（按当前语言本地化） */
 @Composable

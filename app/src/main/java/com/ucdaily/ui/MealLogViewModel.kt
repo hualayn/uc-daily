@@ -1,18 +1,14 @@
 package com.ucdaily.ui
 
 import android.app.Application
-import android.content.res.Configuration
 import android.net.Uri
-import android.provider.OpenableColumns
 import androidx.annotation.StringRes
-import androidx.core.content.FileProvider
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ucdaily.AppLocale
+import com.ucdaily.MedReminder
 import com.ucdaily.R
 import com.ucdaily.data.AppDatabase
-import com.ucdaily.data.BLOOD_LABELS
-import com.ucdaily.data.BRISTOL_LABELS
 import com.ucdaily.data.DailyNote
 import com.ucdaily.data.DailySymptom
 import com.ucdaily.data.FoodTag
@@ -20,23 +16,18 @@ import com.ucdaily.data.FoodTolerance
 import com.ucdaily.data.MealRecord
 import com.ucdaily.data.MealType
 import com.ucdaily.data.MedRecord
-import com.ucdaily.data.PAIN_LOCATION_LABELS
 import com.ucdaily.data.RestoreImporter
 import com.ucdaily.data.activityScore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.ucdaily.MedReminder
-import com.ucdaily.util.PhotoCompressor
-import org.json.JSONArray
-import java.io.File
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 /** 添加记录时的草稿 */
 data class DraftRecord(
@@ -112,66 +103,6 @@ enum class DayFilter(@StringRes val labelRes: Int) {
     MED(R.string.type_med)
 }
 
-/** 可导出的记录类型（导出对话框复选；labelRes 为多语言文案资源） */
-enum class ExportType(@StringRes val labelRes: Int) {
-    MEAL(R.string.type_meal),
-    MED(R.string.type_med),
-    BOWEL(R.string.type_bowel),
-    NOTE(R.string.type_note)
-}
-
-/** 导出文件格式 */
-enum class ExportFormat(val ext: String) {
-    TXT("txt"),
-    CSV("csv")
-}
-
-/** 导出结果：文件名（含扩展名）与文件内容 */
-data class ExportResult(
-    val fileName: String,
-    val text: String
-)
-
-/** 头像选项：default（通用人物）/ boy（男生）/ girl（女生），SharedPreferences 持久化 */
-const val AVATAR_DEFAULT = "default"
-const val AVATAR_BOY = "boy"
-const val AVATAR_GIRL = "girl"
-
-/** 常用药物列表：SharedPreferences 键（JSON 数组字符串）与最大条数 */
-const val PREF_COMMON_MED_NAMES = "common_med_names"
-const val MAX_COMMON_MED_NAMES = 12
-
-/** 主题模式 / 字体大小 / 服药提醒时间：SharedPreferences 键（逗号分隔的 HH:mm 列表） */
-const val PREF_THEME_MODE = "theme_mode"
-const val PREF_FONT_SIZE = "font_size"
-const val PREF_MED_REMINDER_TIMES = "med_reminder_times"
-
-/** 首页寄语横幅列表：SharedPreferences 键（JSON 数组字符串；空列表 = 首页回退轮播内置默认寄语） */
-const val PREF_HOME_SLOGANS = "home_slogans"
-
-/** 单条寄语最大长度 */
-const val MAX_HOME_SLOGAN_LEN = 30
-
-/** 内置默认寄语的多语言资源 id（顺序固定；展示/落库时按当前语言解析为字符串） */
-val DEFAULT_HOME_SLOGANS_RES = listOf(
-    R.string.default_slogan_1,
-    R.string.default_slogan_2,
-    R.string.default_slogan_3,
-    R.string.default_slogan_4,
-    R.string.default_slogan_5,
-    R.string.default_slogan_6,
-    R.string.default_slogan_7,
-    R.string.default_slogan_8
-)
-
-/** 按当前应用语言解析内置默认寄语（新数据/恢复默认时使用） */
-fun defaultHomeSlogans(app: Application): List<String> =
-    DEFAULT_HOME_SLOGANS_RES.map { app.getString(it) }
-
-/** 服药提醒时间的默认值与扩充池（次数增加时按序补位） */
-val DEFAULT_MED_REMINDER_TIMES = listOf("08:00", "14:00", "20:00")
-val MED_REMINDER_TIME_POOL = listOf("08:00", "12:00", "16:00", "20:00", "22:00", "23:00", "06:00", "10:00", "18:00")
-
 data class MealUiState(
     val loading: Boolean = true,
     /** 当前底部 Tab：0 首页 1 耐受 2 日常管理 3 我的 */
@@ -221,6 +152,9 @@ data class MealUiState(
     val isAdding: Boolean = false,
     /** 非 null 表示正在编辑该记录（复用添加面板） */
     val editingRecordId: Int? = null,
+    /** 当前打开面板对应的日期（打开面板那一刻固定；保存草稿写入该日期，
+     *  面板开着跨零点时不会把草稿静默写进新的一天） */
+    val panelDate: LocalDate = LocalDate.now(),
     val draft: DraftRecord = DraftRecord(MealType.fromTime(LocalTime.now())),
     /** 我的：昵称（SharedPreferences 持久化；默认文案按当前语言解析） */
     val nickname: String = "",
@@ -271,13 +205,15 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
     private val medDao = db.medRecordDao()
     private val noteDao = db.dailyNoteDao()
     private val foodTagDao = db.foodTagDao()
-    private val prefs = app.getSharedPreferences("app_prefs", Application.MODE_PRIVATE)
+    /** 设置持久化（昵称/头像/主题/字体/语言/寄语/提醒时间/常用药物） */
+    private val settingsStore = AppSettingsStore(app, medDao)
+    /** 照片管线（相机/相册/压缩） */
+    private val photoStore = MealPhotoStore(app)
+    /** 记录导出（TXT/CSV） */
+    private val exporter = RecordExporter(app, dao, medDao, symptomDao, noteDao, foodTagDao)
 
     private val _uiState = MutableStateFlow(MealUiState())
     val uiState: StateFlow<MealUiState> = _uiState
-
-    /** 相机拍照的待写入文件路径（拍摄成功后并入草稿） */
-    private var pendingCameraPath: String? = null
 
     init {
         loadState()
@@ -306,39 +242,65 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
 
     private fun loadState() {
         viewModelScope.launch {
-            val s = _uiState.value
-            val dateStr = s.selectedDate.toString()
+            val dateStr = _uiState.value.selectedDate.toString()
             val allSymptoms = symptomDao.getAll()
-            _uiState.value = s.copy(
-                loading = false,
-                recordDates = dao.getRecordDates().toSet(),
-                totalRecordDays = dao.getRecordDays(),
-                totalRecords = dao.getTotalCount(),
-                totalMedRecords = medDao.getCount(),
-                symptomByDate = latestSymptomByDate(allSymptoms),
-                selectedDateSymptoms = allSymptoms
-                    .filter { it.date == dateStr }
-                    .sortedByDescending { it.id },
-                selectedDateRecords = dao.getRecordsByDate(dateStr),
-                selectedDateMeds = medDao.getByDate(dateStr),
-                todayMedTimes = medDao.getByDate(s.today.toString()).map { it.time },
-                selectedDateNote = noteDao.getByDate(dateStr),
-                foodTags = foodTagDao.getAll(),
-                commonMedNames = loadCommonMeds(),
-                nickname = prefs.getString("nickname", null)
-                    ?: app.getString(R.string.profile_default_nickname),
-                avatar = prefs.getString("avatar", AVATAR_DEFAULT) ?: AVATAR_DEFAULT,
-                themeMode = ThemeMode.fromKey(prefs.getString(PREF_THEME_MODE, null)),
-                fontLevel = FontSizeLevel.fromKey(prefs.getString(PREF_FONT_SIZE, null)),
-                languageTag = AppLocale.currentTag(app),
-                homeSlogans = loadHomeSlogans(),
-                medReminderTimes = loadMedReminderTimes(),
-                allSymptoms = allSymptoms,
-                totalNoteDays = noteDao.getCount(),
-                allMeals = dao.getAllRecordsDesc(),
-                allMeds = medDao.getAllMedsDesc(),
-                allNotes = noteDao.getAllNotesDesc()
-            )
+            val recordDates = dao.getRecordDates().toSet()
+            val recordDays = dao.getRecordDays()
+            val totalCount = dao.getTotalCount()
+            val medCount = medDao.getCount()
+            val records = dao.getRecordsByDate(dateStr)
+            val meds = medDao.getByDate(dateStr)
+            val note = noteDao.getByDate(dateStr)
+            val todayTimes = medDao.getByDate(_uiState.value.today.toString()).map { it.time }
+            val foodTags = foodTagDao.getAll()
+            val commonMeds = settingsStore.loadCommonMeds()
+            val nickname = settingsStore.loadNickname()
+            val avatar = settingsStore.loadAvatar()
+            val themeMode = settingsStore.loadThemeMode()
+            val fontLevel = settingsStore.loadFontLevel()
+            val languageTag = settingsStore.loadLanguageTag()
+            val homeSlogans = settingsStore.loadHomeSlogans()
+            val medTimes = settingsStore.loadMedReminderTimes()
+            val noteDays = noteDao.getCount()
+            val allMeals = dao.getAllRecordsDesc()
+            val allMeds = medDao.getAllMedsDesc()
+            val allNotes = noteDao.getAllNotesDesc()
+            // 基于最新状态合并写入（update），避免协程开头的过期快照把期间
+            // 发生的并发更新（如零点检查已推进 today）整体覆盖回去；
+            // 加载期间选中日期变化时，日期维度的字段保持当前值不覆盖
+            _uiState.update { cur ->
+                val dateChanged = cur.selectedDate.toString() != dateStr
+                cur.copy(
+                    loading = false,
+                    recordDates = recordDates,
+                    totalRecordDays = recordDays,
+                    totalRecords = totalCount,
+                    totalMedRecords = medCount,
+                    symptomByDate = latestSymptomByDate(allSymptoms),
+                    selectedDateSymptoms = if (dateChanged) cur.selectedDateSymptoms
+                        else allSymptoms
+                            .filter { it.date == dateStr }
+                            .sortedByDescending { it.id },
+                    selectedDateRecords = if (dateChanged) cur.selectedDateRecords else records,
+                    selectedDateMeds = if (dateChanged) cur.selectedDateMeds else meds,
+                    todayMedTimes = todayTimes,
+                    selectedDateNote = if (dateChanged) cur.selectedDateNote else note,
+                    foodTags = foodTags,
+                    commonMedNames = commonMeds,
+                    nickname = nickname,
+                    avatar = avatar,
+                    themeMode = themeMode,
+                    fontLevel = fontLevel,
+                    languageTag = languageTag,
+                    homeSlogans = homeSlogans,
+                    medReminderTimes = medTimes,
+                    allSymptoms = allSymptoms,
+                    totalNoteDays = noteDays,
+                    allMeals = allMeals,
+                    allMeds = allMeds,
+                    allNotes = allNotes
+                )
+            }
             refreshFoodTagCounts()
             syncMedReminderNotification()
         }
@@ -370,26 +332,17 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    /** 重新加载当前选中日期的服药与感受（保存/删除后调用） */
-    private fun refreshDayData() {
-        viewModelScope.launch {
-            val dateStr = _uiState.value.selectedDate.toString()
-            _uiState.value = _uiState.value.copy(
-                selectedDateMeds = medDao.getByDate(dateStr),
-                selectedDateNote = noteDao.getByDate(dateStr),
-                totalNoteDays = noteDao.getCount()
-            )
-        }
-    }
-
     /** 重新加载服药总数、全部服药列表与今天的服药时间（保存/删除服药后调用） */
     private fun refreshMedStats() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
-                totalMedRecords = medDao.getCount(),
-                allMeds = medDao.getAllMedsDesc(),
-                todayMedTimes = medDao.getByDate(_uiState.value.today.toString()).map { it.time }
-            )
+            val count = medDao.getCount()
+            val allMeds = medDao.getAllMedsDesc()
+            val todayTimes = medDao.getByDate(_uiState.value.today.toString()).map { it.time }
+            _uiState.update { it.copy(
+                totalMedRecords = count,
+                allMeds = allMeds,
+                todayMedTimes = todayTimes
+            ) }
             syncMedReminderNotification()
         }
     }
@@ -410,84 +363,30 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
             homeWeekAnchor = if (followToday) now else s.homeWeekAnchor
         )
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
-                todayMedTimes = medDao.getByDate(now.toString()).map { it.time }
-            )
-            if (followToday) {
-                val dateStr = now.toString()
-                _uiState.value = _uiState.value.copy(
-                    selectedDateSymptoms = symptomDao.getByDate(dateStr),
-                    selectedDateRecords = dao.getRecordsByDate(dateStr),
-                    selectedDateMeds = medDao.getByDate(dateStr),
-                    selectedDateNote = noteDao.getByDate(dateStr)
+            val todayTimes = medDao.getByDate(now.toString()).map { it.time }
+            val dateStr = now.toString()
+            val symptoms = if (followToday) symptomDao.getByDate(dateStr) else null
+            val records = if (followToday) dao.getRecordsByDate(dateStr) else null
+            val meds = if (followToday) medDao.getByDate(dateStr) else null
+            val note = if (followToday) noteDao.getByDate(dateStr) else null
+            _uiState.update { cur ->
+                cur.copy(
+                    todayMedTimes = todayTimes,
+                    selectedDateSymptoms = symptoms ?: cur.selectedDateSymptoms,
+                    selectedDateRecords = records ?: cur.selectedDateRecords,
+                    selectedDateMeds = meds ?: cur.selectedDateMeds,
+                    selectedDateNote = note ?: cur.selectedDateNote
                 )
             }
             syncMedReminderNotification()
         }
     }
 
-    /** 读取常用药物：优先用户持久化列表（空列表 = 用户已清空）；未设置时由历史服药记录初始化 */
-    private suspend fun loadCommonMeds(): List<String> {
-        val raw = prefs.getString(PREF_COMMON_MED_NAMES, null)
-        if (raw != null) {
-            return try {
-                val arr = JSONArray(raw)
-                (0 until arr.length()).map { arr.getString(it) }.filter { it.isNotBlank() }
-            } catch (e: Exception) {
-                emptyList()
-            }
-        }
-        val seeded = medDao.getRecentNames()
-        if (seeded.isNotEmpty()) persistCommonMeds(seeded)
-        return seeded
-    }
-
-    /** 持久化常用药物列表（JSON 数组字符串） */
-    private fun persistCommonMeds(names: List<String>) {
-        prefs.edit().putString(PREF_COMMON_MED_NAMES, JSONArray(names).toString()).apply()
-    }
-
-    /** 读取首页寄语列表：未设置/损坏时返回按当前语言解析的内置默认列表。
-     *  旧数据迁移：若存储内容只是某次"恢复默认/编辑"时固化下来的内置默认副本
-     *  （当时语言若为英文，存的就是英文文案），并非用户自定义内容 —— 按当前语言
-     *  重新解析，保证内置寄语始终跟随"我的 → 语言" */
-    private fun loadHomeSlogans(): List<String> {
-        val raw = prefs.getString(PREF_HOME_SLOGANS, null)
-        if (raw == null) return defaultHomeSlogans(app)
-        val list = try {
-            val arr = JSONArray(raw)
-            (0 until arr.length()).map { arr.getString(it) }.map { it.trim() }.filter { it.isNotEmpty() }
-        } catch (e: Exception) {
-            return defaultHomeSlogans(app)
-        }
-        if (list.isEmpty()) return defaultHomeSlogans(app)
-        // 与当前语言默认一致 → 原样返回
-        if (list == defaultHomeSlogans(app)) return list
-        // 逐语言比对：是其他语言下的内置默认副本 → 按当前语言重解析
-        val isStoredDefaultCopy = AppLocale.LANGUAGES
-            .mapNotNull { it.locale }
-            .any { list == defaultSlogansIn(it) }
-        return if (isStoredDefaultCopy) defaultHomeSlogans(app) else list
-    }
-
-    /** 按指定 locale 解析内置默认寄语（用于识别"某语言下固化的默认副本"） */
-    private fun defaultSlogansIn(locale: Locale): List<String> {
-        val config = Configuration(app.resources.configuration).apply { setLocale(locale) }
-        return DEFAULT_HOME_SLOGANS_RES.map { app.createConfigurationContext(config).getString(it) }
-    }
-
-    /** 保存服药后把药名加入常用列表（去重、追加到末尾、最多保留 MAX_COMMON_MED_NAMES 个） */
-    private fun addToCommonMeds(current: List<String>, name: String): List<String> {
-        if (name.isBlank() || name in current) return current
-        val updated = (current + name).takeLast(MAX_COMMON_MED_NAMES)
-        persistCommonMeds(updated)
-        return updated
-    }
-
     /** 重新加载食物标签（增删改后调用） */
     private fun refreshFoodTags() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(foodTags = foodTagDao.getAll())
+            val tags = foodTagDao.getAll()
+            _uiState.update { it.copy(foodTags = tags) }
         }
     }
 
@@ -498,15 +397,19 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
     fun selectDate(date: LocalDate) {
         viewModelScope.launch {
             val dateStr = date.toString()
-            _uiState.value = _uiState.value.copy(
+            val symptoms = symptomDao.getByDate(dateStr)
+            val records = dao.getRecordsByDate(dateStr)
+            val meds = medDao.getByDate(dateStr)
+            val note = noteDao.getByDate(dateStr)
+            _uiState.update { it.copy(
                 selectedDate = date,
                 // 点选日期时，周历展示周跟随到新日期所在周
                 homeWeekAnchor = date,
-                selectedDateSymptoms = symptomDao.getByDate(dateStr),
-                selectedDateRecords = dao.getRecordsByDate(dateStr),
-                selectedDateMeds = medDao.getByDate(dateStr),
-                selectedDateNote = noteDao.getByDate(dateStr)
-            )
+                selectedDateSymptoms = symptoms,
+                selectedDateRecords = records,
+                selectedDateMeds = meds,
+                selectedDateNote = note
+            ) }
         }
     }
 
@@ -523,189 +426,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         end: LocalDate,
         types: Set<ExportType>,
         format: ExportFormat
-    ): ExportResult? {
-        if (types.isEmpty()) return null
-        val s = minOf(start, end)
-        val e = maxOf(start, end)
-        val sStr = s.toString()
-        val eStr = e.toString()
-
-        val meals = if (ExportType.MEAL in types) dao.getRecordsBetween(sStr, eStr) else emptyList()
-        val meds = if (ExportType.MED in types) medDao.getMedsBetween(sStr, eStr) else emptyList()
-        val symptoms = if (ExportType.BOWEL in types) symptomDao.getBetween(sStr, eStr) else emptyList()
-        val notes = if (ExportType.NOTE in types) noteDao.getBetween(sStr, eStr) else emptyList()
-        // 食物耐受不属于日期记录：CSV 导出时无条件附带（TXT 不含）
-        val tags = foodTagDao.getAll()
-
-        val hasRecords = meals.isNotEmpty() || meds.isNotEmpty() || symptoms.isNotEmpty() || notes.isNotEmpty()
-        val hasTags = format == ExportFormat.CSV && tags.isNotEmpty()
-        if (!hasRecords && !hasTags) return null
-
-        val fileName = app.getString(R.string.export_file_name, sStr, eStr) + "." + format.ext
-        val text = if (format == ExportFormat.TXT) {
-            buildExportTxt(s, e, meals, meds, symptoms, notes)
-        } else {
-            // 加 BOM，避免 Excel 打开中文 CSV 乱码
-            "\uFEFF" + buildExportCsv(meals, meds, symptoms, notes, tags)
-        }
-        return ExportResult(fileName, text)
-    }
-
-    /** TXT 版：按日期分组（仅含有记录的日期），组内按 饮食 → 服药 → 便便 → 感受 逐条列出 */
-    private fun buildExportTxt(
-        s: LocalDate,
-        e: LocalDate,
-        meals: List<MealRecord>,
-        meds: List<MedRecord>,
-        symptoms: List<DailySymptom>,
-        notes: List<DailyNote>
-    ): String {
-        val mealByDate = meals.groupBy { it.date }
-        val medByDate = meds.groupBy { it.date }
-        val sympByDate = symptoms.groupBy { it.date }
-        val noteByDate = notes.groupBy { it.date }
-        val dates = sortedDatesOf(mealByDate, medByDate, sympByDate, noteByDate)
-
-        val present = buildList {
-            if (mealByDate.isNotEmpty()) add(app.getString(R.string.type_meal))
-            if (medByDate.isNotEmpty()) add(app.getString(R.string.type_med))
-            if (sympByDate.isNotEmpty()) add(app.getString(R.string.type_bowel))
-            if (noteByDate.isNotEmpty()) add(app.getString(R.string.type_note))
-        }
-
-        val sb = StringBuilder()
-        sb.append(app.getString(R.string.export_txt_title)).append('\n')
-        sb.append(app.getString(R.string.export_txt_range, s.toString(), e.toString())).append('\n')
-        sb.append(app.getString(R.string.export_txt_types, present.joinToString("、"))).append("\n\n")
-
-        dates.forEach { dateStr ->
-            val date = LocalDate.parse(dateStr)
-            sb.append(app.getString(R.string.export_txt_day_header, dateStr, app.getString(weekNameRes(date))))
-                .append('\n')
-
-            mealByDate[dateStr]?.forEach {
-                sb.append("  ").append(app.getString(R.string.export_txt_meal, it.time, app.getString(it.mealType.labelRes)))
-                if (it.tags.isNotEmpty()) sb.append("：").append(it.tags.joinToString("、"))
-                if (it.note.isNotBlank()) sb.append("（").append(it.note.trim().replace(Regex("\\R"), " ")).append("）")
-                sb.append('\n')
-            }
-            medByDate[dateStr]?.forEach {
-                sb.append("  ").append(app.getString(R.string.export_txt_med, it.time, it.name))
-                if (it.dose.isNotBlank()) sb.append(' ').append(it.dose.trim())
-                sb.append('\n')
-            }
-            sympByDate[dateStr]?.sortedBy { it.id }?.forEach {
-                sb.append("  ").append(app.getString(R.string.export_txt_bowel))
-                if (it.time.isNotBlank()) sb.append(' ').append(it.time)
-                sb.append(' ').append(app.getString(R.string.export_txt_count)).append(it.bowelCount)
-                if (it.nightDiarrhea) sb.append(app.getString(R.string.export_txt_night))
-                sb.append(app.getString(R.string.export_txt_bristol))
-                sb.append(if (it.bristolType in 1..7) "${it.bristolType} ${app.getString(BRISTOL_LABELS[it.bristolType - 1])}" else app.getString(R.string.export_txt_not_recorded))
-                sb.append(app.getString(R.string.export_txt_blood)).append(app.getString(BLOOD_LABELS[it.blood]))
-                sb.append(app.getString(R.string.export_txt_mucus)).append(if (it.mucus) app.getString(R.string.common_yes) else app.getString(R.string.common_no))
-                sb.append(app.getString(R.string.export_txt_pain)).append(it.painScore).append(app.getString(R.string.common_points))
-                if (it.painLocation in 1..4) sb.append(' ').append(app.getString(PAIN_LOCATION_LABELS[it.painLocation]))
-                sb.append(app.getString(R.string.export_txt_urgency)).append(if (it.urgency) app.getString(R.string.common_yes) else app.getString(R.string.common_no))
-                if (it.note.isNotBlank()) sb.append(app.getString(R.string.export_txt_other)).append(it.note.trim().replace(Regex("\\R"), " "))
-                sb.append('\n')
-            }
-            noteByDate[dateStr]?.forEach {
-                sb.append("  ").append(app.getString(R.string.export_txt_note)).append(' ')
-                    .append(it.text.trim().replace(Regex("\\R"), " ")).append('\n')
-            }
-            sb.append('\n')
-        }
-        return sb.toString()
-    }
-
-    /** 星期 → 多语言文案资源 id（周一开头） */
-    private fun weekNameRes(date: LocalDate): Int = when (date.dayOfWeek.value) {
-        1 -> R.string.week_mon
-        2 -> R.string.week_tue
-        3 -> R.string.week_wed
-        4 -> R.string.week_thu
-        5 -> R.string.week_fri
-        6 -> R.string.week_sat
-        else -> R.string.week_sun
-    }
-
-    /** CSV 版：长表 日期,类型,时间,内容,备注（含逗号/引号/换行的字段自动加引号转义）；
-     *  记录行之后追加食物耐受行（日期留空，类型=耐受，时间=耐受状态，内容=食物名） */
-    private fun buildExportCsv(
-        meals: List<MealRecord>,
-        meds: List<MedRecord>,
-        symptoms: List<DailySymptom>,
-        notes: List<DailyNote>,
-        tags: List<FoodTag>
-    ): String {
-        val mealByDate = meals.groupBy { it.date }
-        val medByDate = meds.groupBy { it.date }
-        val sympByDate = symptoms.groupBy { it.date }
-        val noteByDate = notes.groupBy { it.date }
-        val dates = sortedDatesOf(mealByDate, medByDate, sympByDate, noteByDate)
-
-        val sb = StringBuilder()
-        sb.append(app.getString(R.string.export_csv_header)).append('\n')
-        dates.forEach { dateStr ->
-            mealByDate[dateStr]?.forEach {
-                val content = buildList {
-                    add(app.getString(it.mealType.labelRes) + "：")
-                    if (it.tags.isNotEmpty()) add(it.tags.joinToString("、"))
-                }.joinToString(" ")
-                sb.append(csvLine(dateStr, app.getString(R.string.type_meal), it.time, content, it.note.trim()))
-            }
-            medByDate[dateStr]?.forEach {
-                val content = buildList {
-                    add(it.name)
-                    if (it.dose.isNotBlank()) add(it.dose.trim())
-                }.joinToString(" ")
-                sb.append(csvLine(dateStr, app.getString(R.string.type_med), it.time, content, ""))
-            }
-            sympByDate[dateStr]?.sortedBy { it.id }?.forEach {
-                val content = buildList {
-                    add(app.getString(R.string.export_txt_count) + it.bowelCount + (if (it.nightDiarrhea) app.getString(R.string.export_txt_night) else ""))
-                    add(app.getString(R.string.export_csv_bristol) + (if (it.bristolType in 1..7) "${it.bristolType} ${app.getString(BRISTOL_LABELS[it.bristolType - 1])}" else app.getString(R.string.export_txt_not_recorded)))
-                    add(app.getString(R.string.export_csv_blood) + app.getString(BLOOD_LABELS[it.blood]))
-                    add(app.getString(R.string.export_csv_mucus) + (if (it.mucus) app.getString(R.string.common_yes) else app.getString(R.string.common_no)))
-                    add(app.getString(R.string.export_csv_pain) + it.painScore + app.getString(R.string.common_points) + (if (it.painLocation in 1..4) " ${app.getString(PAIN_LOCATION_LABELS[it.painLocation])}" else ""))
-                    add(app.getString(R.string.export_csv_urgency) + (if (it.urgency) app.getString(R.string.common_yes) else app.getString(R.string.common_no)))
-                }.joinToString("；")
-                sb.append(csvLine(dateStr, app.getString(R.string.type_bowel), it.time, content, it.note.trim()))
-            }
-            noteByDate[dateStr]?.forEach {
-                sb.append(csvLine(dateStr, app.getString(R.string.type_note), "", it.text.trim().replace(Regex("\\R"), " "), ""))
-            }
-        }
-        // 食物耐受：无日期记录，统一追加在最后（getAll 已按 sortOrder 升序）
-        tags.forEach { tag ->
-            sb.append(
-                csvLine(
-                    "",
-                    app.getString(R.string.type_tolerance),
-                    app.getString(FoodTolerance.fromValue(tag.tolerance).labelRes),
-                    tag.name.trim(),
-                    ""
-                )
-            )
-        }
-        return sb.toString()
-    }
-
-    /** 拼一行 CSV（需要转义的字段自动加引号） */
-    private fun csvLine(date: String, type: String, time: String, content: String, note: String): String =
-        "${csvEscape(date)},${type},${csvEscape(time)},${csvEscape(content)},${csvEscape(note)}\n"
-
-    /** CSV 字段转义：含逗号/引号/换行时整体加引号，内部引号翻倍 */
-    private fun csvEscape(v: String): String =
-        if (v.any { it == ',' || it == '"' || it == '\n' || it == '\r' }) {
-            "\"" + v.replace("\"", "\"\"") + "\""
-        } else {
-            v
-        }
-
-    /** 合并各类型的日期并升序排列（yyyy-MM-dd 字符串可直接比较） */
-    private fun sortedDatesOf(vararg maps: Map<String, *>): List<String> =
-        maps.flatMap { it.keys }.toSortedSet().toList()
+    ): ExportResult? = exporter.exportRecords(start, end, types, format)
 
     // endregion
 
@@ -717,10 +438,18 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
      * 恢复成功后重载全部界面数据。
      */
     suspend fun restoreRecords(csv: String): RestoreImporter.Result? {
+        // 恢复期间显示加载态（复用首页的 loading 遮罩），避免用户误以为卡死
+        _uiState.update { it.copy(loading = true) }
         val result = withContext(Dispatchers.IO) {
             RestoreImporter(app, dao, medDao, symptomDao, noteDao, foodTagDao).restore(csv)
         }
-        if (result != null) loadState()
+        if (result != null) {
+            // 恢复成功：重载全部界面数据（loadState 结束时会把 loading 置回 false）
+            loadState()
+        } else {
+            // 文件无法识别：不重载，手动解除加载态
+            _uiState.update { it.copy(loading = false) }
+        }
         return result
     }
 
@@ -732,6 +461,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         val s = _uiState.value
         _uiState.value = s.closeAllPanels().copy(
             isAdding = true,
+            panelDate = s.selectedDate,
             draft = DraftRecord(
                 mealType = MealType.fromTime(LocalTime.now()),
                 time = defaultTimeFor(s.selectedDate)
@@ -744,6 +474,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         _uiState.value = _uiState.value.closeAllPanels().copy(
             isAdding = true,
             editingRecordId = record.id,
+            panelDate = LocalDate.parse(record.date),
             draft = DraftRecord(
                 mealType = record.mealType,
                 note = record.note,
@@ -755,7 +486,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun cancelAdd() {
-        pendingCameraPath = null
+        photoStore.onCameraCancelled()
         _uiState.value = _uiState.value.copy(
             isAdding = false,
             editingRecordId = null,
@@ -810,107 +541,33 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
     }
 
     /** 创建相机写入文件并返回 FileProvider Uri，供 Activity 启动相机 */
-    fun prepareCameraFile(): Uri? {
-        val dir = app.getExternalFilesDir(null) ?: app.filesDir
-        val ts = System.currentTimeMillis()
-        val file = File(dir, "meal_$ts.jpg")
-        return try {
-            pendingCameraPath = file.absolutePath
-            FileProvider.getUriForFile(app, app.packageName + ".fileprovider", file)
-        } catch (e: IllegalArgumentException) {
-            pendingCameraPath = null
-            null
-        }
-    }
+    fun prepareCameraFile(): Uri? = photoStore.prepareCameraFile()
 
     /** 相机拍摄成功：压缩到 300KB 以下后再并入草稿（IO 线程压缩，不阻塞 UI） */
     fun onCameraPhotoTaken() {
-        val path = pendingCameraPath
-        pendingCameraPath = null
-        if (path != null && File(path).exists()) {
-            viewModelScope.launch {
-                val file = withContext(Dispatchers.IO) { compressPhotoInPlace(File(path)) }
-                appendDraftPhoto(file.absolutePath)
-            }
+        viewModelScope.launch {
+            photoStore.onCameraPhotoTaken()?.let { appendDraftPhoto(it) }
         }
     }
 
-    /** 相机取消或失败 */
+    /** 相机取消或失败（清理可能的孤儿文件） */
     fun onCameraCancelled() {
-        pendingCameraPath = null
+        photoStore.onCameraCancelled()
     }
 
-    /** 从相册选取的多张照片：逐张复制到应用私有目录后并入草稿 */
+    /** 从相册选取的多张照片：逐张复制到应用私有目录（含压缩）后并入草稿 */
     fun addGalleryPhotos(uris: List<Uri>) {
         if (uris.isEmpty()) return
         viewModelScope.launch {
-            val savedPaths = withContext(Dispatchers.IO) {
-                val dir = app.getExternalFilesDir(null) ?: app.filesDir
-                // 同一毫秒内多张照片用下标错开文件名，避免互相覆盖
-                uris.mapIndexed { index, uri ->
-                    try {
-                        val ts = System.currentTimeMillis() + index
-                        val ext = queryExtension(uri)
-                        val file = File(dir, "meal_$ts.$ext")
-                        app.contentResolver.openInputStream(uri)?.use { input ->
-                            file.outputStream().use { output -> input.copyTo(output) }
-                        }
-                        // 与拍照一致：压缩到 300KB 以下再入草稿（压缩失败则保留原图）
-                        if (file.length() > 0) compressPhotoInPlace(file).absolutePath
-                        else {
-                            file.delete()
-                            null
-                        }
-                    } catch (e: Exception) {
-                        null
-                    }
-                }.filterNotNull()
-            }
+            val savedPaths = photoStore.addGalleryPhotos(uris)
             if (savedPaths.isNotEmpty()) {
-                val s = _uiState.value
-                _uiState.value = s.copy(
-                    draft = s.draft.copy(photos = s.draft.photos + savedPaths)
-                )
+                _uiState.update { it.copy(draft = it.draft.copy(photos = it.draft.photos + savedPaths)) }
             }
         }
-    }
-
-    /**
-     * 原地压缩照片文件至 300KB 以下（重编码为 JPEG）。
-     * 压缩成功且比原图小时替换原文件（原为 PNG/WebP 时文件名改为 .jpg）；
-     * 压缩失败（如 HEIC 无法解码）原样返回原文件。
-     */
-    private fun compressPhotoInPlace(file: File): File {
-        val tmp = File(file.parentFile, "${file.nameWithoutExtension}~compress.jpg")
-        val ok = PhotoCompressor.compress(file, tmp) != null &&
-            tmp.length() > 0 &&
-            tmp.length() < file.length()
-        if (ok) {
-            val target = File(file.parentFile, "${file.nameWithoutExtension}.jpg")
-            tmp.copyTo(target, overwrite = true)
-            tmp.delete()
-            if (target.absolutePath != file.absolutePath) file.delete()
-            return target
-        }
-        tmp.delete()
-        return file
-    }
-
-    private fun queryExtension(uri: Uri): String {
-        val name = app.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
-            } else {
-                null
-            }
-        }
-        val ext = name?.substringAfterLast('.', "")?.takeIf { it.length in 1..5 }
-        return ext ?: "jpg"
     }
 
     private fun appendDraftPhoto(path: String) {
-        val s = _uiState.value
-        _uiState.value = s.copy(draft = s.draft.copy(photos = s.draft.photos + path))
+        _uiState.update { it.copy(draft = it.draft.copy(photos = it.draft.photos + path)) }
     }
 
     /** 保存当前草稿：编辑模式下更新原记录（日期/时间保持不变），否则按选中日期新建 */
@@ -932,7 +589,8 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                     )
                 }
             } else {
-                val date = s.selectedDate
+                // 落面板打开时固定的日期（跨零点时 selectedDate 已变，但草稿属于原日期）
+                val date = s.panelDate
                 dao.insert(
                     MealRecord(
                         date = date.toString(),
@@ -944,17 +602,23 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                     )
                 )
             }
-            pendingCameraPath = null
-            _uiState.value = s.copy(
+            photoStore.onCameraCancelled()
+            val recordDates = dao.getRecordDates().toSet()
+            val recordDays = dao.getRecordDays()
+            val totalCount = dao.getTotalCount()
+            val records = dao.getRecordsByDate(s.selectedDate.toString())
+            val allMeals = dao.getAllRecordsDesc()
+            val newDraft = DraftRecord(mealType = MealType.fromTime(LocalTime.now()))
+            _uiState.update { it.copy(
                 isAdding = false,
                 editingRecordId = null,
-                draft = DraftRecord(mealType = MealType.fromTime(LocalTime.now())),
-                recordDates = dao.getRecordDates().toSet(),
-                totalRecordDays = dao.getRecordDays(),
-                totalRecords = dao.getTotalCount(),
-                selectedDateRecords = dao.getRecordsByDate(s.selectedDate.toString()),
-                allMeals = dao.getAllRecordsDesc()
-            )
+                draft = newDraft,
+                recordDates = recordDates,
+                totalRecordDays = recordDays,
+                totalRecords = totalCount,
+                selectedDateRecords = records,
+                allMeals = allMeals
+            ) }
             refreshFoodTagCounts()
         }
     }
@@ -966,14 +630,18 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
     fun deleteRecord(id: Int) {
         viewModelScope.launch {
             dao.deleteById(id)
-            val s = _uiState.value
-            _uiState.value = s.copy(
-                recordDates = dao.getRecordDates().toSet(),
-                totalRecordDays = dao.getRecordDays(),
-                totalRecords = dao.getTotalCount(),
-                selectedDateRecords = dao.getRecordsByDate(s.selectedDate.toString()),
-                allMeals = dao.getAllRecordsDesc()
-            )
+            val recordDates = dao.getRecordDates().toSet()
+            val recordDays = dao.getRecordDays()
+            val totalCount = dao.getTotalCount()
+            val records = dao.getRecordsByDate(_uiState.value.selectedDate.toString())
+            val allMeals = dao.getAllRecordsDesc()
+            _uiState.update { it.copy(
+                recordDates = recordDates,
+                totalRecordDays = recordDays,
+                totalRecords = totalCount,
+                selectedDateRecords = records,
+                allMeals = allMeals
+            ) }
             refreshFoodTagCounts()
         }
     }
@@ -988,6 +656,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         _uiState.value = s.closeAllPanels().copy(
             isSymptomPanelOpen = true,
             editingSymptomId = null,
+            panelDate = s.selectedDate,
             symptomDraft = SymptomDraft(time = defaultTimeFor(s.selectedDate))
         )
     }
@@ -998,6 +667,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         _uiState.value = s.closeAllPanels().copy(
             isSymptomPanelOpen = true,
             editingSymptomId = record.id,
+            panelDate = LocalDate.parse(record.date),
             symptomDraft = SymptomDraft.from(record)
         )
     }
@@ -1018,7 +688,8 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
     fun saveSymptom() {
         viewModelScope.launch {
             val s = _uiState.value
-            val date = s.selectedDate
+            // 落面板打开时固定的日期（跨零点时 selectedDate 已变，但草稿属于原日期）
+            val date = s.panelDate
             val d = s.symptomDraft
             val editingId = s.editingSymptomId
             if (editingId != null) {
@@ -1147,6 +818,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         val s = _uiState.value
         _uiState.value = s.closeAllPanels().copy(
             isMedPanelOpen = true,
+            panelDate = s.selectedDate,
             medDraft = MedDraft(time = nowTime())
         )
     }
@@ -1160,12 +832,16 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
             _uiState.value = s.copy(selectedDate = s.today, homeWeekAnchor = s.today)
             viewModelScope.launch {
                 val dateStr = s.today.toString()
-                _uiState.value = _uiState.value.copy(
-                    selectedDateSymptoms = symptomDao.getByDate(dateStr),
-                    selectedDateRecords = dao.getRecordsByDate(dateStr),
-                    selectedDateMeds = medDao.getByDate(dateStr),
-                    selectedDateNote = noteDao.getByDate(dateStr)
-                )
+                val symptoms = symptomDao.getByDate(dateStr)
+                val records = dao.getRecordsByDate(dateStr)
+                val meds = medDao.getByDate(dateStr)
+                val note = noteDao.getByDate(dateStr)
+                _uiState.update { it.copy(
+                    selectedDateSymptoms = symptoms,
+                    selectedDateRecords = records,
+                    selectedDateMeds = meds,
+                    selectedDateNote = note
+                ) }
                 startAddMed()
             }
         }
@@ -1176,6 +852,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         _uiState.value = _uiState.value.closeAllPanels().copy(
             isMedPanelOpen = true,
             editingMedId = record.id,
+            panelDate = LocalDate.parse(record.date),
             medDraft = MedDraft(name = record.name, dose = record.dose, time = record.time)
         )
     }
@@ -1198,7 +875,8 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
             val s = _uiState.value
             val d = s.medDraft
             if (d.name.isBlank()) return@launch
-            val date = s.selectedDate
+            // 落面板打开时固定的日期（跨零点时 selectedDate 已变，但草稿属于原日期）
+            val date = s.panelDate
             if (s.editingMedId != null) {
                 medDao.getById(s.editingMedId)?.let { existing ->
                     medDao.update(
@@ -1219,14 +897,19 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                     )
                 )
             }
-            _uiState.value = s.copy(
+            val meds = medDao.getByDate(date.toString())
+            val count = medDao.getCount()
+            val common = settingsStore.addToCommonMeds(s.commonMedNames, d.name.trim())
+            _uiState.update { it.copy(
                 isMedPanelOpen = false,
                 editingMedId = null,
                 medDraft = MedDraft(),
-                selectedDateMeds = medDao.getByDate(date.toString()),
-                totalMedRecords = medDao.getCount(),
-                commonMedNames = addToCommonMeds(s.commonMedNames, d.name.trim())
-            )
+                // 面板日期 == 当前选中日期时才刷列表；跨零点后保存，UI 显示的是新日期，
+                // 旧日期的 meds 不应覆盖，等新日期被选中时再加载
+                selectedDateMeds = if (date == it.selectedDate) meds else it.selectedDateMeds,
+                totalMedRecords = count,
+                commonMedNames = common
+            ) }
             refreshMedStats()
         }
     }
@@ -1234,11 +917,12 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
     fun deleteMed(id: Int) {
         viewModelScope.launch {
             medDao.deleteById(id)
-            val s = _uiState.value
-            _uiState.value = s.copy(
-                selectedDateMeds = medDao.getByDate(s.selectedDate.toString()),
-                totalMedRecords = medDao.getCount()
-            )
+            val meds = medDao.getByDate(_uiState.value.selectedDate.toString())
+            val count = medDao.getCount()
+            _uiState.update { it.copy(
+                selectedDateMeds = meds,
+                totalMedRecords = count
+            ) }
             refreshMedStats()
         }
     }
@@ -1249,7 +933,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
             val s = _uiState.value
             val updated = s.commonMedNames.filterNot { it == name }
             if (updated.size == s.commonMedNames.size) return@launch
-            persistCommonMeds(updated)
+            settingsStore.persistCommonMeds(updated)
             _uiState.value = s.copy(commonMedNames = updated)
         }
     }
@@ -1264,6 +948,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         val existing = s.selectedDateNote
         _uiState.value = s.closeAllPanels().copy(
             isNotePanelOpen = true,
+            panelDate = s.selectedDate,
             noteDraft = NoteDraft(text = existing?.text ?: "")
         )
     }
@@ -1283,10 +968,11 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
     fun saveNote() {
         viewModelScope.launch {
             val s = _uiState.value
-            val date = s.selectedDate
+            // 落面板打开时固定的日期（跨零点时 selectedDate 已变，但草稿属于原日期）
+            val date = s.panelDate
             val text = s.noteDraft.text.trim()
             if (text.isEmpty()) return@launch
-            val existing = s.selectedDateNote
+            val existing = if (date == s.selectedDate) s.selectedDateNote else noteDao.getByDate(date.toString())
             noteDao.upsert(
                 DailyNote(
                     id = existing?.id ?: 0,
@@ -1295,26 +981,31 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                     createdAt = existing?.createdAt ?: System.currentTimeMillis()
                 )
             )
-            _uiState.value = s.copy(
+            val note = noteDao.getByDate(date.toString())
+            val allNotes = noteDao.getAllNotesDesc()
+            val noteDays = noteDao.getCount()
+            _uiState.update { it.copy(
                 isNotePanelOpen = false,
                 noteDraft = NoteDraft(),
-                selectedDateNote = noteDao.getByDate(date.toString()),
-                allNotes = noteDao.getAllNotesDesc(),
-                totalNoteDays = noteDao.getCount()
-            )
+                // 面板日期 == 当前选中日期时才直接刷 UI，否则等下次选中该日期时加载
+                selectedDateNote = if (date == it.selectedDate) note else it.selectedDateNote,
+                allNotes = allNotes,
+                totalNoteDays = noteDays
+            ) }
         }
     }
 
     /** 删除当前选中日期的感受 */
     fun deleteNote() {
         viewModelScope.launch {
-            val s = _uiState.value
-            s.selectedDateNote?.let { noteDao.deleteById(it.id) }
-            _uiState.value = _uiState.value.copy(
+            _uiState.value.selectedDateNote?.let { noteDao.deleteById(it.id) }
+            val allNotes = noteDao.getAllNotesDesc()
+            val noteDays = noteDao.getCount()
+            _uiState.update { it.copy(
                 selectedDateNote = null,
-                allNotes = noteDao.getAllNotesDesc(),
-                totalNoteDays = noteDao.getCount()
-            )
+                allNotes = allNotes,
+                totalNoteDays = noteDays
+            ) }
         }
     }
 
@@ -1333,13 +1024,15 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
                 val nextSortOrder = foodTagDao.maxSortOrder() + 1
                 foodTagDao.insert(FoodTag(name = trimmed, tolerance = tolerance.ordinal, sortOrder = nextSortOrder))
             }
-            // 一次原子写入：刷新标签列表 + 添加后默认选中该标签
-            val s = _uiState.value
-            val shouldSelect = s.isAdding && !s.draft.tags.contains(trimmed)
-            _uiState.value = s.copy(
-                foodTags = foodTagDao.getAll(),
-                draft = if (shouldSelect) s.draft.copy(tags = s.draft.tags + trimmed) else s.draft
-            )
+            // 一次原子写入：刷新标签列表 + 添加后默认选中该标签（基于最新状态合并）
+            val tags = foodTagDao.getAll()
+            _uiState.update { cur ->
+                val shouldSelect = cur.isAdding && !cur.draft.tags.contains(trimmed)
+                cur.copy(
+                    foodTags = tags,
+                    draft = if (shouldSelect) cur.draft.copy(tags = cur.draft.tags + trimmed) else cur.draft
+                )
+            }
         }
     }
 
@@ -1428,13 +1121,13 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
 
     fun setNickname(name: String) {
         val trimmed = name.trim().ifEmpty { app.getString(R.string.profile_default_nickname) }
-        prefs.edit().putString("nickname", trimmed).apply()
+        settingsStore.saveNickname(trimmed)
         _uiState.value = _uiState.value.copy(nickname = trimmed)
     }
 
     /** 修改头像（boy=男生 / girl=女生），持久化到 SharedPreferences */
     fun setAvatar(avatar: String) {
-        prefs.edit().putString("avatar", avatar).apply()
+        settingsStore.saveAvatar(avatar)
         _uiState.value = _uiState.value.copy(avatar = avatar)
     }
 
@@ -1447,33 +1140,32 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         val list = _uiState.value.homeSlogans.toMutableList()
         if (index !in list.indices) return
         list[index] = trimmed
-        persistHomeSlogans(list)
+        settingsStore.persistHomeSlogans(list)
+        _uiState.update { it.copy(homeSlogans = list) }
     }
 
     /** 添加一条寄语（追加到末尾；与已有条目完全相同时不重复添加） */
     fun addHomeSlogan(text: String) {
         val trimmed = text.trim().take(MAX_HOME_SLOGAN_LEN)
         if (trimmed.isEmpty() || trimmed in _uiState.value.homeSlogans) return
-        persistHomeSlogans(_uiState.value.homeSlogans + trimmed)
+        val list = _uiState.value.homeSlogans + trimmed
+        settingsStore.persistHomeSlogans(list)
+        _uiState.update { it.copy(homeSlogans = list) }
     }
 
     /** 删除第 index 条寄语（删空后首页回退轮播内置默认寄语） */
     fun deleteHomeSlogan(index: Int) {
         val list = _uiState.value.homeSlogans
         if (index !in list.indices) return
-        persistHomeSlogans(list.filterIndexed { i, _ -> i != index })
+        val updated = list.filterIndexed { i, _ -> i != index }
+        settingsStore.persistHomeSlogans(updated)
+        _uiState.update { it.copy(homeSlogans = updated) }
     }
 
     /** 恢复内置默认寄语列表：清空固化的副本，默认寄语按当前语言实时解析（切换语言后自动跟随，不会残留其他语言的文案） */
     fun resetHomeSlogans() {
-        prefs.edit().remove(PREF_HOME_SLOGANS).apply()
-        _uiState.value = _uiState.value.copy(homeSlogans = defaultHomeSlogans(app))
-    }
-
-    /** 持久化寄语列表（JSON 数组字符串；空列表原样保存，首页显示时回退默认） */
-    private fun persistHomeSlogans(list: List<String>) {
-        prefs.edit().putString(PREF_HOME_SLOGANS, JSONArray(list).toString()).apply()
-        _uiState.value = _uiState.value.copy(homeSlogans = list)
+        settingsStore.resetHomeSlogans()
+        _uiState.update { it.copy(homeSlogans = defaultHomeSlogans(app)) }
     }
 
     // endregion
@@ -1481,7 +1173,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
     // region 主题设置
 
     fun setThemeMode(mode: ThemeMode) {
-        prefs.edit().putString(PREF_THEME_MODE, mode.key).apply()
+        settingsStore.saveThemeMode(mode)
         _uiState.value = _uiState.value.copy(themeMode = mode)
     }
 
@@ -1490,7 +1182,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
     // region 字体大小（我的→字体大小：影响首页/耐受/日常管理三个 Tab 的文字，SharedPreferences 持久化）
 
     fun setFontSize(level: FontSizeLevel) {
-        prefs.edit().putString(PREF_FONT_SIZE, level.key).apply()
+        settingsStore.saveFontLevel(level)
         _uiState.value = _uiState.value.copy(fontLevel = level)
     }
 
@@ -1499,7 +1191,7 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
     // region 语言设置（我的→语言：持久化所选语言；切换后立即生效需调用方 Activity.recreate()）
 
     fun setLanguage(tag: String) {
-        prefs.edit().putString(AppLocale.PREF_KEY_LANGUAGE, tag).apply()
+        settingsStore.saveLanguageTag(tag)
         _uiState.value = _uiState.value.copy(languageTag = tag)
     }
 
@@ -1507,18 +1199,12 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
 
     // region 服药设置（每天次数 = 提醒时间条数，1~9 次）
 
-    private fun loadMedReminderTimes(): List<String> {
-        val raw = prefs.getString(PREF_MED_REMINDER_TIMES, null) ?: return DEFAULT_MED_REMINDER_TIMES
-        val list = raw.split(",").map { it.trim() }.filter { it.matches(Regex("\\d{2}:\\d{2}")) }.sorted()
-        return list.ifEmpty { DEFAULT_MED_REMINDER_TIMES }
-    }
-
     /** 调整每天服药次数：收缩截断；扩充时按 MED_REMINDER_TIME_POOL 顺序补位 */
     fun setMedTimesPerDay(n: Int) {
         val count = n.coerceIn(1, 9)
         val current = _uiState.value.medReminderTimes
         val times = (current + MED_REMINDER_TIME_POOL.drop(current.size)).take(count)
-        persistMedReminderTimes(times)
+        applyMedReminderTimes(times)
     }
 
     /** 修改第 index 个提醒时间（保存后整体升序） */
@@ -1526,14 +1212,15 @@ class MealLogViewModel(application: Application) : AndroidViewModel(application)
         val current = _uiState.value.medReminderTimes.toMutableList()
         if (index in current.indices) {
             current[index] = time
-            persistMedReminderTimes(current)
+            applyMedReminderTimes(current)
         }
     }
 
-    private fun persistMedReminderTimes(times: List<String>) {
+    /** 持久化提醒时间并同步 UI / 重新安排系统闹钟 / 刷新通知 */
+    private fun applyMedReminderTimes(times: List<String>) {
         val sorted = times.sorted()
-        prefs.edit().putString(PREF_MED_REMINDER_TIMES, sorted.joinToString(",")).apply()
-        _uiState.value = _uiState.value.copy(medReminderTimes = sorted)
+        settingsStore.persistMedReminderTimes(sorted)
+        _uiState.update { it.copy(medReminderTimes = sorted) }
         // 提醒时间变化：重新安排系统闹钟
         MedReminder.scheduleNext(app)
         syncMedReminderNotification()
