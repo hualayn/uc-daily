@@ -540,6 +540,10 @@ class MainActivity : ComponentActivity() {
                             )
                         },
                         onRemoveDraftPhoto = { viewModel.removeDraftPhoto(it) },
+                        onDraftPhotoClick = { path, photos ->
+                            // 添加/编辑饮食面板：点击已添加的照片 → 全屏查看（放大，左右滑动切换）
+                            viewModel.showPhoto(path, photos)
+                        },
                         onToggleTag = { viewModel.toggleDraftTag(it) },
                         onSelectFood = { viewModel.selectDraftTag(it) },
                         onAddFood = { name, tol -> viewModel.addFoodTag(name, tol) },

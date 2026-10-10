@@ -83,6 +83,8 @@ fun RecordOverlays(
     onAddPhotoByCamera: () -> Unit,
     onAddPhotoByGallery: () -> Unit,
     onRemoveDraftPhoto: (Int) -> Unit,
+    /** 添加/编辑饮食面板：点击已添加的照片缩略图 → 打开全屏查看（放大） */
+    onDraftPhotoClick: (String, List<String>) -> Unit,
     onToggleTag: (String) -> Unit,
     onSelectFood: (String) -> Unit,
     onAddFood: (String, FoodTolerance) -> Unit,
@@ -108,6 +110,7 @@ fun RecordOverlays(
             onAddPhotoByCamera = onAddPhotoByCamera,
             onAddPhotoByGallery = onAddPhotoByGallery,
             onRemoveDraftPhoto = onRemoveDraftPhoto,
+            onPhotoClick = onDraftPhotoClick,
             onToggleTag = onToggleTag,
             onSelectFood = onSelectFood,
             onAddFood = onAddFood,
@@ -694,6 +697,8 @@ private fun AddRecordPanel(
     onAddPhotoByCamera: () -> Unit,
     onAddPhotoByGallery: () -> Unit,
     onRemoveDraftPhoto: (Int) -> Unit,
+    /** 点击已添加的照片缩略图：打开全屏查看（照片集 = 草稿中仍存在的照片，左右滑动切换） */
+    onPhotoClick: (String, List<String>) -> Unit,
     onToggleTag: (String) -> Unit,
     onSelectFood: (String) -> Unit,
     onAddFood: (String, FoodTolerance) -> Unit,
@@ -752,6 +757,8 @@ private fun AddRecordPanel(
             Spacer(modifier = Modifier.height(8.dp))
 
             if (state.draft.photos.isNotEmpty()) {
+                // 只把仍存在的照片传给全屏查看器（文件被系统清理后缩略图不可点，与记录卡片一致）
+                val existingPhotos = state.draft.photos.filter { File(it).exists() }
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -761,6 +768,9 @@ private fun AddRecordPanel(
                             modifier = Modifier
                                 .size(76.dp)
                                 .clip(RoundedCornerShape(14.dp))
+                                .clickable(
+                                    enabled = existingPhotos.isNotEmpty()
+                                ) { onPhotoClick(path, existingPhotos) }
                         ) {
                             AsyncImage(
                                 model = File(path),
